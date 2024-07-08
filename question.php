@@ -147,7 +147,7 @@ $conn->close();
         <ul>
             <?php foreach ($options as $option): ?>
                 <li>
-                    <input type="radio" name="choice" value="<?php echo htmlspecialchars($option); ?>" required>
+                    <input type="radio" name="choice" value="<?php echo htmlspecialchars($option); ?>">
                     <?php echo htmlspecialchars($option); ?>
                 </li>
             <?php endforeach; ?>
