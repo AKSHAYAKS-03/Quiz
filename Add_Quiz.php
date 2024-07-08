@@ -17,13 +17,14 @@ if (isset($_POST['submit'])) {
     $quizTime = $_POST['quizTime'];
     $noOfQuestions = $_POST['noOfQuestions'];
     $shuffle = $_POST['shuffle'];
+    $quizDateTime = $_POST['quizDateTime'];
 
     $sql = "SELECT * FROM quiz_details WHERE QuizName = '$quizName'";
     $result = mysqli_query($conn, $sql);
     if (mysqli_num_rows($result) > 0) {
         $error = "Quiz already exists";
     } else {
-        $sql = "INSERT INTO quiz_details (QuizName, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy) VALUES ('$quizName', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy')";
+        $sql = "INSERT INTO quiz_details (QuizName, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime) VALUES ('$quizName', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$quizDateTime')";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
@@ -176,6 +177,11 @@ if (isset($_POST['submit'])) {
             <div class="input-field">
                 <label for="createdBy">Created By:</label>
                 <input type="text" id="createdBy" name="createdBy" required>
+            </div>
+
+            <div class="input-field">
+                <label for="quizDateTime">Quiz date & time:</label>
+                <input type="datetime-local" id="quizDateTime" name="quizDateTime" required>
             </div>
 
             <div class="input-field">

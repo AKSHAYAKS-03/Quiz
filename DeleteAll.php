@@ -33,7 +33,9 @@ try {
     header('Content-Type: application/json');
     echo json_encode(array("message" => "All quizzes deleted successfully"));
     exit;
-} catch (Exception $e) {
+} 
+
+ catch (Exception $e) {
     $conn->rollback();
     http_response_code(500);
     header('Content-Type: application/json');
