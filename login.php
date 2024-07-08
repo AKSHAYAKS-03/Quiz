@@ -365,7 +365,7 @@ $conn->close();
     <center><h1>Student Login</h1> </center>
     <br>
 
-    <form name="lg" method="post" action="login_eg.php" onsubmit="return validateStudentLogin();" autocomplete="on">
+    <form name="lg" method="post" action="login.php" onsubmit="return validateStudentLogin();" autocomplete="on">
     <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
                 <label for="username">Name </label>
                 <input type="text" id="username" name="name" >
@@ -407,7 +407,7 @@ $conn->close();
 <div class="form-box register">
         <center> <h1>Admin Login</h1></center>
         <br>
-        <form name="lg" method="post" action="login_eg.php" onsubmit="return validateAdminLogin();">
+        <form name="lg" method="post" action="login.php" onsubmit="return validateAdminLogin();">
         <div class="form-group" style="display:flex;flex-direction:row; justify-content:space-between">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" >
