@@ -1,13 +1,15 @@
 <?php
-// session_start();
-include 'core/db.php';
+include 'core_db.php';
+ session_start();
 
 // Redirect to login page if not logged in
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
-    header('Location: login_eg.php');
+    header('Location: login.php');
     exit;
 }
+// echo $activeQuizId;
 
+$activeQuizId = $_SESSION['active'];
 $rollno = $_SESSION['RollNo'];
 
 // Initialize session variables
@@ -21,20 +23,23 @@ $_SESSION['shuffle'] = 0;
 $_SESSION['currentIndex'] = 0; // Initialize current question index
 $_SESSION['startingtime'] = "";
 
-// Assuming '3' is the default active quiz ID, adjust accordingly
-$activeQuizID = 3;
-$_SESSION['active'] = $activeQuizID;
-
 // Check database connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$quiz_query = "SELECT QuizName, TotalMarks, TimeDuration, NumberOfQuestions, Question_Marks, Question_Duration, IsShuffle, startingtime
+if($activeQuizId==='None'){
+?> <script>
+        alert("No Quiz is Active. Please try later.");
+        window.location.href ='login_eg.php';
+    </script>
+<?php }
+
+$quiz_query = "SELECT QuizName, TotalMarks, TimeDuration, NumberOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime
                FROM quiz_details 
-               WHERE QuizID = ?";
+               WHERE Quiz_ID = ?";
 $stmt = $conn->prepare($quiz_query);
-$stmt->bind_param("i", $activeQuizID);
+$stmt->bind_param("i", $activeQuizId);
 $stmt->execute();
 $quiz_result = $stmt->get_result();
 $stmt->close();
@@ -45,8 +50,8 @@ if ($quiz_result->num_rows > 0) {
     $_SESSION['Marks'] = $row["TotalMarks"];
     $_SESSION["duration"] = $row["TimeDuration"];
     $_SESSION['numberofquestions'] = $row["NumberOfQuestions"];
-    $_SESSION['question_duration'] = $row["Question_Duration"];
-    $_SESSION['question_marks'] = $row["Question_Marks"];
+    $_SESSION['question_duration'] = $row["QuestionDuration"];
+    $_SESSION['question_marks'] = $row["QuestionMark"];
     $_SESSION['shuffle'] = $row["IsShuffle"];
     $_SESSION['startingtime'] = $row["startingtime"];
 }
@@ -55,7 +60,7 @@ $isshuffle = $_SESSION['shuffle'];
 
 // Fetch all questions
 $query_questions = $conn->prepare("SELECT QuestionNo FROM multiple_choices WHERE QuizId = ?");
-$query_questions->bind_param("i", $activeQuizID);
+$query_questions->bind_param("i", $activeQuizId);
 $query_questions->execute();
 $result_questions = $query_questions->get_result();
 $questions = [];
@@ -225,6 +230,9 @@ $conn->close();
             setInterval(checkTime, 1000);
         });
     </script>
+    
+    <script type="text/javascript" src="inspect.js"></script>
+
 </head>
 <body>
 

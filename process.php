@@ -51,9 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insert answer and time taken into database
-    $answer_insert_query = "INSERT INTO stud (regno, question, time) VALUES (?, ?, ?)";
+    $answer_insert_query = "INSERT INTO stud (QuizId, regno, question, time) VALUES (?, ?, ?,?)";
     $stmt = $conn->prepare($answer_insert_query);
-    $stmt->bind_param("sis", $rollno, $questionNo, $formattedTimeTaken);
+    $stmt->bind_param("isis",$quizid, $rollno, $questionNo, $formattedTimeTaken);
     $stmt->execute();
     $stmt->close();
 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle case where form was submitted but the expected submit button is not found
         // This could be due to an error in form rendering or tampering with the form
         // Redirect or handle the error appropriately
-        header('Location: login_eg.php'); // Example: Redirect to an error page
+        header('Location: login.php'); // Example: Redirect to an error page
         exit;
     }
 }

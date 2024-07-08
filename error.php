@@ -23,6 +23,6 @@
 </head>
 <body oncontextmenu="return false;">
     <script type="text/javascript" src="inspect.js"></script>
-    <h1>Something Went Wrong. Go To <a href="login_eg.php">Home Page</a></h1>
+    <h1>Something Went Wrong. Go To <a href="login.php">Home Page</a></h1>
 </body>
 </html>

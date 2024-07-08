@@ -4,7 +4,7 @@ include 'core/db.php';
 
 //Redirect to login page if not logged in
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
-    header('location: login_eg.php');
+    header('location: login.php');
     exit;
 }
 
@@ -30,7 +30,7 @@ $total_time_seconds = 0;
 
 for ($i = 1; $i <= $total; $i++) {
     // Fetch time taken for the current question from the database
-    $tim_query = "SELECT time FROM stud WHERE regno='$rollno' AND question='$i'";
+    $tim_query = "SELECT time FROM stud WHERE regno='$rollno' AND question='$i' and QuizId = '$quizId'";
     $tim_result = $conn->query($tim_query);
 
     if ($tim_result->num_rows > 0) {
@@ -55,9 +55,9 @@ $total_time_formatted = sprintf('%02d:%02d', $total_minutes, $total_seconds);
 
 $_SESSION['total_time'] = $total_time_formatted;
 
-$sql = "UPDATE student SET Score = ?, Time = ? WHERE RollNo = ?";
+$sql = "UPDATE student SET Score = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sss", $_SESSION['score'], $total_time_formatted, $rollno);
+$stmt->bind_param("sssi", $_SESSION['score'], $total_time_formatted, $rollno, $quizId);
 $stmt->execute();
 $stmt->close();
 

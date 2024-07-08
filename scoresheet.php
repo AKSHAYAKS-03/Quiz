@@ -11,7 +11,7 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     !isset($_SESSION['score']) || empty($_SESSION['score']) ||
     !isset($_SESSION['total_time']) || empty($_SESSION['total_time'])) {
   
-    header('Location: login_eg.php');
+    header('Location: login.php');
     exit;
 }
 

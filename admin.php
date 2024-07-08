@@ -235,8 +235,9 @@ s
         <h1>Quiz Details</h1>
         <button class="btn" id="logout" onclick="logout()">Log Out</button>
         <p>Active Quiz: <strong><?php echo $activeQuiz; ?></strong></p>
-        <?php if ($result && $result->num_rows > 0) {?>
-        <form method="post" action="">
+        <?php if ($result && $result->num_rows > 0) {
+            ?>
+            <form method="post" action="">
             <table class="quiz-details">
                 <thead>
                     <tr>

@@ -4,7 +4,7 @@ include 'core/db.php';
 
 // Redirect to login if session variables are not set
 if (!isset($_SESSION['RollNo']) || empty($_SESSION['RollNo'])) {
-    header('Location: login_eg.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -42,7 +42,7 @@ if ($_SESSION['shuffle'] == 1) {
 }
 
 $_SESSION['question_start_time'] = time();
-echo $currentIndex. ' ' . count($questions);
+// echo $currentIndex. ' ' . count($questions);
 
 $conn->close();
 ?>
