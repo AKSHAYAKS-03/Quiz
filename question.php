@@ -75,6 +75,9 @@ $conn->close();
             color: #333;
             box-shadow: 1px 1px 10px black;
             position: relative;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
         }
         h2.ques {
             color: #13274F;
@@ -132,6 +135,21 @@ $conn->close();
         .pop {
             animation: pop 0.5s ease-in-out;
         }
+
+                /* Safari syntax
+                :-webkit-full-screen {
+        background-color: yellow;
+        }
+
+        /* IE11 */
+        /* :-ms-fullscreen {
+        background-color: transparent;
+        } */
+
+        /* Standard syntax */
+        /* :fullscreen {
+        background-color: yellow;
+        } */ 
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -147,7 +165,7 @@ $conn->close();
         <ul>
             <?php foreach ($options as $option): ?>
                 <li>
-                    <input type="radio" name="choice" value="<?php echo htmlspecialchars($option); ?>" required>
+                    <input type="radio" name="choice" value="<?php echo htmlspecialchars($option); ?>" >
                     <?php echo htmlspecialchars($option); ?>
                 </li>
             <?php endforeach; ?>
@@ -213,8 +231,26 @@ $conn->close();
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        enterFullScreen() ;
         startTimer(duration, display);
-    });
+    });                
+    
+
+    function enterFullScreen() {
+        var elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { // Firefox
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { // IE/Edge
+            elem.msRequestFullscreen();
+        }
+    }
+
+
+
 </script>
 
 </body>

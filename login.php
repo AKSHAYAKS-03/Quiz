@@ -23,14 +23,21 @@ $activeQuizQuery = "SELECT QuizName, Quiz_Id FROM quiz_details WHERE IsActive = 
 $activeQuizResult = $conn->query($activeQuizQuery);
 $activeQuizData = $activeQuizResult->fetch_assoc();
 
-$activeQuiz = $activeQuizData['QuizName'] ?? 'None'; 
-$activeQuizId = $activeQuizData['Quiz_Id'] ?? 'None'; 
+$activeQuizId = $activeQuizData['Quiz_Id'] ?? ''; 
 
 $_SESSION['active'] = $activeQuizId;
+
 
 $activeQuizId = $_SESSION['active'];
 
 if (isset($_POST['Login_btn'])) {
+
+    if($activeQuizId===''){
+        ?> <script>
+                alert("No Quiz is Active. Please try later.");
+                window.location.href ='login.php';
+            </script>
+        <?php }
     
     $Name = $conn->real_escape_string($_POST['name']);
     $RollNo = $conn->real_escape_string($_POST['rollno']);
@@ -374,9 +381,12 @@ $conn->close();
             <br>
             <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
                 <label for="rollno">Register Number</label>    
-                        <input type="text" id="rollno" name="rollno"  placeholder="Ex: 9131" >
+                        <div class="fixed-input">
+                            <span class="fixed-text">9131</span>
+                            <input type="text" id="rollno" name="rollno" >
+                       </div>
+                
             </div>
-            
             <br>
             <div class="form-group" style="display:flex;flex-direction:row">
                 <label for="dept">Department   </label>

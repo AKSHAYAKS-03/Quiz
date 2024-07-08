@@ -56,7 +56,7 @@ $result = $conn->query($query);
 
         .admin-nav {
             width: 20%;
-            background-color: #2c3e50;
+            background-color: #13274F;
             padding: 20px;
             box-shadow: -2px 0 5px rgba(0,0,0,0.1);
             height: 100vh;
@@ -103,7 +103,7 @@ $result = $conn->query($query);
         }
 
         .content h1 {
-            color: #2c3e50;
+            color: #13274F;
         }
 
         .quiz-details {
@@ -122,7 +122,7 @@ $result = $conn->query($query);
         }
 
         .quiz-details th {
-            background-color: #34495e;
+            background-color: #13274F;
             color: #ecf0f1;
         }
 
@@ -139,7 +139,7 @@ $result = $conn->query($query);
         }
 
         .btn {
-            background-color: #34495e;
+            background-color: #13274F;
             color: #ecf0f1;
             border: none;
             padding: 10px 20px;

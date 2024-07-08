@@ -28,13 +28,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if($activeQuizId==='None'){
-?> <script>
-        alert("No Quiz is Active. Please try later.");
-        window.location.href ='login.php';
-    </script>
-<?php }
-
 $quiz_query = "SELECT QuizName, TotalMarks, TimeDuration, NumberOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime
                FROM quiz_details 
                WHERE Quiz_ID = ?";
@@ -116,8 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['Logout'])) {
         // Perform logout action
-        $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ?");
-        $stmt->bind_param("s", $rollno);
+        $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ? AND QuizId = ?");
+        $stmt->bind_param("si", $rollno, $activeQuizId);
         if ($stmt->execute()) {
             header("Location: login.php");
             exit;
@@ -204,6 +197,10 @@ $conn->close();
             background-color: #fff;
             color: #13274F;
         }
+
+        
+
+       
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -228,7 +225,11 @@ $conn->close();
 
             // Check every second
             setInterval(checkTime, 1000);
+
+            
         });
+
+        
     </script>
     
     
@@ -258,7 +259,7 @@ $conn->close();
     </font>
     <form method="post" action="welcome.php">
         <div class="new">
-            <input type="submit" name="start" value="Start Quiz" id="start" disabled>
+            <input type="submit" name="start" value="Start Quiz" id="start"  disabled>
             <input type="submit" name="Logout" value="Logout">
         </div>
     </form>
