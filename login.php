@@ -130,7 +130,7 @@ $conn->close();
         }
 
 
-        #topbar #loginbut
+        /* #topbar #loginbut
          {
           
             width: 100px;
@@ -150,7 +150,7 @@ $conn->close();
         {
             background: #13274F;
             color: #fff;
-        }
+        } */
 
         
         .container {
@@ -163,15 +163,15 @@ $conn->close();
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-left: 500px;
-            margin-top: 20px;
+            margin-top: 30px;
             backdrop-filter: blur(50px);
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            transform: scale(0);
-            transition: transform 0.5s ease, height 0.2s ease;
+            /* transform: scale(0);
+            transition: transform 0.5s ease, height 0.2s ease; */
         }
 
         .container .form-box {
@@ -349,16 +349,17 @@ $conn->close();
 <center><h1>QUIZ</h1></center>
 
 
-<div id="topbar">     
+<!-- <div id="topbar">     
         <button id="loginbut">Login</button>
-</div>
+</div> -->
 
 <div class="container">
-    <div class="icon-close" data-closable>
+    <!-- <div class="icon-close" data-closable>
         <button class="close-button" aria-label="Close alert" type="button" data-close>
             <span aria-hidden="true">&times;</span>
         </button>
-    </div>
+    </div> -->
+    
 
     <div class="form-box login">
         <br>

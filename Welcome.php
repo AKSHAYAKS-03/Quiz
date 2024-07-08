@@ -31,7 +31,7 @@ if ($conn->connect_error) {
 if($activeQuizId==='None'){
 ?> <script>
         alert("No Quiz is Active. Please try later.");
-        window.location.href ='login_eg.php';
+        window.location.href ='login.php';
     </script>
 <?php }
 
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ?");
         $stmt->bind_param("s", $rollno);
         if ($stmt->execute()) {
-            header("Location: login_eg.php");
+            header("Location: login.php");
             exit;
         } else {
             echo "Error deleting record: " . $stmt->error;
@@ -230,6 +230,7 @@ $conn->close();
             setInterval(checkTime, 1000);
         });
     </script>
+    
     
     <script type="text/javascript" src="inspect.js"></script>
 

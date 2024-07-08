@@ -40,7 +40,7 @@ $total = $query_total->num_rows;
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
-    header('Location: login_eg.php');
+    header('Location: login.php');
     exit;
 }
 ?>
