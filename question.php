@@ -227,6 +227,7 @@ h2.ques {
 
     </style>
     <script src='DisableKeys.js'></script>
+    <script src="inspect.js"></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head">

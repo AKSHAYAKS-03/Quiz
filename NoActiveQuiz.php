@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Quizze</title>
+        <script src="inspect.js"></script>
         <style>
             body {
                 font-family: Arial, sans-serif;

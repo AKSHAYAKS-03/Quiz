@@ -49,7 +49,7 @@ if (isset($_POST['submit'])) {
 <html lang="en">
 <head>
     <title>Add Quiz</title>
-    <!-- <script src="inspect.js"></script> -->
+    <script src="inspect.js"></script>
     <style>
         body {
             background-color: #13274F;
