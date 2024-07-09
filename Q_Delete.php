@@ -32,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $conn->commit();
 
-        // Fetch updated questions
         $stmt4 = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? ORDER BY QuestionNo");
         $stmt4->bind_param("i", $quizId);
         $stmt4->execute();

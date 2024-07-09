@@ -82,7 +82,7 @@ if (isset($_POST['Back'])) {
       margin: 0;
     }
     .header {
-      background-color: #34495e;
+      background-color: #13274F;
       color: #fff;
       text-align: center;
       padding: 10px 0;
@@ -121,14 +121,14 @@ if (isset($_POST['Back'])) {
     } 
     select:focus {
         outline: none;
-        border-color: #2c3e50;
+        border-color: #13274F;
         box-shadow: 0 0 5px rgba(44, 62, 80, 0.5);
     }
 
     option {
         padding: 10px;
         background-color: #fff;
-        color: #34495e;
+        color: #13274F;
     }
 
     option:hover {
@@ -152,7 +152,7 @@ if (isset($_POST['Back'])) {
       text-align: center;
     }
     table th {
-      background-color: #34495e;
+      background-color: #13274F;
       color: #ecf0f1;
     }
     table td {
@@ -170,7 +170,7 @@ if (isset($_POST['Back'])) {
       margin: 30px 0;
     }
     .back input[type="submit"], .back select {
-      background: #34495e;
+      background: #13274F;
       color: #fff;
       padding: 10px 20px;
       border: 0;
@@ -179,7 +179,7 @@ if (isset($_POST['Back'])) {
       cursor: pointer;
     }
     .back input[type="submit"]:hover, .back select:hover {
-      background-color: #2c3e50;
+      background-color: #0d1b37;
     }
   </style>
 </head>

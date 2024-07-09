@@ -25,15 +25,12 @@ if ($stmt = $conn->prepare($query)) {
     $stmt->close();
 }
 
-// If quiz name is not found, use a default name
 if (empty($quizName)) {
     $quizName = "quiz";
 }
 
-// Sanitize quiz name to be used in the filename
 $quizName = preg_replace("/[^a-zA-Z0-9_-]/", "_", $quizName);
 
-// Filename for download
 $filename = "{$quizName}_" . date('Y-m-d') . ".xls";
 
 header("Content-Disposition: attachment; filename=\"$filename\"");
@@ -48,13 +45,11 @@ else
 if ($result = $conn->query($query)) {
     while ($row = $result->fetch_assoc()) {
         if (!$flag) {
-            // Display field/column names as first row
             echo implode("\t", array_keys($row)) . "\r\n";
             $flag = true;
         }
         array_walk($row, 'cleanData');
         
-        // Ensure RollNo is treated as text
         $row['RollNo'] = "=\"" . $row['RollNo'] . "\"";
         
         echo implode("\t", array_values($row)) . "\r\n";

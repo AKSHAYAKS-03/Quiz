@@ -15,8 +15,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $quizName = $_POST['quizName'];
     $createdBy = $_POST['createdBy'];
 
-   // echo "<script>console.log('$quizName, $createdBy');</script>";
-
     $conn->begin_transaction();
 
     try {
@@ -24,13 +22,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $stmt2 = $conn->prepare("DELETE FROM multiple_choices WHERE QuizId = (SELECT Quiz_Id FROM quiz_details WHERE QuizName = ? AND CreatedBy = ?)");
         $stmt2->bind_param("ss", $quizName, $createdBy);
         $stmt2->execute();
-       // echo "console.log('executed quiz questions deletion')</script>";
         $stmt2->close();
 
         $stmt = $conn->prepare("DELETE FROM quiz_details WHERE QuizName = ? AND CreatedBy = ?");
         $stmt->bind_param("ss", $quizName, $createdBy);
         $stmt->execute();
-      //  echo "<script>console.log('executed quiz deletion')</script>";
         $stmt->close();
         
         $conn->commit();
@@ -83,7 +79,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 position: relative;
             }
             table th {
-                background-color: #34495e;
+                background-color: #13274F;
                 color: #ecf0f1;
             }
             table td {
@@ -126,6 +122,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 font-size: large;
             }
 
+            h2{
+                color: #13274F;
+            }
         </style>
     </head>
 

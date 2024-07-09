@@ -35,10 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $correct_choice = $_POST['correct_choice'];
     $exp = $_POST['exp'];
 
-    // Prepare the SQL statement
     $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
-    // Bind parameters
     $stmt->bind_param("iisssssss", $quizId, $questionNo, $question, $c1, $c2, $c3, $c4, $correct_choice, $exp);
     
     if ($stmt->execute()) {
@@ -68,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #2c3e50;
+            background-color: #13274F;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -86,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .cont h1, h3 {
-            color: #2c3e50;
+            color: #13274F;
             margin-bottom: 30px;
             text-align: center;
         }
@@ -117,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         input[type='submit'], button {
-            background: #2c3e50;
+            background: #13274F;
             color: #fff;
             padding: 10px 20px;
             border: 0;
@@ -130,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         input[type='submit']:hover, button:hover {
             cursor: pointer;
             font-weight: bolder;
-            background-color: #34495e;
+            background-color: #0d1b37;
         }
 
 
@@ -165,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body oncontextmenu="return false;">
     <script type="text/javascript" src="inspect.js"></script>
     <script type="text/javascript" src="validate.js"></script>
-    <div class="cont">
+    <div class="cont" id="add-container">
         <div class="contain">
             
             <h1><?php echo $activeQuiz?> Quiz</h1> 
@@ -244,6 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     this.reset();
                     document.getElementById('exp-textarea').value = 'NO EXPLANATION';
+                    scroll();
                 } else {
                     alert('Failed to insert.');
                 }
@@ -253,6 +252,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 alert('Failed to insert.');
             });
         });
+
+        function scroll() {
+            const addContainer = document.getElementById('add-container');
+            addContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
     </script>
 </body>

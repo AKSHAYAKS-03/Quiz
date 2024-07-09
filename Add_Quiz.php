@@ -23,7 +23,7 @@ if (isset($_POST['submit'])) {
     $sql = "SELECT * FROM quiz_details WHERE QuizName = '$quizName'";
     $result = mysqli_query($conn, $sql);
     if (mysqli_num_rows($result) > 0) {
-        $error = "Quiz already exists";
+        $error = "Quiz already exists with the same name.";
     } else {
         $sql = "INSERT INTO quiz_details (QuizName, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) VALUES ('$quizName', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
         $result = mysqli_query($conn, $sql);
@@ -49,10 +49,10 @@ if (isset($_POST['submit'])) {
 <html lang="en">
 <head>
     <title>Add Quiz</title>
-    <script src="inspect.js"></script>
+    <!-- <script src="inspect.js"></script> -->
     <style>
         body {
-            background-color: #2c3e50;
+            background-color: #13274F;
             margin: 30px 0;
             font-family: Arial, sans-serif;
             display: flex;
@@ -61,25 +61,22 @@ if (isset($_POST['submit'])) {
             justify-content: center;
             align-items: center;
             height: 100vh;
+            padding: 50px 0;
         }
 
         .outer {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
-            border: none;
             background-color: white;
             width: 60%;
             box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             color: #333;
+            padding: 30px;
+            text-align: center;
+            margin: 50px auto;
         }
-
         h1 {
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            color: #34495e;
+            color: #13274F;
             margin-bottom: 40px;
         }
 
@@ -124,7 +121,7 @@ if (isset($_POST['submit'])) {
         }
 
         .input-field input[type="submit"] {
-            background-color: #34495e;
+            background-color: #13274F;
             color: white;
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -136,13 +133,14 @@ if (isset($_POST['submit'])) {
         }
 
         .input-field input[type="submit"]:hover {
-            background-color: #2c3e50;
+            background-color: #0d1b37;
         }
 
-        .error {
+        .error , #message {
             color: red;
             font-weight: bold;
             margin-bottom: 20px;
+            
         }
 
         #rad1, #rad2{
@@ -155,15 +153,17 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 <body>
-    <div class="outer">
+    <div class="outer" id="quizFormContainer">
         <h1>Add Quiz</h1>
         <?php if ($error): ?>
             <p class="error">
                 <?php echo $error; ?>
             </p>
+
         <?php endif; 
         ?>
-        <form action="Add_Quiz.php" id='quiz-form' method="post" class="one">
+        <div id="message"></div>
+        <form action="Add_Quiz.php" id='quiz-form' method="post" class="one" onsubmit="return validateTime();">
             <div class="input-field">
                 <label for="quizName">Quiz Name:</label>
                 <input type="text" id="quizName" name="quizName" required>
@@ -221,7 +221,7 @@ if (isset($_POST['submit'])) {
         document.addEventListener('DOMContentLoaded', function() {
             const inputs = document.querySelectorAll('input');
             const errorMessage = document.querySelector('.error');
-            
+
             inputs.forEach(input => {
                 input.addEventListener('focus', () => {
                     if (errorMessage) {
@@ -229,45 +229,43 @@ if (isset($_POST['submit'])) {
                     }
                 });
             });
-        });
 
-
-        function setMinDateTime() {
-            const now = new Date();
-            
-            // Format the current date and time in YYYY-MM-DDTHH:MM:SS format
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-
-            return `${year}-${month}-${day}T${hours}:${minutes}:00`;
-        }
-
-        const startTimeInput = document.getElementById('startTime');
-        const endTimeInput = document.getElementById('endTime');
-        
-        startTimeInput.setAttribute('min', setMinDateTime());
-        endTimeInput.setAttribute('min', setMinDateTime());
-        
-        // Update the min attribute dynamically just before form submission
-        document.getElementById('quizForm').addEventListener('submit', function(event) {
-            const startTime = new Date(startTimeInput.value);
-            const endTime = new Date(endTimeInput.value);
-
-            console.log(startTime, endTime);
-
-            if (startTime <= Date.now()) {
-                alert('Start time must be in the future.');
-                event.preventDefault();
-            } else if (endTime.getTime() <= startTime.getTime()) {
-                alert('End time must be after the start time.');
-                event.preventDefault();
+            if (errorMessage) {
+                scroll();
             }
         });
 
-    </script>
+        function scroll() {
+            const quizFormContainer = document.getElementById('quizFormContainer');
+            quizFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
+        function validateTime() {
+            var startTime = document.getElementById('startTime').value;
+            var endTime = document.getElementById('endTime').value;
+
+            if (!startTime || !endTime) {
+                document.getElementById('message').innerHTML = 'Please fill out both start and end times.';
+                scroll();
+                return false;
+            }
+
+            var startDateTime = new Date(startTime);
+            var endDateTime = new Date(endTime);
+            var currentDate = new Date();
+
+            if (startDateTime >= endDateTime) {
+                document.getElementById('message').innerHTML = 'Start time must be before end time.';
+                scroll();
+                return false;
+            } else if (startDateTime < currentDate || endDateTime < currentDate) {
+                document.getElementById('message').innerHTML = 'Start time and end time must be in the future.';
+                scroll();
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 </body>
 </html>

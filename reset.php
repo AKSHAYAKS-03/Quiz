@@ -4,10 +4,10 @@ session_start();
 
 if (!$_SESSION['logged'] || $_SESSION['logged'] === '') {
     header('Location: login.php');
-    exit(); // Ensure no further code execution after redirect
+    exit(); 
 }
 
-$msg = ''; // Initialize message variable
+$msg = ''; 
 $activeQuizId = $_SESSION['active'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
@@ -92,7 +92,7 @@ if (isset($_POST['Back'])) {
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #2c3e50;
+            background-color: #13274F;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -114,7 +114,7 @@ if (isset($_POST['Back'])) {
         }
 
         .container h2 {
-            color: #2c3e50;
+            color: #13274F;
             margin-bottom: 30px;
             text-align: center;
         }
@@ -132,7 +132,8 @@ if (isset($_POST['Back'])) {
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group input[type="password"],
-        .form-group input[type="submit"] {
+        .form-group input[type="submit"],
+        .form-group input[type="datetime-local"] {
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 8px;
@@ -140,8 +141,8 @@ if (isset($_POST['Back'])) {
             width: 200px;
         }
 
-        .form-group input[type="submit"] {
-            background: #2c3e50;
+        .form-group input[type="submit"], button {
+            background: #13274F;
             color: #fff;
             font-size: 14px;
             padding: 7px 10px;
@@ -151,10 +152,10 @@ if (isset($_POST['Back'])) {
             width: auto;
         }
 
-        .form-group input[type="submit"]:hover {
+        .form-group input[type="submit"]:hover, button:hover {
             cursor: pointer;
             font-weight: bolder;
-            background-color: #34495e;
+            background-color: #0d1b37;
         }
 
         .message {
@@ -191,7 +192,7 @@ if (isset($_POST['Back'])) {
         }
 
         .up input[type="submit"]:hover {
-            background-color: #333333;
+            background-color: #0d1b37;
         }
 
     </style>
@@ -224,6 +225,15 @@ if (isset($_POST['Back'])) {
         <input type="submit" name="Timer" value="Set" />
       </div>
 
+      <div class="form-group">
+        <label for="startTime">Start Time:</label>
+        <input type="datetime-local" id="startTime" name="startTime" /> <br>
+        <label for="endTime">End Time:</label>
+        <input type="datetime-local" id="endTime" name="endTime" />
+        <input type="hidden" id="quizDuration" name="quizDuration">
+        <button type="button" class="btn" onclick="saveTime()">Save</button>
+      </div>
+
       <?php } ?>
 
       <?php if (!empty($msg)): ?>
@@ -231,6 +241,8 @@ if (isset($_POST['Back'])) {
           <?php echo $msg; ?>
         </div>
       <?php endif; ?>
+
+      <div id="message"></div>
     </form>
     <div class="up">
       <form method="post" action="reset.php">
@@ -239,5 +251,78 @@ if (isset($_POST['Back'])) {
     </div>
   </div>
 </div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        defaultTime();
+    });
+
+    function defaultTime() {
+        var activeQuizId = <?= $activeQuizId ?>;
+
+        fetch(`UpdateQuizTime.php?quizId=${activeQuizId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('startTime').value = data.startTime;
+                document.getElementById('endTime').value = data.endTime;
+                document.getElementById('quizDuration').value = data.quizDuration;
+            })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function saveTime() {
+        var startTime = document.getElementById('startTime').value;
+        var endTime = document.getElementById('endTime').value;
+        var quizId = <?= $activeQuizId ?>;
+        var messageElement = document.getElementById('message');
+
+        if (!startTime || !endTime) {
+            showMessage('Please fill out both start and end times.', 'error');
+            return;
+        }
+
+        var quizDuration = document.getElementById('quizDuration').value;
+        var [durationMinutes, durationSeconds] = quizDuration.split(':').map(Number);
+        var startDateTime = new Date(startTime);
+        var endDateTime = new Date(endTime);
+        var minEndDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000 + durationSeconds * 1000);
+
+        if (startDateTime < new Date()) {
+            showMessage('Start time must be in the future.', 'error');
+            return;
+        } else if (endDateTime < minEndDateTime) {
+            showMessage('End time must be at least ' + quizDuration + ' after the start time.', 'error');
+            return;
+        } else {
+            fetch('updateQuizTime.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ startTime, endTime, quizId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    showMessage(data.message, 'success');
+                    defaultTime();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+    }
+
+    function showMessage(message, type) {
+        var messageElement = document.getElementById('message');
+        if (messageElement) {
+            messageElement.innerHTML = message;
+            messageElement.className = 'message ' + type;
+        } else {
+            alert(message); 
+        }
+    }
+</script>
 </body>
 </html>

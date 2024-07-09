@@ -79,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            color: #13274F;
         }
         table {
             width: 100%;
@@ -96,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #2c3e50;
         }
         th {
-            background-color: #34495e;
+            background-color: #13274F;
             color: #ecf0f1;
         }
         td.edit-mode {
@@ -105,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         button {
             margin-top: 10px;
-            background-color: #3498db;
+            background-color: #13274F;
             color: #ecf0f1;
             border: none;
             padding: 10px 20px;
@@ -115,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             display: inline-block;
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: #0d1b37;
         }
         .message {
             margin-top: 10px;
@@ -319,11 +320,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             alert(response.message);
 
                             if (response.questions) {
-                                // Clear the table body
+                                
                                 let tbody = document.querySelector('table tbody');
                                 tbody.innerHTML = '';
 
-                                // Populate the table with updated questions
                                 response.questions.forEach((question) => {
                                     let newRow = tbody.insertRow();
 
