@@ -1,6 +1,7 @@
 <?php
 include 'core/db.php';
 //session_start(); // Ensure session is started
+date_default_timezone_set('Asia/Kolkata');
 
 //Redirect to login page if not logged in
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
@@ -30,36 +31,42 @@ $total_time_seconds = 0;
 
 for ($i = 1; $i <= $total; $i++) {
     // Fetch time taken for the current question from the database
-    $tim_query = "SELECT time FROM stud WHERE regno='$rollno' AND question='$i' and QuizId = '$quizId'";
+    $tim_query = "SELECT time FROM stud WHERE regno='$rollno' AND questionno ='$i' and QuizId = '$quizId'";
     $tim_result = $conn->query($tim_query);
 
     if ($tim_result->num_rows > 0) {
         $row = $tim_result->fetch_assoc();
         $time = $row['time'];
         
-        // Convert "MM:SS" format to seconds
-        list($minutes, $seconds) = explode(':', $time);
-        $time_in_seconds = ($minutes * 60) + $seconds;
-
+        // Convert "HH:MM:SS" format to seconds
+        list($hours, $minutes, $seconds) = explode(':', $time);
+        $time_in_seconds = ($hours * 3600) + ($minutes * 60) + $seconds;
+    
         // Add time taken for this question to total time
         $total_time_seconds += $time_in_seconds;
-
     }
 }
 
-// Convert total time in seconds to minutes and seconds
-$total_minutes = floor($total_time_seconds / 60);
-$total_seconds = $total_time_seconds % 60;
-$total_time_formatted = sprintf('%02d:%02d', $total_minutes, $total_seconds);
+        // Convert total time in seconds to hours, minutes, and seconds
+        $total_hours = floor($total_time_seconds / 3600);
+        $total_minutes = floor(($total_time_seconds % 3600) / 60);
+        $total_seconds = $total_time_seconds % 60;
+
+        // Format the time as HH:MM:SS
+        $total_time_formatted = sprintf('%02d:%02d:%02d', $total_hours, $total_minutes, $total_seconds);
 
 
-$_SESSION['total_time'] = $total_time_formatted;
 
 $sql = "UPDATE student SET Score = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("sssi", $_SESSION['score'], $total_time_formatted, $rollno, $quizId);
 $stmt->execute();
 $stmt->close();
+
+$_SESSION['Score'] = "";
+$_SESSION['total_time'] = $total_time_formatted;
+
+
 
 $conn->close();
 ?>

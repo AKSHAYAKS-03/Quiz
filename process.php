@@ -1,6 +1,8 @@
 <?php
 session_start();
 include 'core_db.php';
+date_default_timezone_set('Asia/Kolkata');
+
 
 // Enable error reporting for debugging (remove or disable in production)
 ini_set('display_errors', 1);
@@ -25,14 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total = $_POST['total'];
             $selected_choice = isset($_POST['choice']) ? $_POST['choice'] : null;
             $questionName = $_POST['questionName'];
-
-            $timeTaken = time() - $_POST['question_start_time'];
-
-            $minutes = floor($timeTaken / 60);
-            $seconds = $timeTaken % 60;
-            $formattedTimeTaken = sprintf('%02d:%02d', $minutes, $seconds);
-
-            $_SESSION['time_taken'] = $formattedTimeTaken;
+            $timeTakenSeconds = time() - $_POST['question_start_time'];
+        
+            
+            $timeTaken = gmdate("H:i:s", $timeTakenSeconds); // Format time in HH:MM:SS
 
             $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
             $stmt = $conn->prepare($answer_query);
@@ -49,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['score'] += $_SESSION['question_marks'];
             }
 
-            $answer_insert_query = "INSERT INTO stud (QuizId, regno,question, questionno, time, yanswer) VALUES (?,?,?,?,?,?)";
+            $answer_insert_query = "INSERT INTO stud (QuizId, regno, questionno, time, yanswer) VALUES (?,?,?,?,?)";
             $stmt = $conn->prepare($answer_insert_query);
-            $stmt->bind_param("ississ",$quizid, $rollno,$questionName, $questionNo, $formattedTimeTaken,$selected_choice);
+            $stmt->bind_param("isiss",$quizid, $rollno, $questionNo, $timeTaken,$selected_choice);
             $stmt->execute();
             $stmt->close();
         
@@ -84,7 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'question' => $result['Question'],
                         'options' => $options,
                         'questionNo' => $nextQuestionNo,
-                        'currentIndex' => $nextIndex
+                        'currentIndex' => $nextIndex,
+                        'question_start_time' => time()
                     ]
                 ];
             } else {

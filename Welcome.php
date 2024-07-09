@@ -13,6 +13,8 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
 
 $activeQuizId = $_SESSION['active'];
 $rollno = $_SESSION['RollNo'];
+$name = $_SESSION['Name'];
+
 // echo $activeQuizId.'<br>';
 
 // Initialize session variables
@@ -146,7 +148,7 @@ $conn->close();
         }
 
         .header {
-            margin-top: 20px;
+            margin-top: 10px;
             padding: 15px 0;
             text-align: center;
             font-size: 40px;
@@ -155,16 +157,18 @@ $conn->close();
 
         .container {
             color: #13274F;
-            width: 500px;
-            height: 300px;
-            margin: 20px auto;
-            background-color: white;
-            padding: 50px;
-            box-shadow: 1px 1px 10px black;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+    width: 900px;
+    height: auto; /* Changed height to auto for dynamic content */
+    margin: 20px auto;
+    background-color: white;
+    padding: 50px;
+    box-shadow: 1px 1px 10px black;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Center align content */
+    text-align: left; /* Left align text */
         }
 
         h2 {
@@ -174,8 +178,8 @@ $conn->close();
         ul {
             list-style-type: none;
             padding: 0;
-            margin-left: 60px;
-        }
+            margin: 0; /* Adjusted margin to 0 for better alignment */
+            text-align: left; /* Left align text */        }
 
         li {
             margin-bottom: 20px;
@@ -183,7 +187,7 @@ $conn->close();
 
         .new {
             margin-top: 20px;
-            margin-left: 130px;
+            text-align: center; /* Center align buttons */
         }
 
         strong {
@@ -255,16 +259,18 @@ $conn->close();
 </div>
 
 <div class="container">
+    <h2><?php echo $name; ?></h2>
+    <br>
     <font size='4'>
         <ul>
-            <li><strong style="margin-right: 50px;">Number of Questions </strong> <?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></li>
-            <li><strong style="margin-right: 160px;">Type </strong> Multiple Choice</li>
-            <li><strong style="margin-right: 120px;">Total Marks </strong> <?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</li>
-            <li><strong style="margin-right: 175px;">Time </strong> <?php echo htmlspecialchars($_SESSION["duration"]); ?></li>
-            <li><strong style="margin-right: 60px;">Time per Question </strong> <?php echo htmlspecialchars($_SESSION["question_duration"]); ?></li>
-            <li><strong style="margin-right: 60px;">Marks per Question </strong> <?php echo htmlspecialchars($_SESSION["question_marks"]); ?></li>
+            <li><strong style="margin-right: 100px;">Number of Questions </strong> <?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></li>
+            <li><strong style="margin-right: 200px;">Type </strong> Multiple Choice</li>
+            <li><strong style="margin-right: 170px;">Total Marks </strong> <?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</li>
+            <li><strong style="margin-right: 230px;">Time </strong> <?php echo htmlspecialchars($_SESSION["duration"]); ?></li>
+            <li><strong style="margin-right: 115px;">Time per Question </strong> <?php echo htmlspecialchars($_SESSION["question_duration"]); ?></li>
+            <li><strong style="margin-right: 120px;">Marks per Question </strong> <?php echo htmlspecialchars($_SESSION["question_marks"]); ?></li>
             <!-- <li><strong style="margin-right: 60px;">Your Quiz will start at:</strong> <?php echo date('Y-m-d H:i:s', strtotime($_SESSION['startingtime'])); ?></li> -->
-            <li><strong style="margin-right: 40px;">Your Quiz will start at </strong> <?php echo date('H:i  A', strtotime($_SESSION['startingtime'])); ?></li>
+            <li><strong style="margin-right: 80px;">Your Quiz will start at </strong> <?php echo date('H:i  A', strtotime($_SESSION['startingtime'])); ?></li>
 
 
         </ul>

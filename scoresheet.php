@@ -1,6 +1,7 @@
 <?php
 include 'core/db.php';
 //session_start(); // Start session at the beginning
+date_default_timezone_set('Asia/Kolkata');
 
 // Redirect to login page if not logged in or session variables are not set
 if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
@@ -18,13 +19,14 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
 $rollno = $_SESSION['RollNo'];
 $total_time = $_SESSION['total_time'];
 
-list($minutes, $seconds) = explode(":", $total_time);
-
-if($minutes == 0) {
-$unit = "sec";
-}
-else {
-$unit = "min";
+list($hours, $minutes, $seconds) = explode(':', $total_time);
+    
+if ($hours == 0 && $minutes == 0) {
+    $unit = "sec";
+} elseif ($hours == 0) {
+    $unit = "min";
+} else {
+    $unit = "hr";
 }
 
 // Check database connection
@@ -113,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
                 <li><strong style="margin-right:70px;">Register No  </strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></li>
                 <li><strong style="margin-right:70px;">Department </strong> <?php echo htmlspecialchars($_SESSION['dept']); ?></li>
                 <li><strong style="margin-right:75px;">Your Score  </strong> <?php echo htmlspecialchars($_SESSION['score']); ?>/<?php echo $total; ?></li>
-                <li><strong style="margin-right:70px;">Time Taken </strong><?php echo htmlspecialchars($_SESSION['total_time']); ?> <?php echo $unit; ?></li>
+                <li><strong style="margin-right:70px;">Time Taken </strong><?php echo htmlspecialchars($total_time); ?> <?php echo $unit; ?></li>
             </ul>
         </font>
         <div class="fr">
