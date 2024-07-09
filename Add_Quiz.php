@@ -17,14 +17,15 @@ if (isset($_POST['submit'])) {
     $quizTime = $_POST['quizTime'];
     $noOfQuestions = $_POST['noOfQuestions'];
     $shuffle = $_POST['shuffle'];
-    $quizDateTime = $_POST['quizDateTime'];
+    $startTime = $_POST['startTime'];
+    $endTime = $_POST['endTime'];
 
     $sql = "SELECT * FROM quiz_details WHERE QuizName = '$quizName'";
     $result = mysqli_query($conn, $sql);
     if (mysqli_num_rows($result) > 0) {
         $error = "Quiz already exists";
     } else {
-        $sql = "INSERT INTO quiz_details (QuizName, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime) VALUES ('$quizName', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$quizDateTime')";
+        $sql = "INSERT INTO quiz_details (QuizName, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) VALUES ('$quizName', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
@@ -162,7 +163,7 @@ if (isset($_POST['submit'])) {
             </p>
         <?php endif; 
         ?>
-        <form action="Add_Quiz.php" method="post" class="one">
+        <form action="Add_Quiz.php" id='quiz-form' method="post" class="one">
             <div class="input-field">
                 <label for="quizName">Quiz Name:</label>
                 <input type="text" id="quizName" name="quizName" required>
@@ -180,8 +181,13 @@ if (isset($_POST['submit'])) {
             </div>
 
             <div class="input-field">
-                <label for="quizDateTime">Quiz date & time:</label>
-                <input type="datetime-local" id="quizDateTime" name="quizDateTime" required>
+                <label for="startTime">Quiz Start Time:</label>
+                <input type="datetime-local" id="startTime" name="startTime" required>
+            </div>
+
+            <div class="input-field">
+                <label for="endTime">Quiz End Time:</label>
+                <input type="datetime-local" id="endTime" name="endTime" required>
             </div>
 
             <div class="input-field">
@@ -224,6 +230,43 @@ if (isset($_POST['submit'])) {
                 });
             });
         });
+
+
+        function setMinDateTime() {
+            const now = new Date();
+            
+            // Format the current date and time in YYYY-MM-DDTHH:MM:SS format
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+        }
+
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        
+        startTimeInput.setAttribute('min', setMinDateTime());
+        endTimeInput.setAttribute('min', setMinDateTime());
+        
+        // Update the min attribute dynamically just before form submission
+        document.getElementById('quizForm').addEventListener('submit', function(event) {
+            const startTime = new Date(startTimeInput.value);
+            const endTime = new Date(endTimeInput.value);
+
+            console.log(startTime, endTime);
+
+            if (startTime <= Date.now()) {
+                alert('Start time must be in the future.');
+                event.preventDefault();
+            } else if (endTime.getTime() <= startTime.getTime()) {
+                alert('End time must be after the start time.');
+                event.preventDefault();
+            }
+        });
+
     </script>
 
 </body>

@@ -1,7 +1,6 @@
 <?php
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-
-
+date_default_timezone_set('Asia/Kolkata');
 session_start();
 
 $host = "localhost:3390";
@@ -19,26 +18,52 @@ if ($conn->connect_error) {
 
 $_SESSION['login'] = "";
 
-$activeQuizQuery = "SELECT QuizName, Quiz_Id FROM quiz_details WHERE IsActive = 1 LIMIT 1";
+$activeQuizQuery = "SELECT QuizName, Quiz_Id, startingtime, EndTime FROM quiz_details WHERE IsActive = 1 LIMIT 1";
 $activeQuizResult = $conn->query($activeQuizQuery);
 $activeQuizData = $activeQuizResult->fetch_assoc();
 
-$activeQuiz = $activeQuizData['QuizName'] ?? 'None'; 
-$activeQuizId = $activeQuizData['Quiz_Id'] ?? 'None'; 
+$activeQuiz = $activeQuizData['QuizName'] ?? 'None';
+$activeQuizId = $activeQuizData['Quiz_Id'] ?? 'None';
 
 $_SESSION['active'] = $activeQuizId;
 
 $activeQuizId = $_SESSION['active'];
 
+
+$startTime = strtotime($activeQuizData["startingtime"]);
+$endTime = strtotime($activeQuizData["EndTime"]);
+$currentUnixTime = time(); // Current Unix timestamp
+
+// echo $currentUnixTime . " " . $startTime . " " . $endTime;
+
 if (isset($_POST['Login_btn'])) {
-    
+
     $Name = $conn->real_escape_string($_POST['name']);
-    $RollNo = $conn->real_escape_string($_POST['rollno']);
+    $RollNo = $conn->real_escape_string($_POST['rollno']); 
     $dept = $conn->real_escape_string($_POST['dept']);
     $_SESSION['dept'] = $dept;
 
-    $sql = "SELECT * FROM student WHERE RollNo='$RollNo' and QuizId= $activeQuizId";
+    $sql = "SELECT * FROM student WHERE RollNo='$RollNo' and QuizId=$activeQuizId";
     $result = $conn->query($sql);
+
+    // Check if the current time is past the end time of the quiz
+    if ($currentUnixTime > $endTime) {
+
+        if ($result->num_rows > 0) {
+            $_SESSION['login'] = TRUE;
+            $_SESSION['logi'] = TRUE;
+            $_SESSION['log'] = TRUE;
+            $_SESSION['message'] = "You are logged in";
+            $_SESSION['Name'] = $Name;
+            $_SESSION['RollNo'] = $RollNo;
+            
+            header("Location: Answers.php");
+            exit();
+        } else {
+            echo '<script>alert("Time Over"); window.location.href = "login.php";</script>';
+            exit();
+        }
+    }
 
     if ($result->num_rows > 0) {
         ?>
@@ -46,8 +71,7 @@ if (isset($_POST['Login_btn'])) {
             alert("You already attended the quiz");
         </script>
         <?php
-    } 
-    else {
+    } else {
         $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', $activeQuizId)";
         if ($conn->query($sql)) {
             $_SESSION['login'] = TRUE;
@@ -57,8 +81,7 @@ if (isset($_POST['Login_btn'])) {
             $_SESSION['Name'] = $Name;
             $_SESSION['RollNo'] = $RollNo;
             header("Location: Welcome.php");
-        } 
-        else {
+        } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
     }
@@ -76,8 +99,7 @@ if (isset($_POST['username'])) {
         $_SESSION['logged'] = TRUE;
         header("Location:admin.php");
         exit();
-    } 
-    else {
+    } else {
         ?>
         <script>alert("Enter the correct password");</script>
         <?php
@@ -318,7 +340,7 @@ $conn->close();
         .fixed-text {
         position: absolute;
         left: 20px;
-        top:8.5px;
+        top:8.9px;
         width: 20px; 
         text-align: center; 
         pointer-events: none; 
@@ -342,45 +364,32 @@ $conn->close();
         
     </style>
 </head>
-
-
 <body oncontextmenu="return false;">
 
 <center><h1>QUIZ</h1></center>
 
-
-<!-- <div id="topbar">     
-        <button id="loginbut">Login</button>
-</div> -->
-
 <div class="container">
-    <!-- <div class="icon-close" data-closable>
-        <button class="close-button" aria-label="Close alert" type="button" data-close>
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div> -->
-    
-
     <div class="form-box login">
         <br>
-    <center><h1>Student Login</h1> </center>
-    <br>
-
-    <form name="lg" method="post" action="login.php" onsubmit="return validateStudentLogin();" autocomplete="on">
-    <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
+        <center><h1>Student Login</h1> </center>
+        <br>
+        <form name="lg" method="post" action="login.php" onsubmit="return validateStudentLogin();">
+            <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
                 <label for="username">Name </label>
-                <input type="text" id="username" name="name" >
+                <input type="text" id="username" name="name">
             </div>
             <br>
             <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
-                <label for="rollno">Register Number</label>    
-                        <input type="text" id="rollno" name="rollno"  placeholder="Ex: 9131" >
+                <label for="rollno">Register number:</label><br>
+                <div class="fixed-input">
+                    <span class="fixed-text">9131</span>
+                    <input type="text" id="rollno" name="rollno" placeholder="22104001">            
+                </div>           
             </div>
-            
             <br>
             <div class="form-group" style="display:flex;flex-direction:row">
-                <label for="dept">Department   </label>
-                 <select name="dept" style="width:100px;margin-left:40px;text-decoration:none;border-radius:5px;background-color:transparent;color:white">
+                <label for="dept">Department</label>
+                <select name="dept" style="width:100px;margin-left:40px;text-decoration:none;border-radius:5px;background-color:transparent;color:white">
                     <option style="color:black">select</option>
                     <option value="CSE"  style="color:black">CSE</option>
                     <option value="IT"  style="color:black">IT</option>
@@ -389,59 +398,49 @@ $conn->close();
                     <option value="MECH"  style="color:black">MECH</option>
                     <option value="CIV"  style="color:black">CIV</option>
                 </select>
-        </div>     
-        <br>   
-
-                <div class="form-group" style="display:flex;flex-direction:row">
+            </div>     
+            <br>
+            <div class="form-group" style="display:flex;flex-direction:row">
                 <button type="submit" name="Login_btn" value="Login">Login</button>
-                <input type="reset" name="Reset"   id="reset" value="Clear">
-
-            </div>         
-               
-<br>
-        <div class="login-register" >               
-                    <a href="#" class="register-link" style="text-decoration:none;color:white">Admin Login ?</a>                
-         </div>
-
-</form>
-</div>
-<div class="form-box register">
+                <input type="reset" name="Reset" id="reset" value="Clear">
+            </div>
+            <br>
+            <div class="login-register">               
+                <a href="#" class="register-link" style="text-decoration:none;color:white">Admin Login ?</a>                
+            </div>
+        </form>
+    </div>
+    <div class="form-box register">
         <center> <h1>Admin Login</h1></center>
         <br>
-        <form name="lg" method="post" action="login.php" onsubmit="return validateAdminLogin();">
-        <div class="form-group" style="display:flex;flex-direction:row; justify-content:space-between">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" >
+        <form name="lg_admin" method="post" action="login.php" onsubmit="return validateAdminLogin();">
+            <div class="form-group" style="display:flex;flex-direction:row; justify-content:space-between">
+                <label for="username_admin">Username</label>
+                <input type="text" id="username_admin" name="username">
             </div>
             <br>
             <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" >
-            </div>                                           
-      <br>
-            
-            <div class="form-group" style="display:flex;flex-direction:row ;justify-content:space-between" >
-            <button type="submit" name="logged" value="Login">Login</button>
-            <input type="reset" id="reset" name="Reset" value="Clear">
-
-            </div> 
-    <br>
+                <input type="password" id="password" name="password">
+            </div>
+            <br>
+            <div class="form-group" style="display:flex;flex-direction:row ;justify-content:space-between">
+                <button type="submit" name="logged" value="Login">Login</button>
+                <input type="reset" id="reset" name="Reset" value="Clear">
+            </div>
+            <br>
             <div class="login-register">               
-                    <a href="#" class="login-link" style="text-decoration:none;color:white">Student Login?</a>
+                <a href="#" class="login-link" style="text-decoration:none;color:white">Student Login?</a>
             </div>
         </form>
     </div>
 </div>
-  
-
 
 <script>
     // Add event listener for login button
     const container = document.querySelector('.container');
     const loginLink = document.querySelector('.login-link');
     const registerLink = document.querySelector('.register-link');
-    const btpopup = document.querySelector('#loginbut');
-    const iconClose = document.querySelector('.icon-close');
 
     registerLink.addEventListener('click', () => {
         container.classList.add('active');
@@ -450,29 +449,6 @@ $conn->close();
     loginLink.addEventListener('click', () => {
         container.classList.remove('active');
     });
-    btpopup.addEventListener('click', () => {
-        container.classList.add('active-popup');
-    });
-
-    iconClose.addEventListener('click', () => {
-        container.classList.remove('active-popup');
-    });
-
-    // Check if user is logged in
-    const logout = document.getElementById("logout");
-    logout.addEventListener("click", function() {
-        window.location.href = "login_eg.php";
-    });
-
-    
-    const others = document.querySelectorAll("#topbar .others");
-    const logoutButton = document.querySelector("#topbar #logout");
-
-    others.forEach(link => {
-        link.style.display = "inline-block";
-    });
-
-    logoutButton.style.display = "inline-block";
 
     function validateStudentLogin() {
         var valid = true;
@@ -483,18 +459,18 @@ $conn->close();
         var dept = document.forms['lg']['dept'].value;
 
         // Validate Name
-        if (name === '' || !/^[a-zA-Z\s]*$/.test(name)) {
+        if (name === '' || !/^[a-zA-Z\s.]*$/.test(name)) {
             alert('Please enter a valid name.');
             valid = false;
         }
 
         // Validate Roll Number
-        if (rollno === '' || !/^\d+$/.test(rollno)) {
+        if (rollno === '' || !/^\d+$/.test(rollno) || rollno.length !== 8) {
             alert('Please enter a valid roll number.');
             valid = false;
         }
 
-        // Validate Department Selection
+        // Validate Department
         if (dept === 'select') {
             alert('Please select a department.');
             valid = false;
@@ -507,28 +483,24 @@ $conn->close();
         var valid = true;
 
         // Retrieve form inputs
-        var username = document.forms['lg']['username'].value.trim();
-        var password = document.forms['lg']['password'].value.trim();
+        var username = document.forms['lg_admin']['username'].value.trim();
+        var password = document.forms['lg_admin']['password'].value.trim();
 
         // Validate Username
-        if (username === '' || !/^[a-zA-Z0-9]+$/.test(username)) {
-            alert('Please enter a valid username.');
+        if (username === '') {
+            alert('Please enter a username.');
             valid = false;
         }
 
         // Validate Password
         if (password === '') {
-            alert('Please enter your password.');
+            alert('Please enter a password.');
             valid = false;
         }
 
         return valid;
     }
-    
 </script>
-
 
 </body>
 </html>
-
-
