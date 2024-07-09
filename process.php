@@ -1,87 +1,113 @@
 <?php
-// session_start();
-include 'core/db.php';
-// Check if the form was submitted
+session_start();
+include 'core_db.php';
 
-// $timeout = isset($_POST['timeout']) ? $_POST['timeout'] : '0';
-// $_SESSION['timeout'] = $timeout;
+// Enable error reporting for debugging (remove or disable in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Set the content type to JSON
+header('Content-Type: application/json');
+
+// Start output buffering to capture any unintended output
+ob_start();
+
+$response = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-   
+    if (isset($_POST['submit'])) {
+        try {
+            $rollno = $_SESSION['RollNo'];
+            $quizid = $_SESSION['active'];
+            $currentIndex = $_POST['currentIndex'];
+            $questionNo = $_POST['questionNo'];
+            $total = $_POST['total'];
+            $selected_choice = isset($_POST['choice']) ? $_POST['choice'] : null;
+            $questionName = $_POST['questionName'];
 
-    // Example: Check if a specific field exists in $_POST (e.g., submit button)
-    if (isset($_POST['submit']) ) {
+            $timeTaken = time() - $_POST['question_start_time'];
 
-        $rollno = $_SESSION['RollNo'];
-        $quizid = $_SESSION['active'];
-        $currentIndex = $_POST['currentIndex'];
-        $questionNo = $_POST['questionNo'];
-        $total = $_POST['total'];
-        $selected_choice = isset($_POST['choice']) ? $_POST['choice'] : null;
+            $minutes = floor($timeTaken / 60);
+            $seconds = $timeTaken % 60;
+            $formattedTimeTaken = sprintf('%02d:%02d', $minutes, $seconds);
 
+            $_SESSION['time_taken'] = $formattedTimeTaken;
 
+            $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
+            $stmt = $conn->prepare($answer_query);
+            $stmt->bind_param("ii", $quizid, $questionNo);
+            $stmt->execute();
+            $stmt->bind_result($correct_answer);
+            $stmt->fetch();
+            $stmt->close();
 
-    $timeTaken = time() - $_SESSION['question_start_time'];
+            if ($selected_choice == $correct_answer) {
+                if (!isset($_SESSION['score'])) {
+                    $_SESSION['score'] = 0;
+                }
+                $_SESSION['score'] += $_SESSION['question_marks'];
+            }
+
+            $answer_insert_query = "INSERT INTO stud (QuizId, regno,question, questionno, time, yanswer) VALUES (?,?,?,?,?,?)";
+            $stmt = $conn->prepare($answer_insert_query);
+            $stmt->bind_param("ississ",$quizid, $rollno,$questionName, $questionNo, $formattedTimeTaken,$selected_choice);
+            $stmt->execute();
+            $stmt->close();
         
-    // Convert the time taken to MM:SS format
-    $minutes = floor($timeTaken / 60);
-    $seconds = $timeTaken % 60;
-    $formattedTimeTaken = sprintf('%02d:%02d', $minutes, $seconds);
 
-    // Save the formatted time taken in your database or session
-    // Example: Save in session
-    $_SESSION['time_taken'] = $formattedTimeTaken;
+            $_SESSION['currentIndex']++;
 
+            if ($currentIndex < $total - 1) {
+                $nextIndex = $currentIndex + 1;
+                $nextQuestionNo = $_SESSION['shuffled_questions'][$nextIndex];
 
-    // Retrieve correct answer from the database
-    $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
-    $stmt = $conn->prepare($answer_query);
-    $stmt->bind_param("ii", $quizid, $questionNo);
-    $stmt->execute();
-    $stmt->bind_result($correct_answer);
-    $stmt->fetch();
-    $stmt->close();
+                $query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?");
+                $query->bind_param("ii", $quizid, $nextQuestionNo);
+                $query->execute();
+                $result = $query->get_result()->fetch_assoc();
 
-    // Check if selected choice matches correct answer and update score if so
-    if ($selected_choice == $correct_answer) {
-        if (!isset($_SESSION['score'])) {
-            $_SESSION['score'] = 0;
+                $options = [
+                    $result['Choice1'],
+                    $result['Choice2'],
+                    $result['Choice3'],
+                    $result['Choice4']
+                ];
+
+                if ($_SESSION['shuffle'] == 1) {
+                    shuffle($options);
+                }
+
+                $response = [
+                    'status' => 'next_question',
+                    'data' => [
+                        'question' => $result['Question'],
+                        'options' => $options,
+                        'questionNo' => $nextQuestionNo,
+                        'currentIndex' => $nextIndex
+                    ]
+                ];
+            } else {
+                $response = ['status' => 'final'];
+            }
+        } catch (Exception $e) {
+            $response = ['status' => 'error', 'message' => $e->getMessage()];
         }
-        $_SESSION['score'] += $_SESSION['question_marks']; // Increment score
-    }
-
-    // Insert answer and time taken into database
-    $answer_insert_query = "INSERT INTO stud (QuizId, regno, question, time) VALUES (?, ?, ?,?)";
-    $stmt = $conn->prepare($answer_insert_query);
-    $stmt->bind_param("isis",$quizid, $rollno, $questionNo, $formattedTimeTaken);
-    $stmt->execute();
-    $stmt->close();
-
-    // Update current index for the next question
-    $_SESSION['currentIndex']++;
-
-    // Redirect to next question or final page based on current index
-    if ($currentIndex < $total - 1) {
-        header('Location: question.php');
-        exit;
     } else {
-        header('Location: final.php');
-        exit;
+        $response = ['status' => 'error', 'message' => 'Invalid form submission'];
     }
-}
-    else {
-        // Handle case where form was submitted but the expected submit button is not found
-        // This could be due to an error in form rendering or tampering with the form
-        // Redirect or handle the error appropriately
-        header('Location: login.php'); // Example: Redirect to an error page
-        exit;
-    }
+} else {
+    $response = ['status' => 'error', 'message' => 'Invalid request method'];
 }
 
-else {
-    // Handle case where the form was not submitted (direct access to process.php without POST data)
-    // Redirect or handle the error appropriately
-    header('Location: error.php'); // Example: Redirect to an error page
-    exit;
+// Get the buffer contents and clean the buffer
+$output = ob_get_clean();
+
+// If there is any unintended output, include it in the response for debugging
+if (!empty($output)) {
+    $response['output'] = $output;
 }
+
+// Output the JSON response
+echo json_encode($response);
 ?>

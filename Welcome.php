@@ -1,6 +1,8 @@
 <?php
 include 'core_db.php';
  session_start();
+ date_default_timezone_set('Asia/Kolkata');
+
 
 // Redirect to login page if not logged in
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
@@ -11,6 +13,7 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
 
 $activeQuizId = $_SESSION['active'];
 $rollno = $_SESSION['RollNo'];
+// echo $activeQuizId.'<br>';
 
 // Initialize session variables
 $_SESSION['quiz_name'] = "";
@@ -22,13 +25,14 @@ $_SESSION['numberofquestions'] = "";
 $_SESSION['shuffle'] = 0;
 $_SESSION['currentIndex'] = 0; // Initialize current question index
 $_SESSION['startingtime'] = "";
+$_SESSION['endingtime'] = "";
 
 // Check database connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$quiz_query = "SELECT QuizName, TotalMarks, TimeDuration, NumberOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime
+$quiz_query = "SELECT QuizName, TotalMarks, TimeDuration, NumberOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime,EndTime
                FROM quiz_details 
                WHERE Quiz_ID = ?";
 $stmt = $conn->prepare($quiz_query);
@@ -47,6 +51,7 @@ if ($quiz_result->num_rows > 0) {
     $_SESSION['question_marks'] = $row["QuestionMark"];
     $_SESSION['shuffle'] = $row["IsShuffle"];
     $_SESSION['startingtime'] = $row["startingtime"];
+    $_SESSION['endingtime'] = $row["EndTime"];
 }
 
 $isshuffle = $_SESSION['shuffle'];
@@ -73,10 +78,6 @@ $_SESSION['shuffled_questions'] = $questions;
 $_SESSION["start_time"] = date('i:s'); // Store the current time as start time
 $start_time = $_SESSION["start_time"];
 
-// echo $start_time;
-// echo $_SESSION["startingtime"]; 
-
-
 $total_duration = $_SESSION['duration'];
 
 // Extract minutes and seconds from start time
@@ -95,6 +96,14 @@ $end_minutes = floor($end_time_seconds / 60);
 $end_seconds = $end_time_seconds % 60;
 $end_time = sprintf('%02d:%02d', $end_minutes, $end_seconds);
 $_SESSION["end_time"]  = $end_time;
+
+
+// echo $start_time . ' ' . $end_time .'<br>';
+// echo $_SESSION["start_time"] . ' ' .$_SESSION["end_time"];
+// echo ' <br>'.$_SESSION["endingtime"];
+
+//echo $start_time<$end_time? 1:0;
+
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -203,20 +212,25 @@ $conn->close();
        
     </style>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+     document.addEventListener('DOMContentLoaded', function () {
             var startButton = document.getElementById('start');
             var startingTime = new Date("<?php echo $_SESSION['startingtime']; ?>").getTime();
+            var endingTime = new Date("<?php echo $_SESSION['endingtime']; ?>").getTime();
 
             function checkTime() {
                 var currentTime = new Date().getTime();
 
+                // Enable the start button when the current time reaches the starting time
                 if (currentTime >= startingTime) {
                     startButton.disabled = false;
-                } else {                
-                        // startButton.style.cursor = "default";
+                } else {
                     startButton.disabled = true;
-                    // startButton.style.display = 'none';
+                }
 
+                // Redirect to final.php when the current time reaches the ending time
+                if (currentTime >= endingTime) {
+                    alert("QUIZ OVER");
+                    window.location.href = 'login.php';
                 }
             }
 
@@ -225,8 +239,6 @@ $conn->close();
 
             // Check every second
             setInterval(checkTime, 1000);
-
-            
         });
 
         
@@ -267,3 +279,36 @@ $conn->close();
 
 </body>
 </html>
+
+
+
+<!-- document.addEventListener('DOMContentLoaded', function () {
+            var startButton = document.getElementById('start');
+            var startingTime = new Date("<?php echo $_SESSION['startingtime']; ?>").getTime();
+            var endingTime = new Date("<?php echo $_SESSION['endingtime']; ?>").getTime();
+
+            function checkTime() {
+                var currentTime = new Date().getTime();
+
+                // Enable the start button when the current time reaches the starting time
+                if (currentTime >= startingTime) {
+                    startButton.disabled = false;
+                } else {
+                    startButton.disabled = true;
+                }
+
+                // Redirect to final.php when the current time reaches the ending time
+                if (currentTime >= endingTime) {
+                    window.location.href = 'final.php';
+                }
+            }
+
+            // Initial check
+            checkTime();
+
+            // Check every second
+            setInterval(checkTime, 1000);
+        });
+
+        
+    </script> -->

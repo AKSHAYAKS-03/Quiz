@@ -1,6 +1,6 @@
 <?php
-// session_start();
-include 'core/db.php';
+ session_start();
+include 'core_db.php';
 
 // Redirect to login if session variables are not set
 if (!isset($_SESSION['RollNo']) || empty($_SESSION['RollNo'])) {
@@ -27,6 +27,7 @@ $query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND Que
 $query->bind_param("ii", $quizid, $currentQuestionNo);
 $query->execute();
 $result = $query->get_result()->fetch_assoc();
+$currentQuestionName = $result['Question'];
 
 // Fetch options for the current question
 $options = [
@@ -41,7 +42,7 @@ if ($_SESSION['shuffle'] == 1) {
     shuffle($options);
 }
 
-$_SESSION['question_start_time'] = time();
+// $_SESSION['question_start_time'] = ;
 // echo $currentIndex. ' ' . count($questions);
 
 $conn->close();
@@ -51,6 +52,7 @@ $conn->close();
 <html>
 <head>
     <title>Quizze</title>
+    
     <style>
         body {
             background-color: #13274F;
@@ -68,6 +70,7 @@ $conn->close();
         }
         .cot {
             width: 700px;
+            height: auto;
             background-color: white;
             padding: 50px;
             border-radius: 8px;
@@ -136,21 +139,26 @@ $conn->close();
             animation: pop 0.5s ease-in-out;
         }
 
-                /* Safari syntax
+                /* Safari syntax */
                 :-webkit-full-screen {
-        background-color: yellow;
+        background-color: transparent;
         }
 
         /* IE11 */
-        /* :-ms-fullscreen {
+         :-ms-fullscreen {
         background-color: transparent;
-        } */
+        } 
 
         /* Standard syntax */
-        /* :fullscreen {
-        background-color: yellow;
-        } */ 
+         :fullscreen {
+            background-color: transparent;
+        } 
+
+        #quizContent{
+            display: none;
+        }
     </style>
+    <script src='DisableKeys.js'></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
@@ -159,99 +167,186 @@ $conn->close();
     </div>
 </div>
 <div class="cot">
-    <div id="response"></div>
-    <form id="quizForm" method="POST" action="process.php">
-        <h2 class="ques"><?php echo htmlspecialchars($result['Question']); ?></h2>
-        <ul>
-            <?php foreach ($options as $option): ?>
-                <li>
-                    <input type="radio" name="choice" value="<?php echo htmlspecialchars($option); ?>" >
-                    <?php echo htmlspecialchars($option); ?>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-        <input type="hidden" name="questionNo" id="questionNo" value="<?php echo $currentQuestionNo; ?>">
-        <input type="hidden" name="total" id="total" value="<?php echo count($questions); ?>">
-        <input type="hidden" name="timeout" id="timeout" value="0">
-        <input type="hidden" name="currentIndex" id="currentIndex" value="<?php echo $currentIndex; ?>">
-        <input type="submit" name="submit" value="Submit Answer" id="submit">
-    </form>
+        <div id="agreement">
+            <h2>Terms of Quiz</h2>
+            <p>You are not allowed to switch screens during the quiz. Once you agree and start the quiz, you cannot attempt it again.</p>
+            <button onclick="agreeAndStart()">I Agree</button>
+        </div>
+
+        <div id="quizContent">
+            <div id="response"></div>
+            <form id="quizForm">
+                <h2 id="questionText"class="ques"><?php echo htmlspecialchars($result['Question']); ?></h2>
+                <ul id="optionsList">
+                    <?php foreach ($options as $option): ?>
+                        <li>
+                            <input type="radio" name="choice" value="<?php echo htmlspecialchars($option); ?>" >
+                            <?php echo htmlspecialchars($option); ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <input type="hidden" name="questionNo" id="questionNo" value="<?php echo $currentQuestionNo; ?>">
+                <input type="hidden" name="questionName" id="questionName" value="<?php echo $currentQuestionName; ?>">
+                <input type="hidden" name="question_start_time" id="question_start_time" value="<?php echo time()?>">
+                <input type="hidden" name="total" id="total" value="<?php echo count($questions); ?>">
+                <input type="hidden" name="timeout" id="timeout" value="0">
+                <input type="hidden" name="currentIndex" id="currentIndex" value="<?php echo $currentIndex; ?>">
+                <input type="submit" name="submit" value="Submit Answer" id="submit">
+            </form>
+        </div>
+    
 </div>
+
 <script>
+var timer;
+var interval;
+
+function agreeAndStart() {
+    <?php $_SESSION['agreed'] = 1; ?>
+
+    var elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { // Firefox
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen();
+    }
+
+    document.getElementById('agreement').style.display = 'none';
+    document.getElementById('quizContent').style.display = 'block';
+    startQuiz(); // Call startQuiz function here
+}
+
+function startQuiz() {
     var durationStr = "<?php echo $question_duration; ?>"; // duration in "MM:SS" format
     var durationParts = durationStr.split(":");
     var minutes = parseInt(durationParts[0], 10);
     var seconds = parseInt(durationParts[1], 10);
     var duration = (minutes * 60) + seconds; // convert total duration to seconds
+
     var display = document.getElementById("response");
+    if (!display) return; // Check if display element exists
 
-
-    function startTimer(duration, display) {
-        var timer = duration, minutes, seconds;
-        var halfway = Math.floor(duration / 2);
-        var interval = setInterval(function () {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
-            display.textContent = minutes + ":" + seconds;
-
-            if (timer <= halfway) {
-                display.style.color = 'red';
-
-            } else {
-                display.style.color = 'green';
-            }
-
-            if (--timer < 0) {
-                clearInterval(interval);                        
-                // document.getElementById('timeout').value = "1"; // Set timeout flag
-                console.log('Timeout reached, submitting form.');
-                document.getElementById('submit').click();
-                document.getElementById('quizForm').submit();
-            }
-                
-                
-                //     if (<?php echo $currentIndex; ?> == <?php echo count($questions) - 1; ?>) {
-
-            //     document.getElementById('quizForm').submit();
-            //     window.location.href = 'final.php';
-            // } else {
-                // move to next question and submit the last one
-                // document.getElementById('questionNo').value = <?php echo $currentQuestionNo; ?>;
-                // document.getElementById('total').value = <?php echo count($questions); ?>;
-                // document.getElementById('timeout').value = 1;
-                // document.getElementById('currentIndex').value = <?php echo $currentIndex; ?>;        
-                // document.getElementById('quizForm').submit();                       
-            // window.location.href = 'nextquestion.php';                                                                         
-            
-        }, 1000);
+    if (interval) {
+        clearInterval(interval);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        enterFullScreen() ;
-        startTimer(duration, display);
-    });                
-    
+    timer = duration;
+    var halfway = Math.floor(duration / 2);
 
-    function enterFullScreen() {
-        var elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.mozRequestFullScreen) { // Firefox
-            elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
-            elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { // IE/Edge
-            elem.msRequestFullscreen();
+    interval = setInterval(function () {
+        var minutes = parseInt(timer / 60, 10);
+        var seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (timer <= halfway) {
+            display.style.color = 'red';
+        } else {
+            display.style.color = 'green';
         }
+
+        if (--timer < 0) {
+            clearInterval(interval);
+            console.log('Timeout reached, submitting form.');
+            document.getElementById('submit').click();
+            document.getElementById('quizForm').submit();
+        }
+    }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('quizForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        var formData = new FormData(this); // Capture form data
+
+        formData.append('submit', 'Submit Answer');
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log('Quiz data saved successfully.');
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        console.log('Response:', response);
+
+                        if (response.status === 'next_question') {
+                            console.log('Next Question Data:', response.data);
+                            handleNextQuestion(response.data);
+                        } else if (response.status === 'final') {
+                            handleFinalPage();
+                        } else if (response.status === 'error') {
+                            console.error('Error:', response.message);
+                            if (response.output) {
+                                console.error('Output:', response.output); // Debugging output
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing JSON response:', e);
+                    }
+                } else {
+                    // Handle errors (optional)
+                    console.error('Error saving quiz data.');
+                }
+            }
+        };
+
+        xhr.open('POST', 'process.php', true);
+        xhr.send(formData);
+    });
+});
+
+function handleNextQuestion(questionData) {
+    // Update question text
+    var questionTextElement = document.getElementById('questionText');
+    if (!questionTextElement) {
+        console.error('Question text element not found');
+        return;
     }
+    questionTextElement.innerText = questionData.question;
 
+    // Clear existing options
+    var optionsList = document.getElementById('optionsList');
+    if (!optionsList) {
+        console.error('Options list element not found');
+        return;
+    }
+    optionsList.innerHTML = '';
 
+    // Add new options
+    questionData.options.forEach(function (option) {
+        var listItem = document.createElement('li');
+        var radioInput = document.createElement('input');
+        radioInput.type = 'radio';
+        radioInput.name = 'choice';
+        radioInput.value = option;
 
+        listItem.appendChild(radioInput);
+        listItem.appendChild(document.createTextNode(option));
+
+        optionsList.appendChild(listItem);
+    });
+
+    // Update hidden fields
+    document.getElementById('questionNo').value = questionData.questionNo;
+    document.getElementById('currentIndex').value = questionData.currentIndex;
+    startQuiz();
+}
+
+function handleFinalPage() {
+    // Handle redirection or show final results
+    window.location.href = 'final.php';
+}
 </script>
 
+</div>
 </body>
 </html>
