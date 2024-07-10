@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3307";
+$host = "localhost:3390";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -29,11 +29,17 @@ $_SESSION['active'] = $activeQuizId;
 
 $activeQuizId = $_SESSION['active'];
 
+if($activeQuizId === 'None'){
+    echo '<script>alert("No Active Quiz");</script>';
+}
 
+else {
 $startTime = strtotime($activeQuizData["startingtime"]);
 $endTime = strtotime($activeQuizData["EndTime"]);
 $currentUnixTime = time(); // Current Unix timestamp
+// echo '<script>document.getElementById("Login_btn").disabled = false;</script>';
 
+}
 // echo $currentUnixTime . " " . $startTime . " " . $endTime;
 
 if (isset($_POST['Login_btn'])) {
@@ -401,7 +407,7 @@ $conn->close();
             </div>     
             <br>
             <div class="form-group" style="display:flex;flex-direction:row">
-                <button type="submit" name="Login_btn" value="Login">Login</button>
+                <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
                 <input type="reset" name="Reset" id="reset" value="Clear">
             </div>
             <br>

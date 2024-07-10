@@ -11,6 +11,18 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
 }
 // echo $activeQuizId;
 
+if($_SESSION['active']==='None'){
+    echo '<script> alert("Logging Out");</script>';
+    $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ? AND QuizId = ?");
+    $stmt->bind_param("si", $rollno, $activeQuizId);
+        if ($stmt->execute()) {
+            header("Location: login.php");
+            exit;
+        } else {
+            echo "Error deleting record: " . $stmt->error;
+        }
+        $stmt->close();
+}
 $activeQuizId = $_SESSION['active'];
 $rollno = $_SESSION['RollNo'];
 $name = $_SESSION['Name'];
@@ -142,7 +154,7 @@ $conn->close();
         body {
             background-color: #13274F;
             color: #fff;
-            font-family: "Poppins", sans-serif;
+            font-family:"Poppins", sans-serif;;
             margin: 0;
             padding: 0;
         }
@@ -211,9 +223,7 @@ $conn->close();
             color: #13274F;
         }
 
-        
-
-       
+               
     </style>
     <script>
      document.addEventListener('DOMContentLoaded', function () {
@@ -259,8 +269,7 @@ $conn->close();
 </div>
 
 <div class="container">
-    <h2><?php echo $name; ?></h2>
-    <br>
+    <h2 style="margin-bottom: 50px;margin-top:-20px"><?php echo $name; ?></h2>
     <font size='4'>
         <ul>
             <li><strong style="margin-right: 100px;">Number of Questions </strong> <?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></li>

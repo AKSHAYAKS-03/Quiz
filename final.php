@@ -9,6 +9,12 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
     exit;
 }
 
+$flag = true;
+
+if (isset($_GET['exit']) && $_GET['exit'] == 1) {
+    $flag = false;
+}
+
 // Initialize session variables
 $_SESSION['log'] = "";
 $_SESSION['lo'] = "";
@@ -117,7 +123,11 @@ $conn->close();
                     timer--;
                     if (timer <= 0) {
                         <?php $_SESSION['logi'] = TRUE; ?>
+                        if (<?php echo $flag ? 'true' : 'false'; ?>) {
                         window.location.href = "scoresheet.php";
+                    } else {
+                        window.location.href = "scoresheet.php?exitscore=1";
+                    }
                     } else {
                         document.getElementById('timer').innerHTML = timer;
                         setTimeout(startTimer, 1000);

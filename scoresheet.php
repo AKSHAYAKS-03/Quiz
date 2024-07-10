@@ -3,17 +3,24 @@ include 'core/db.php';
 //session_start(); // Start session at the beginning
 date_default_timezone_set('Asia/Kolkata');
 
-// Redirect to login page if not logged in or session variables are not set
+
 if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     !isset($_SESSION['logi']) || empty($_SESSION['logi']) ||
     !isset($_SESSION['RollNo']) || empty($_SESSION['RollNo']) ||
     !isset($_SESSION['Name']) || empty($_SESSION['Name']) ||
-    !isset($_SESSION['dept']) || empty($_SESSION['dept']) ||
-    !isset($_SESSION['score']) || empty($_SESSION['score']) ||
-    !isset($_SESSION['total_time']) || empty($_SESSION['total_time'])) {
-  
+    !isset($_SESSION['dept']) || empty($_SESSION['dept'])) {
     header('Location: login.php');
     exit;
+}
+
+$exited = isset($_GET['exitscore']) && $_GET['exitscore'] == 1;
+
+if (!$exited) {
+    if (!isset($_SESSION['score']) || empty($_SESSION['score']) ||
+        !isset($_SESSION['total_time']) || empty($_SESSION['total_time'])) {
+        header('Location: login.php');
+        exit;
+    }
 }
 
 $rollno = $_SESSION['RollNo'];
@@ -100,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
 
             margin-left:50px;
             list-style: none;
-            padding: 20px;
+            padding: 40px;
         }
     </style>
 </head>

@@ -32,14 +32,13 @@ window.onload = function() {
 
     // Monitor for full-screen exit and re-enter full-screen mode
     function handleFullscreenChange() {
+        enterFullscreen();
         if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-            if (confirm("Are you sure you want to exit the quiz? You are not allowed to re-take the quiz again.")) {
-                // Redirect to the quiz exit page or perform any exit-related action
-                window.location.href = 'final.php'; // Change this to your actual exit page URL
-            } else {
-                // Re-enter full-screen if the user cancels the exit
-                enterFullscreen();
-            }
+                var modal = document.getElementById('QuizModal');
+                modal.style.display = 'block'; 
+                setTimeout(() => {
+                    modal.querySelector('.modal-content').classList.add('show-modal'); 
+                }, 10);
         }
     }
 
@@ -53,12 +52,39 @@ window.onload = function() {
         if (e.keyCode === 27) { // Esc key
             // Prevent default Esc key behavior
             e.preventDefault();
+            disabledEvent(e);
+            enterFullscreen();
+            handleFullscreenChange();
         } else {
             // Prevent default behavior for all other keys
             disabledEvent(e);
         }
     }, false);
 
-    // Initially enter full-screen mode
-    enterFullscreen();
-};
+
+
+    // Get the button element by its ID
+    const noButton = document.getElementById('no');
+    // Add an event listener to the button for the 'click' event
+    noButton.addEventListener('click', () => {
+        closeModal();
+        enterFullscreen();
+    });
+
+
+    const yesButton = document.getElementById('yes');
+    // Add an event listener to the button for the 'click' event
+    yesButton.addEventListener('click', () => {
+        closeModal();
+        window.location.href = 'final.php?exit=1'; 
+    });
+
+
+    function closeModal() {
+        document.querySelector('.modal-content').classList.remove('show-modal'); 
+        setTimeout(() => {
+            document.getElementById('QuizModal').style.display = 'none';
+        }, 500); 
+    }
+
+}

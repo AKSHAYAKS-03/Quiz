@@ -13,6 +13,7 @@ $rollno = $_SESSION['RollNo'];
 $quizid = $_SESSION['active'];
 $currentIndex = isset($_SESSION['currentIndex']) ? $_SESSION['currentIndex'] : 0;
 $question_duration = $_SESSION['question_duration'];
+$duration = $_SESSION['duration'];
 $questions = $_SESSION['shuffled_questions']; // Get shuffled questions
 
 // Redirect to final page if all questions are answered
@@ -69,9 +70,9 @@ h1 {
     font-size: 36px;
 }
 
-.cot {
+.quizContent {
     width: 900px;
-    height: 500px;
+    height: 450px;
     background-color: white;
     padding: 40px; /* Adjust padding for inner content */
     border-radius: 8px;
@@ -89,17 +90,18 @@ h2.ques {
     margin-bottom: 20px;
 }
 
-.cot ul {
+.quizContent ul {
     list-style: none;
     padding: 0;
 }
 
-.cot ul li {
+.quizContent ul li {
     color: #13274F;
     margin-bottom: 15px;
 }
 
 #optionsList {
+    margin-top: -20px;
     list-style: none;
     padding: 70px;
     display: flex;
@@ -110,6 +112,8 @@ h2.ques {
 .option {
     width: calc(50% - 20px); /* Adjust width to fit two items per row with spacing */
     margin-bottom: 20px; /* Adjust spacing between rows */
+    margin-left:-20px;
+    margin-right:-20px;
 }
 
 .option input[type="radio"] {
@@ -123,33 +127,35 @@ h2.ques {
             background-color: #f1f1f1;
             color: #13274F;
             border-radius: 5px;
-            padding: 15px; /* Adjust padding for label */
+            padding: 20px; /* Adjust padding for label */
             cursor: pointer;
             transition: background-color 0.3s ease, color 0.3s ease;
             box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
             text-align: center; /* Center align text */
+            margin-right:-10px;
+            margin-bottom:20px;
         }
 
 .option input[type="radio"]:checked + label {
     background-color: #13274F;
     color: white;
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 1px 1px 10px black;
 }
 
-.cot input[type="submit"] {
+.quizContent input[type="submit"] {
     background-color: #13274F;
     color: #fff;
     padding: 12px 24px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: -20px;
+    margin-top: -100px;
     font-size: 16px;
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.cot input[type="submit"]:hover {
+.quizContent input[type="submit"]:hover {
     background: #fff;
     color: #13274F;
 }
@@ -205,7 +211,12 @@ h2.ques {
 #agreement{
     text-align: center;
     font-size:20px;
-    padding: 100px;
+    background-color: white;
+    padding: 50px;
+    height:200px;
+    width:60%;
+    color : #13274F;
+border-radius: 10px;
 }
 #agreebut{
     background-color: #13274F;
@@ -223,11 +234,71 @@ h2.ques {
     background: #fff;
     color: #13274F;
 }
+.modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
 
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 450px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transform: scale(0);
+            transition: transform 0.5s ease;
+        }
 
+        .modal-content.show-modal {
+            transform: scale(1); 
+        }
+
+        #msg {
+            color: black;
+            font-weight: bold;
+            font-size: 20px;
+            padding: 10px;
+            padding-bottom: 25px;
+            text-align: center;
+            margin-top: 10px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px; 
+            margin-top: 10px;
+        }
+
+        .modal-content button {
+            padding: 8px 10px;
+            background-color: #13274F;
+            color: #ecf0f1;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 80px;
+            height: 30px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #0d1b37;
+        }
     </style>
     <script src='DisableKeys.js'></script>
-    <script src="inspect.js"></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
@@ -235,25 +306,27 @@ h2.ques {
         <h1><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h1>
     </div>
 </div>
-<div class="cot">
+<br><br>
+<center>
         <div id="agreement">
             <h1>Terms of Quiz</h1>
             <p>You are not allowed to switch screens during the quiz. Once you agree and start the quiz, you cannot attempt it again.</p><br>
             <button onclick="agreeAndStart()" id="agreebut">I Agree</button>
         </div>
-
-        <div id="quizContent">
+        </center>
+        <div id="quizContent" class="quizContent">
         <center><div id="remtime" style="text-align: center; font-size: 20px;color: red "></div></center>
         <br>
             <div id="response"></div>
+            <center>
             <form id="quizForm">
                 <br>
-                <h2 id="questionText" class="ques"><?php echo $currentIndex + 1; ?>: <?php echo htmlspecialchars($result['Question']); ?></h2>
+                <h2 id="questionText" class="ques"><?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); ?></h2>
                 <ul id="optionsList">
                 <?php foreach ($options as $option): ?>
                     <div class="option">
                         <li>
-                            <input type="radio" id="option_<?php echo htmlspecialchars($option); ?>" name="choice" value="<?php echo htmlspecialchars($option); ?>" >
+                            <input type="radio" id="option_<?php echo htmlspecialchars($option); ?>" name="choice" value="<?php echo htmlspecialchars($option); ?>"  >
                             <label for="option_<?php echo htmlspecialchars($option); ?>"><?php echo htmlspecialchars($option); ?></label>
                         </li>
                     </div>
@@ -268,10 +341,18 @@ h2.ques {
                 <input type="submit" name="submit" value="Submit Answer" id="submit">
                 
             </form>
+                </center>
         </div>
     
+        <div class="modal" id="QuizModal">
+    <div class="modal-content">
+        <div id="msg">Are you sure you want to exit the quiz? You are not allowed to re-take the quiz again.</div>
+        <div class="button-container">
+            <button type="button" class="btn" id="yes">Yes</button>
+            <button type="button" class="btn" id="no">No</button>
+        </div>
+    </div>
 </div>
-
 <script>
 var timer;
 var interval;
@@ -393,6 +474,11 @@ function handleNextQuestion(questionData) {
         clearInterval(interval);
     }
 
+        // Update question text and number
+        var questionTextElement = document.getElementById('questionText');
+    questionTextElement.innerHTML = questionData.currentIndex + 1 + ' . ' + questionData.question;
+
+
     // Update question text
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
@@ -451,7 +537,7 @@ function checkTime() {
     var currentTime = new Date().getTime();
     var remainingTime = endingTime - currentTime;
 
-    var quesduration = "<?php echo $question_duration; ?>"; // Ensure this matches your variable name for question duration
+    var quesduration = "<?php echo $duration; ?>"; // Ensure this matches your variable name for question duration
     var quesDurationParts = quesduration.split(":");
     var quesDurationMillis = (parseInt(quesDurationParts[0]) * 60 + parseInt(quesDurationParts[1])) * 1000;
 

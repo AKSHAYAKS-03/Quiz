@@ -1,5 +1,5 @@
 <?php
-include 'core/db.php';
+include 'core_db.php';
 
 // Ensure session is started and redirect if not logged in
 session_start();
@@ -93,12 +93,13 @@ $conn->close();
             text-align: center;
             margin-top: 20px;
         }
-        li {
+        .parentdiv li {
+            margin-left:40px;
             font-size: 20px;
             margin-bottom: 20px;
             text-decoration: none;
         }
-        ul {
+        .parentdiv ul {
             margin-left: 50px;
             list-style: none;
             padding: 20px;
@@ -109,11 +110,10 @@ $conn->close();
             flex-direction: column;
         }
         .container {
-            position: relative;
-            margin-left: 550px;
             border-radius: 8px;
             height: auto;
-            width: 700px;
+            width: 900px;
+            margin-left: 200px;
             display: flex;
             padding: 30px;
             flex-direction: column;
@@ -123,9 +123,14 @@ $conn->close();
         }
         .correct-answer {
             color: green;
+            font-weight: bold;
         }
         .incorrect-answer {
             color: red;
+            font-weight: bold;
+        }
+        .answer{
+            color: green;
         }
         .Logout {
             background-color: #13274F;
@@ -142,23 +147,93 @@ $conn->close();
             background-color: #fff;
             color: #13274F;
         }
-        .score-final {
-            margin-left: 500px;
-            font-size: 30px;
-            color: #13274F;
-        }
+      
         .cot {
-            width: 400px;
+            width: auto;
             background-color: white;
             padding: 40px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             margin: 50px auto;
             color: #333;
-            box-shadow: 1px 1px 10px black;
-            position: fixed;
             margin-top: 20px;
-            margin-left: 30px;
+            margin-left: 150px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        } 
+
+        .score-container {
+            width: 150px;
+            height: 150px;
+            margin-left: 10px;
+            position: relative;
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#4caf50 var(--percentage), #e0e0e0 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .circle::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        .score-final {
+            font-size: 34px;
+            font-weight: bold;
+            color: #333;
+            position: relative;
+            z-index: 1;
+        }
+        .parentdiv {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .answers-container {
+            width:600px;
+            margin: 20px auto;
+            padding: 50px;
+            background-color: #fff;
+            color: #13274F;
+            border-radius: 8px;
+        }
+        .ques {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .answers-container ul {
+            padding-left: 20px;
+            font-size: 20px;
+            margin-bottom: 20px;
+
+        }
+        .answers-container li {
+            list-style-type: lower-alpha;
+            margin-left:50px;
+            font-size: 20px;
+            margin-bottom: 20px;
+
         }
     </style>
 </head>
@@ -167,8 +242,15 @@ $conn->close();
     <h2><?php echo htmlspecialchars($_SESSION['Name']); ?></h2>
 </div>
 <div class="score">
+    <div class="container">
+  
     <div class="cot">
-        <font size='05'>
+    <div class="score-container">
+        <div class="circle" style="--percentage: <?php echo ($score / $total) * 100; ?>%;">
+            <div class="score-final"><?php echo $score ?> / <?php echo $total ?></div>
+        </div>
+    </div>
+    <div class="parentdiv">
             <ul>
                 <li><strong style="margin-right: 127px;">Name  </strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></li>
                 <li><strong style="margin-right: 70px;">Register No  </strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></li>
@@ -176,15 +258,16 @@ $conn->close();
                 <li><strong style="margin-right: 75px;">Your Score  </strong> <?php echo htmlspecialchars($score) ?>/<?php echo $total; ?></li>
                 <li><strong style="margin-right: 70px;">Time Taken </strong><?php echo htmlspecialchars($time) ?> <?php echo $unit; ?></li>
             </ul>
-        </font>
+     </div>   
     </div>
-    <div class="container">
-        <div class="score-final"><?php echo $score ?> / <?php echo $total ?></div>
+    <center><h2>ANSWERS</h2></center>
+    <div class="answers-container">
+    <?php $index = 1; ?>
         <?php foreach ($questions as $question): ?>
-            <h2 class="ques"><?php echo htmlspecialchars($question['Question']); ?></h2>
-            <ol>
+            <h2 class="ques"><?php echo $index ?> . <?php echo htmlspecialchars($question['Question']); ?></h2>
+            <ul>
                 <?php foreach (['Choice1', 'Choice2', 'Choice3', 'Choice4'] as $option): ?>
-                    <li>
+                    <li >
                         <?php
                         $choice = htmlspecialchars($question[$option]);
                         $user_answer = isset($user_answers[$question['QuestionNo']]) ? htmlspecialchars($user_answers[$question['QuestionNo']]) : '';
@@ -196,15 +279,19 @@ $conn->close();
                         } elseif ($user_answer === $choice && $user_answer !== $correct_answer) {
                             echo "<span class='incorrect-answer'>{$choice}</span>";
                         } elseif ($correct_answer === $choice) {
-                            echo "<span class='correct-answer'>{$choice}</span>";
+                            echo "<span class='answer'>{$choice}</span>";
                         } else {
                             echo $choice;
                         }
                         ?>
                     </li>
                 <?php endforeach; ?>
-            </ol>
+            </ul>
+            <br>
+            <?php $index++; ?>
+
         <?php endforeach; ?>
+    </div>        
         <form method='post' action="Answers.php">
             <input type="submit" name="Logout" class="Logout" value="Logout">
         </form>
