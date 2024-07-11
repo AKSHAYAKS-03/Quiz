@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -31,29 +31,25 @@ $activeQuizId = $_SESSION['active'];
 
 if($activeQuizId === 'None'){
     echo '<script>alert("No Active Quiz");</script>';
+} else {
+    $startTime = strtotime($activeQuizData["startingtime"]);
+    $endTime = strtotime($activeQuizData["EndTime"]);
+    $currentUnixTime = time(); // Current Unix timestamp
 }
-
-else {
-$startTime = strtotime($activeQuizData["startingtime"]);
-$endTime = strtotime($activeQuizData["EndTime"]);
-$currentUnixTime = time(); // Current Unix timestamp
-// echo '<script>document.getElementById("Login_btn").disabled = false;</script>';
-
-}
-// echo $currentUnixTime . " " . $startTime . " " . $endTime;
 
 if (isset($_POST['Login_btn'])) {
-
     $Name = $conn->real_escape_string($_POST['name']);
-    $RollNo = $conn->real_escape_string($_POST['rollno']); 
+    $RollNo = 9131 . $_POST['rollno'];
     $dept = $conn->real_escape_string($_POST['dept']);
     $_SESSION['dept'] = $dept;
 
-    $sql = "SELECT * FROM student WHERE RollNo='$RollNo' and QuizId=$activeQuizId";
+    $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
     $result = $conn->query($sql);
 
     // Check if the current time is past the end time of the quiz
     if ($currentUnixTime > $endTime) {
+        $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND QuizId='$activeQuizId'";
+        $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
             $_SESSION['login'] = TRUE;
@@ -72,13 +68,9 @@ if (isset($_POST['Login_btn'])) {
     }
 
     if ($result->num_rows > 0) {
-        ?>
-        <script>
-            alert("You already attended the quiz");
-        </script>
-        <?php
+        echo '<script>alert("You already attended the quiz");</script>';
     } else {
-        $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', $activeQuizId)";
+        $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', '$activeQuizId')";
         if ($conn->query($sql)) {
             $_SESSION['login'] = TRUE;
             $_SESSION['logi'] = TRUE;
@@ -92,6 +84,7 @@ if (isset($_POST['Login_btn'])) {
         }
     }
 }
+
 
 $_SESSION['logged'] = "";
 
@@ -123,11 +116,15 @@ $conn->close();
     <script type="text/javascript" src="inspect.js"></script>
     <style>
         body {
-            background-repeat: no-repeat;
-            background-size: 100%;
             background-color: white;  
             color: #13274F;
-        }
+            background-image: url("img.jpeg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+            background-size: cover; /* Use contain to reduce image size while maintaining aspect ratio */  
+          }
 
         * {
             margin: 0;

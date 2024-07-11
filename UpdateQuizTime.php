@@ -21,6 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $conn->prepare("UPDATE quiz_details SET startingtime = ?, EndTime = ? WHERE Quiz_Id = ?");
         $stmt->bind_param('ssi', $startTime, $endTime, $quizId);
         if ($stmt->execute()) {
+            $newActiveQuizId = $quizId;
+
+            $conn->query("UPDATE quiz_details SET IsActive = 0");
+
+            $conn->query("UPDATE quiz_details SET IsActive = 1 WHERE Quiz_Id = $newActiveQuizId");
+
+            $activeQuizRes = $conn->query("SELECT QuizName FROM quiz_details WHERE Quiz_Id = $newActiveQuizId");
+            $activeQuiz = $activeQuizRes->fetch_assoc()['QuizName'];
+
+            $activeQuizId = $newActiveQuizId;
+            $_SESSION['active'] = $activeQuizId;
+            $_SESSION['activeQuiz'] = $activeQuiz;
             echo json_encode(['message' => 'Quiz time updated successfully.']);
         } else {
             echo json_encode(['message' => 'Failed to update quiz time.']);

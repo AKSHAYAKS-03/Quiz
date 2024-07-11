@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
         }
         
         .cot {
-            width: 500px;
+            width: 600px;
             background-color: white;
             padding: 50px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

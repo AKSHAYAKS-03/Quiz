@@ -59,6 +59,15 @@ body {
     color: white;
     margin: 0;
     padding: 0;
+    background-image: url('img2.jpeg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .head {
@@ -76,7 +85,7 @@ h1 {
     background-color: white;
     padding: 40px; /* Adjust padding for inner content */
     border-radius: 8px;
-    margin: 50px auto;
+    margin: 50px;
     color: #333;
     box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -122,24 +131,25 @@ h2.ques {
 
   .option label {
     
-            display: block;
-            width: 100%; /* Full width for label */
-            background-color: #f1f1f1;
-            color: #13274F;
-            border-radius: 5px;
-            padding: 20px; /* Adjust padding for label */
-            cursor: pointer;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
-            text-align: center; /* Center align text */
-            margin-right:-10px;
-            margin-bottom:20px;
+    display: block;
+    width: 100%; /* Full width for label */
+    /* background-color: #f1f1f1; */
+    color: #13274F;
+    border-radius: 5px;
+    padding: 20px; /* Adjust padding for label */
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    text-align: center; /* Center align text */
+    margin-right:-10px;
+    margin-bottom:20px;
         }
 
 .option input[type="radio"]:checked + label {
     background-color: #13274F;
+    transform : translateY(-10px);
     color: white;
-    box-shadow: 1px 1px 10px black;
+    /* box-shadow: 1px 1px 10px #13274F; */
 }
 
 .quizContent input[type="submit"] {
@@ -210,7 +220,7 @@ h2.ques {
 }
 #agreement{
     text-align: center;
-    font-size:20px;
+    font-size:15px;
     background-color: white;
     padding: 50px;
     height:200px;
@@ -297,7 +307,20 @@ border-radius: 10px;
         .modal-content button:hover {
             background-color: #0d1b37;
         }
-    </style>
+        #remtime{
+            font-size: 40px;
+            color: red;
+            font-weight: bold;
+            font-family: 'poppins' sans-serif;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #remtime.show {
+            opacity: 1;
+        }
+                
+            </style>
     <script src='DisableKeys.js'></script>
 </head>
 <body oncontextmenu="return false;">
@@ -306,16 +329,15 @@ border-radius: 10px;
         <h1><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h1>
     </div>
 </div>
-<br><br>
+<center><div id="remtime"></div></center>
 <center>
         <div id="agreement">
-            <h1>Terms of Quiz</h1>
+            <h2>Terms of Quiz</h2>
             <p>You are not allowed to switch screens during the quiz. Once you agree and start the quiz, you cannot attempt it again.</p><br>
             <button onclick="agreeAndStart()" id="agreebut">I Agree</button>
         </div>
         </center>
         <div id="quizContent" class="quizContent">
-        <center><div id="remtime" style="text-align: center; font-size: 20px;color: red "></div></center>
         <br>
             <div id="response"></div>
             <center>
@@ -542,8 +564,13 @@ function checkTime() {
     var quesDurationMillis = (parseInt(quesDurationParts[0]) * 60 + parseInt(quesDurationParts[1])) * 1000;
 
     if (remainingTime <= quesDurationMillis) {
-        document.getElementById('remtime').innerHTML = "You have " + formatTime(remainingTime) + " Left";
+        var remTimeElem = document.getElementById('remtime');
+        remTimeElem.innerHTML = "You have " + formatTime(remainingTime) + " Left";
+        remTimeElem.classList.add('show');
     }
+    setTimeout(function() {
+            remTimeElem.classList.remove('show');
+        }, 3000); // Show the message for 5 seconds
 
     var interval = setInterval(function() {
         var currentTime = new Date().getTime();

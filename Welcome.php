@@ -156,7 +156,7 @@ $conn->close();
             color: #fff;
             font-family:"Poppins", sans-serif;;
             margin: 0;
-            padding: 0;
+            padding: 0;         
         }
 
         .header {
@@ -272,14 +272,14 @@ $conn->close();
     <h2 style="margin-bottom: 50px;margin-top:-20px"><?php echo $name; ?></h2>
     <font size='4'>
         <ul>
-            <li><strong style="margin-right: 100px;">Number of Questions </strong> <?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></li>
-            <li><strong style="margin-right: 200px;">Type </strong> Multiple Choice</li>
-            <li><strong style="margin-right: 170px;">Total Marks </strong> <?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</li>
-            <li><strong style="margin-right: 230px;">Time </strong> <?php echo htmlspecialchars($_SESSION["duration"]); ?></li>
-            <li><strong style="margin-right: 115px;">Time per Question </strong> <?php echo htmlspecialchars($_SESSION["question_duration"]); ?></li>
-            <li><strong style="margin-right: 120px;">Marks per Question </strong> <?php echo htmlspecialchars($_SESSION["question_marks"]); ?></li>
+            <li><strong style="margin-right: 150px;">Number of Questions </strong><?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></li>
+            <li><strong style="margin-right: 290px;">Type </strong> Multiple Choice</li>
+            <li><strong style="margin-right: 230px;">Total Marks </strong> <?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</li>
+            <li><strong style="margin-right: 290px;">Time </strong> <?php echo htmlspecialchars($_SESSION["duration"]); ?></li>
+            <li><strong style="margin-right: 175px;">Time per Question </strong> <?php echo htmlspecialchars($_SESSION["question_duration"]); ?></li>
+            <li><strong style="margin-right: 160px;">Marks per Question </strong> <?php echo htmlspecialchars($_SESSION["question_marks"]); ?></li>
             <!-- <li><strong style="margin-right: 60px;">Your Quiz will start at:</strong> <?php echo date('Y-m-d H:i:s', strtotime($_SESSION['startingtime'])); ?></li> -->
-            <li><strong style="margin-right: 80px;">Your Quiz will start at </strong> <?php echo date('H:i  A', strtotime($_SESSION['startingtime'])); ?></li>
+            <li><strong style="margin-right: 145px;">Your Quiz will start at </strong> <?php echo date('H:i  A', strtotime($_SESSION['startingtime'])); ?></li>
 
 
         </ul>

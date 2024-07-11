@@ -288,10 +288,7 @@ if (isset($_POST['Back'])) {
         var endDateTime = new Date(endTime);
         var minEndDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000 + durationSeconds * 1000);
 
-        if (startDateTime < new Date()) {
-            showMessage('Start time must be in the future.', 'error');
-            return;
-        } else if (endDateTime < minEndDateTime) {
+        if(endDateTime < minEndDateTime) {
             showMessage('End time must be at least ' + quizDuration + ' after the start time.', 'error');
             return;
         } else {

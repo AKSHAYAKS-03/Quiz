@@ -10,6 +10,24 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     header('Location: login.php');
     exit;
 }
+// $Name = $_SESSION['Name'];
+// $RollNo = $_SESSION['RollNo'];
+// $activeQuizId = $_SESSION['active'];
+
+// $sql = "SELECT * FROM student WHERE RollNo='$RollNo' and QuizId=$activeQuizId";
+// $result = $conn->query($sql);
+
+// if ($result->num_rows > 0) {
+//     ?>
+//     <script>
+//         alert("You already attended the quiz");
+//     </script>
+//     <?php
+// }
+// else{
+//     header('Location: login.php');
+// }
+
 
 $rollno = $_SESSION['RollNo'];
 
@@ -157,7 +175,7 @@ $conn->close();
             margin: 50px auto;
             color: #333;
             margin-top: 20px;
-            margin-left: 150px;
+            margin-left: 100px;
             display: flex;
             flex-direction: row;
             align-items: center;
