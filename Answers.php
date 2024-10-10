@@ -10,24 +10,6 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     header('Location: login.php');
     exit;
 }
-// $Name = $_SESSION['Name'];
-// $RollNo = $_SESSION['RollNo'];
-// $activeQuizId = $_SESSION['active'];
-
-// $sql = "SELECT * FROM student WHERE RollNo='$RollNo' and QuizId=$activeQuizId";
-// $result = $conn->query($sql);
-
-// if ($result->num_rows > 0) {
-//     ?>
-//     <script>
-//         alert("You already attended the quiz");
-//     </script>
-//     <?php
-// }
-// else{
-//     header('Location: login.php');
-// }
-
 
 $rollno = $_SESSION['RollNo'];
 
@@ -62,16 +44,15 @@ if ($userquery_result->num_rows > 0) {
     $score = $row['Score'];
     $time = $row['Time'];
 }
-// echo $time . " ". $total_time;
 
 list($minutes, $seconds) = explode(":", $time);
 
-if($minutes == 0) {
-$unit = "sec";
+if ($minutes == 0) {
+    $unit = "sec";
+} else {
+    $unit = "min";
 }
-else {
-$unit = "min";
-}
+
 // Fetch user's answers for the quiz
 $user_answers_query = $conn->prepare("SELECT questionno, yanswer FROM stud WHERE regno = ? AND quizid = ?");
 $user_answers_query->bind_param("si", $_SESSION['RollNo'], $_SESSION['active']);
@@ -106,13 +87,19 @@ $conn->close();
             color: white;
             margin: 0;
             padding: 0;
+            background-image: url("img3.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+            background-size: cover;
         }
         .head {
             text-align: center;
             margin-top: 20px;
         }
         .parentdiv li {
-            margin-left:40px;
+            margin-left: 40px;
             font-size: 20px;
             margin-bottom: 20px;
             text-decoration: none;
@@ -141,13 +128,15 @@ $conn->close();
         }
         .correct-answer {
             color: green;
+            font-size:22px;
             font-weight: bold;
         }
         .incorrect-answer {
             color: red;
+            font-size:22px;
             font-weight: bold;
         }
-        .answer{
+        .answer {
             color: green;
         }
         .Logout {
@@ -204,6 +193,7 @@ $conn->close();
             align-items: center;
             justify-content: center;
             position: relative;
+            transition: --percentage 0.5s ease-in-out; /* Adjust animation duration and timing */
         }
 
         .circle::before {
@@ -213,6 +203,7 @@ $conn->close();
             height: 80%;
             background-color: #fff;
             border-radius: 50%;
+            transition: opacity 0.3s ease-in-out; /* Optional: Adjust opacity transition */
         }
 
         .score-final {
@@ -222,14 +213,14 @@ $conn->close();
             position: relative;
             z-index: 1;
         }
+
         .parentdiv {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .answers-container {
-            width:600px;
-            margin: 20px auto;
+            width: 600px;
             padding: 50px;
             background-color: #fff;
             color: #13274F;
@@ -244,14 +235,12 @@ $conn->close();
             padding-left: 20px;
             font-size: 20px;
             margin-bottom: 20px;
-
         }
         .answers-container li {
             list-style-type: lower-alpha;
-            margin-left:50px;
+            margin-left: 50px;
             font-size: 20px;
             margin-bottom: 20px;
-
         }
     </style>
 </head>
@@ -267,6 +256,7 @@ $conn->close();
         <div class="circle" style="--percentage: <?php echo ($score / $total) * 100; ?>%;">
             <div class="score-final"><?php echo $score ?> / <?php echo $total ?></div>
         </div>
+        
     </div>
     <div class="parentdiv">
             <ul>
@@ -315,5 +305,33 @@ $conn->close();
         </form>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const score = <?php echo $score; ?>;
+    const total = <?php echo $total; ?>;
+    const circle = document.querySelector('.circle');
+    const scoreFinal = document.querySelector('.score-final');
+    const duration = 2000; // Animation duration in milliseconds
+    const fps = 60; // Frames per second for smooth animation
+
+    // Calculate step size based on animation duration and total frames
+    const step = (score / total) * 100 / (duration / 1000 * fps);
+    let currentPercentage = 0;
+
+    // Update score and total displayed
+    scoreFinal.textContent = `0 / ${total}`;
+
+    // Function to animate score percentage
+    const animateScore = setInterval(() => {
+        currentPercentage += step;
+        if (currentPercentage >= (score / total) * 100) {
+            currentPercentage = (score / total) * 100;
+            clearInterval(animateScore);
+        }
+        circle.style.setProperty('--percentage', `${currentPercentage}%`);
+        scoreFinal.textContent = `${Math.round(currentPercentage * total / 100)} / ${total}`;
+    }, 1000 / fps); // Adjust frame rate for smoother animation
+});
+</script>
 </body>
 </html>

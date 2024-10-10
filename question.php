@@ -53,124 +53,126 @@ $conn->close();
     <title>Quizze</title>
     
     <style>
-body {
-    background-color: #13274F;
-    font-family: "Poppins", sans-serif;
-    color: white;
-    margin: 0;
-    padding: 0;
-    background-image: url('img2.jpeg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
+        body {
+            background-color: #13274F;
+            font-family: "Poppins", sans-serif;
+            color: white;
+            margin: 0;
+            padding: 0;
+            background-image: url("img3.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-.head {
-    text-align: center;
-    margin-top: 20px;
-}
+        .head {
+            text-align: center;
+            margin-top: 20px;
+        }
 
-h1 {
-    font-size: 36px;
-}
+        h1 {
+            font-size: 36px;
+        }
 
-.quizContent {
-    width: 900px;
-    height: 450px;
-    background-color: white;
-    padding: 40px; /* Adjust padding for inner content */
-    border-radius: 8px;
-    margin: 50px;
-    color: #333;
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
-    position: relative;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
-}
+        .quizContent {
+            width: 900px;
+            height: 450px;
+            background-color: white;
+            padding: 40px; /* Adjust padding for inner content */
+            border-radius: 8px;
+            margin: 50px;
+            color: #333;
+            box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
 
-h2.ques {
-    color: #13274F;
-    margin-bottom: 20px;
-}
+        h2.ques {
+            color: #13274F;
+            margin-bottom: 20px;
+        }
 
-.quizContent ul {
+        .quizContent ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .quizContent ul li {
+            color: #13274F;
+            margin-bottom: 25px;
+        }
+
+        #optionsList {
+    margin-top: 0;
     list-style: none;
     padding: 0;
-}
-
-.quizContent ul li {
-    color: #13274F;
-    margin-bottom: 15px;
-}
-
-#optionsList {
-    margin-top: -20px;
-    list-style: none;
-    padding: 70px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between; /* Distribute items evenly */
+    justify-content: space-between; /* Ensures even spacing */
+    gap: 10px; /* Adjust spacing between items */
 }
 
 .option {
-    width: calc(50% - 20px); /* Adjust width to fit two items per row with spacing */
-    margin-bottom: 20px; /* Adjust spacing between rows */
-    margin-left:-20px;
-    margin-right:-20px;
+    flex-basis: calc(50% - 10px); /* Makes each option take up 50% of the width minus the gap */
+    margin-bottom: 30px; /* Space between rows */
 }
 
 .option input[type="radio"] {
     display: none; /* Hide default radio buttons */
 }
 
-  .option label {
-    
-    display: block;
-    width: 100%; /* Full width for label */
-    /* background-color: #f1f1f1; */
+.option label {
+    display: inline-block;
+    background-color: #f9f9f9;
     color: #13274F;
-    border-radius: 5px;
-    padding: 20px; /* Adjust padding for label */
+    /* border: 2px solid #13274F; */
+    border-radius: 8px;
+    padding: 10px 15px;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    text-align: center; /* Center align text */
-    margin-right:-10px;
-    margin-bottom:20px;
-        }
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.option label:hover {
+    background-color: #dce4f7;
+    transform: translateY(-5px);
+}
 
 .option input[type="radio"]:checked + label {
     background-color: #13274F;
-    transform : translateY(-10px);
-    color: white;
-    /* box-shadow: 1px 1px 10px #13274F; */
-}
-
-.quizContent input[type="submit"] {
-    background-color: #13274F;
     color: #fff;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: -100px;
-    font-size: 16px;
-    position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-10px);
 }
 
-.quizContent input[type="submit"]:hover {
-    background: #fff;
-    color: #13274F;
-}
 
-#response {
+
+        .quizContent input[type="submit"] {
+            background-color: #13274F;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: -100px;
+            font-size: 16px;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .quizContent input[type="submit"]:hover {
+            background: #fff;
+            color: #13274F;
+        }
+        #response {
             font-family: monospace;
             width: 100px;
             font-weight: bold;
@@ -178,73 +180,84 @@ h2.ques {
             padding-right: 10px;
             margin-top: -20px;
             position: absolute;
-            right: 20px; /* Adjust position if necessary */
+            right: 20px;
             text-shadow: 1px 1px 5px #fff;
-
         }
-@keyframes pop {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
 
-.pop {
-    animation: pop 0.5s ease-in-out;
-}
+        /* Blink animation */
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+        
+        .blink{
+            animation: blinker 1s ease-in-out infinite;
+        }                    
+                                    
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
 
-/* Full screen styles */
-:-webkit-full-screen {
-    background-color: transparent;
-}
+        .pop {
+            animation: pop 0.5s ease-in-out;
+        }
 
-:-ms-fullscreen {
-    background-color: transparent;
-}
+        /* Full screen styles */
+        :-webkit-full-screen {
+            background-color: transparent;
+        }
 
-:fullscreen {
-    background-color: transparent;
-}
+        :-ms-fullscreen {
+            background-color: transparent;
+        }
 
-#quizContent {
-    display: none;
-}
+        :fullscreen {
+            background-color: transparent;
+        }
 
-#quizForm {
-    text-align: center;
-}
-#agreement{
-    text-align: center;
-    font-size:15px;
-    background-color: white;
-    padding: 50px;
-    height:200px;
-    width:60%;
-    color : #13274F;
-border-radius: 10px;
-}
-#agreebut{
-    background-color: #13274F;
-    color: #fff;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: -20px;
-    font-size: 16px;
-    position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-#agreebut:hover {
-    background: #fff;
-    color: #13274F;
-}
-.modal {
+        #quizContent {
+            display: none;
+        }
+
+        #quizForm {
+            text-align: center;
+        }
+        #agreement{
+            text-align: center;
+            font-size:15px;
+            background-color: white;
+            padding: 50px;
+            height:200px;
+            width:60%;
+            color : #13274F;
+        border-radius: 10px;
+        }
+        #agreebut{
+            background-color: #fff;
+            color: #13274F;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: -20px;
+            font-size: 16px;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        #agreebut:hover {
+            background: #13274F;
+            color: #fff;
+        }
+        .modal {
             display: none;
             position: fixed;
             z-index: 1000;
@@ -339,13 +352,16 @@ border-radius: 10px;
         </center>
         <div id="quizContent" class="quizContent">
         <br>
-            <div id="response"></div>
-            <center>
+        <div id="response" class='blink'></div>
+        <center>
             <form id="quizForm">
                 <br>
-                <h2 id="questionText" class="ques"><?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); ?></h2>
+                <?php $index = 1; ?>
+                <h2 id="questionText" class="ques"><?php echo $index; ?> . <?php echo htmlspecialchars($result['Question']); ?></h2>
+                <br> 
                 <ul id="optionsList">
                 <?php foreach ($options as $option): ?>
+                   
                     <div class="option">
                         <li>
                             <input type="radio" id="option_<?php echo htmlspecialchars($option); ?>" name="choice" value="<?php echo htmlspecialchars($option); ?>"  >
@@ -361,7 +377,7 @@ border-radius: 10px;
                 <input type="hidden" name="timeout" id="timeout" value="0">
                 <input type="hidden" name="currentIndex" id="currentIndex" value="<?php echo $currentIndex; ?>">
                 <input type="submit" name="submit" value="Submit Answer" id="submit">
-                
+                <?php $index+=1; ?>
             </form>
                 </center>
         </div>
@@ -398,6 +414,7 @@ function agreeAndStart() {
     startQuiz(); // Call startQuiz function here
     checkTime();
 }
+var interval;
 
 function startQuiz() {
     var durationStr = "<?php echo $question_duration; ?>"; // duration in "MM:SS" format
@@ -413,7 +430,7 @@ function startQuiz() {
         clearInterval(interval);
     }
 
-    timer = duration;
+    var timer = duration;
     var halfway = Math.floor(duration / 2);
 
     // Immediately update the display
@@ -498,7 +515,7 @@ function handleNextQuestion(questionData) {
 
         // Update question text and number
         var questionTextElement = document.getElementById('questionText');
-    questionTextElement.innerHTML = questionData.currentIndex + 1 + ' . ' + questionData.question;
+        questionTextElement.innerHTML = questionData.currentIndex + 1 + ' . ' + questionData.question;
 
 
     // Update question text

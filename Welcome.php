@@ -156,7 +156,13 @@ $conn->close();
             color: #fff;
             font-family:"Poppins", sans-serif;;
             margin: 0;
-            padding: 0;         
+            padding: 0;  
+            background-image: url("img3.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+            background-size: cover;       
         }
 
         .header {
@@ -174,7 +180,6 @@ $conn->close();
     margin: 20px auto;
     background-color: white;
     padding: 50px;
-    box-shadow: 1px 1px 10px black;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -207,8 +212,8 @@ $conn->close();
         }
 
         .new input[type="submit"] {
-            background-color: #13274F;
-            color: white;
+            background-color: #fff;
+            color: #13274F;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
@@ -219,8 +224,8 @@ $conn->close();
         }
 
         .new input[type="submit"]:hover {
-            background-color: #fff;
-            color: #13274F;
+            background-color: #13274F;
+            color: #fff;
         }
 
                

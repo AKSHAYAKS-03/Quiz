@@ -118,12 +118,18 @@ $conn->close();
         body {
             background-color: white;  
             color: #13274F;
-            background-image: url("img.jpeg");
+            background-image: url("img3.jpg");
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-position: center;
             font-family: 'Poppins', sans-serif;
             background-size: cover; /* Use contain to reduce image size while maintaining aspect ratio */  
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
           }
 
         * {
@@ -182,19 +188,21 @@ $conn->close();
             position: relative;
             height: 450px;
             width: 400px;
-            background-color: #13274F;
-            color: white;
+            color: #13274F;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-left: 500px;
+            margin-left: 300px;
             margin-top: 30px;
             backdrop-filter: blur(50px);
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.1);
             display: flex;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            background : transparent;
+
+
             /* transform: scale(0);
             transition: transform 0.5s ease, height 0.2s ease; */
         }
@@ -254,7 +262,7 @@ $conn->close();
             border-radius: 4px;
             border: 1px solid #ccc;
             box-sizing: border-box;
-            color: #fff;
+            color: #13274F;
 
         }
 
@@ -265,34 +273,33 @@ $conn->close();
             border: none;
             border-radius: 10px;
             background: transparent;
-            color: #fff;
+            color: #13274F;
             font-size: 16px;
             cursor: pointer;            
 
         }
 
         .form-group button:hover {
-            background-color: #fff;
-            color: #13274F;
+            background-color: #13274F;
+            color: #fff;
         }
         
 
         .login-register {
             font-weight: 500;
             text-align: center;
-            font-weight: 500;
-   
+            font-weight: 500;   
+            color: #13274F;
 
         }
 
-        .login-register p a {
+        .login-register a {
             text-decoration: none;
             display: flex;
             flex-direction: column;
-
         }
 
-        .login-register p a:hover {
+        .login-register a:hover {
             color: #716f81;
         }
 
@@ -303,7 +310,7 @@ $conn->close();
             width: 20px;
             height: 20px;
             font-size: 1.5em;
-            color: #fff;
+            color: #13274F;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -326,14 +333,14 @@ $conn->close();
             border: none;
             border-radius: 10px;
             background: transparent;
-            color: #fff;
+            color: #13274F;
             font-size: 16px;
             cursor: pointer;
             
             }
             #reset:hover {
-                background-color: #fff;
-                color: #13274F;
+                background-color: #13274F;
+                color: #fff;
         }
         .fixed-input {
         position: relative;
@@ -347,7 +354,7 @@ $conn->close();
         width: 20px; 
         text-align: center; 
         pointer-events: none; 
-        color: white;
+        color: #13274F;
         font-size: 13.5px; 
     }
     .fixed-input input {
@@ -362,16 +369,65 @@ $conn->close();
     .close-button:hover{    
     cursor: pointer;
     }
+    input[type="text"] {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
 
+
+    .header {
+    text-align: center; /* Center-align the contents */
+    font-size: 50px;
+    position: relative; /* Ensure relative positioning for absolute child */
+}
+
+.quiz-container {
+    position: relative; /* Position container relatively */
+    display: inline-block; /* Ensure container wraps around images */
+}
+
+.quiz {
+    width: 350px;
+    height: auto;
+    display: block;
+    border-radius:  500px;
+}
+
+.bulb-man {
+    position: absolute; /* Position the bulb absolutely */
+    top: 50%; /* Adjust top position */
+    left: 50%; /* Adjust left position */
+    transform: rotate(-25deg); 
+    width: 150px;
+    margin-left:-150px;
+    margin-top:-70px;
+    height: auto;
+    border-radius: 50px;
+    z-index: 1; /* Ensure the bulb is above the background image */
+    animation: blinkJump 2s ease-in-out infinite; /* Apply animation */
+}
+
+@keyframes blinkJump {
+    0%, 100% {
+        transform: rotate(-25deg) scale(1);
+    }
+    50% {
+        transform: rotate(-25deg) scale(1.2);
+    }
+}
 
         
     </style>
 </head>
 <body oncontextmenu="return false;">
-
-<center><h1>QUIZ</h1></center>
+<div class="header">
+    <center><h1>QUIZ</h1></center>
+    <img src="imgs/quiz4.jpg" class="quiz">
+    <img src="imgs/bulb3.gif" class="bulb-man">
+</div>
 
 <div class="container">
+      
     <div class="form-box login">
         <br>
         <center><h1>Student Login</h1> </center>
@@ -392,7 +448,7 @@ $conn->close();
             <br>
             <div class="form-group" style="display:flex;flex-direction:row">
                 <label for="dept">Department</label>
-                <select name="dept" style="width:100px;margin-left:40px;text-decoration:none;border-radius:5px;background-color:transparent;color:white">
+                <select name="dept" style="width:100px;margin-left:40px;text-decoration:none;border-radius:5px;background-color:transparent;color:#13274F;">
                     <option style="color:black">select</option>
                     <option value="CSE"  style="color:black">CSE</option>
                     <option value="IT"  style="color:black">IT</option>
@@ -409,7 +465,7 @@ $conn->close();
             </div>
             <br>
             <div class="login-register">               
-                <a href="#" class="register-link" style="text-decoration:none;color:white">Admin Login ?</a>                
+                <a href="#" class="register-link" style="text-decoration:none">Admin Login ?</a>                
             </div>
         </form>
     </div>
@@ -433,10 +489,11 @@ $conn->close();
             </div>
             <br>
             <div class="login-register">               
-                <a href="#" class="login-link" style="text-decoration:none;color:white">Student Login?</a>
+                <a href="#" class="login-link" style="text-decoration:none">Student Login?</a>
             </div>
         </form>
     </div>
+    
 </div>
 
 <script>

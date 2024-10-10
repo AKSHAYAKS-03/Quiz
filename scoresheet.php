@@ -62,9 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
         body {
             background-color: #13274F;
             font-family: "Poppins", sans-serif;
-            color: white;
+            color: #13274F;
             margin: 0;
             padding: 0;
+            background-image: url("img3.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+            background-size: cover;
         }
         .head {
             text-align: center;
@@ -72,15 +78,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
         }
         
         .cot {
-            width: 600px;
+            width: 500px;
+            height: 350px;            
+            font-family: 'Poppins', sans-serif;
+            background-size: cover;
             background-color: white;
-            padding: 50px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
             border-radius: 8px;
             margin: 50px auto;
-            color: #333;
-            box-shadow: 1px 1px 10px black;
+            color: #13274F;
+            box-shadow: 1px 1px 20px 10px rgba(0, 0, 0, 0.2);
+            top: 60%;
+            left: 50%;
+            z-index: 1; /* Ensure the bulb is above the background image */
+            animation: blinkJump 3s ease-in-out infinite; /* Apply animation */
+            }
+
+    
+
+    @keyframes blinkJump {
+        0%, 100% {
+            transform:scale(1);
         }
+        50% {
+            transform:scale(1.05);
+        }
+    }
+
+
+
         .score {
             padding-left: 400px;
         }
@@ -92,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 16px;            
         }
         .fr input[type="submit"]:hover {
             background: #fff;
@@ -109,9 +135,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
             list-style: none;
             padding: 40px;
         }
+        @keyframes lights {
+            0% {
+                box-shadow: 0 0 10px 5px transparent;
+            }
+            50% {
+                box-shadow: 0 0 20px 10px  transparent, 0 0 40px 20px #AFDBF5;
+            }
+            100% {
+                box-shadow: 0 0 10px 5px  transparent;
+            }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
+    <br>
 <div class="head">
         <h1>Score Sheet</h1>
 </div>
@@ -125,9 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
                 <li><strong style="margin-right:70px;">Time Taken </strong><?php echo htmlspecialchars($total_time); ?> <?php echo $unit; ?></li>
             </ul>
         </font>
-        <div class="fr">
+        <div class="fr" style="margin-top : -30px;">
             <form method="post" action="scoresheet.php">
-                <input type="submit" name="Ok" value="Logout" />
+              <center>  <input type="submit" name="Ok" value="Logout" /></center>
             </form>
     </div>
 </div>
