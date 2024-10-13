@@ -421,7 +421,7 @@ $conn->close();
 </head>
 <body oncontextmenu="return false;">
 <div class="header">
-    <center><h1>QUIZ</h1></center>
+    <center><h3>BRAINBITE</h3></center>
     <img src="imgs/quiz4.jpg" class="quiz">
     <img src="imgs/bulb3.gif" class="bulb-man">
 </div>
