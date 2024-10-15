@@ -18,7 +18,7 @@ if ($conn->connect_error) {
 
 $_SESSION['login'] = "";
 
-$activeQuizQuery = "SELECT QuizName, Quiz_Id, startingtime, EndTime FROM quiz_details WHERE IsActive = 1 LIMIT 1";
+$activeQuizQuery = "SELECT QuizName, Quiz_Id,TimeDuration, startingtime, EndTime FROM quiz_details WHERE IsActive = 1 LIMIT 1";
 $activeQuizResult = $conn->query($activeQuizQuery);
 $activeQuizData = $activeQuizResult->fetch_assoc();
 
@@ -32,11 +32,24 @@ $activeQuizId = $_SESSION['active'];
 if($activeQuizId === 'None'){
     echo '<script>alert("No Active Quiz");</script>';
 } else {
+    $totalduration = $activeQuizData["TimeDuration"];
     $startTime = strtotime($activeQuizData["startingtime"]);
     $endTime = strtotime($activeQuizData["EndTime"]);
     $currentUnixTime = time(); // Current Unix timestamp
-}
 
+
+    // Convert totalduration (format: MM:SS) into seconds
+    $timeParts = explode(':', $totalduration);
+    $durationInSeconds = ($timeParts[0] * 60) + $timeParts[1];  // Convert MM:SS to seconds
+
+    $quizEndTime = $startTime + $durationInSeconds;
+
+    $formattedEndTime = date('H:i:s', $quizEndTime);
+
+    // echo "Quiz ends at: " . $formattedEndTime;
+
+}
+// echo $totalduration;
 if (isset($_POST['Login_btn'])) {
     $Name = $conn->real_escape_string($_POST['name']);
     $RollNo = 9131 . $_POST['rollno'];
@@ -46,26 +59,35 @@ if (isset($_POST['Login_btn'])) {
     $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
     $result = $conn->query($sql);
 
-    // Check if the current time is past the end time of the quiz
-    if ($currentUnixTime > $endTime) {
+    // Check if the current time is past the end time of the quiz (duration-based)
+    if ($currentUnixTime > $quizEndTime) {
+        // Check if the student has already attended the quiz
         $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND QuizId='$activeQuizId'";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
+            // User attended, redirect to Answers page
             $_SESSION['login'] = TRUE;
             $_SESSION['logi'] = TRUE;
             $_SESSION['log'] = TRUE;
             $_SESSION['message'] = "You are logged in";
             $_SESSION['Name'] = $Name;
             $_SESSION['RollNo'] = $RollNo;
-            
             header("Location: Answers.php");
             exit();
         } else {
-            echo '<script>alert("Time Over"); window.location.href = "login.php";</script>';
+            // User has not attended the quiz, show an alert and redirect to login
+            echo '<script>alert("You have not attended the quiz"); window.location.href = "login.php";</script>';
             exit();
         }
     }
+    // If the current time is past the absolute end time of the quiz stored in the database
+    else if ($currentUnixTime > $endTime) {
+        // Quiz is over, redirect the user back to the login page
+        echo '<script>alert("Quiz is over"); window.location.href = "login.php";</script>';
+        exit();
+    }
+
 
     if ($result->num_rows > 0) {
         echo '<script>alert("You already attended the quiz");</script>';
