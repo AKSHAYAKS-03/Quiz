@@ -19,6 +19,21 @@ $_SESSION['active'] = $activeQuizId;
 $_SESSION['activeQuiz'] = $activeQuiz;
 $_SESSION['quiz'] = '';
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['activeQuiz'])) {
+    $newActiveQuizId = $_POST['activeQuiz'];
+
+    $conn->query("UPDATE quiz_details SET IsActive = 0");
+
+    $conn->query("UPDATE quiz_details SET IsActive = 1 WHERE Quiz_Id = $newActiveQuizId");
+
+    $activeQuizRes = $conn->query("SELECT QuizName FROM quiz_details WHERE Quiz_Id = $newActiveQuizId");
+    $activeQuiz = $activeQuizRes->fetch_assoc()['QuizName'];
+
+    $activeQuizId = $newActiveQuizId;
+    $_SESSION['active'] = $activeQuizId;
+    $_SESSION['activeQuiz'] = $activeQuiz;
+}
+
 $query = "SELECT Quiz_Id, QuizName, NumberOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details";
 $result = $conn->query($query);
  
@@ -223,7 +238,7 @@ $quizDuration='';
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
-            max-width: 500px;
+            max-width: 480px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             transform: scale(0);
@@ -291,12 +306,12 @@ $quizDuration='';
     <nav class='admin-nav'>
         <h2>Admin</h2>
         <ul>
-            <li><a href="Add_Quiz.php">Add New Quiz</a></li>
-            <li><a href="ViewResult.php">View Result</a></li>
             <li><a href="Q_add.php">Add Question</a></li>
-            <li><a href="Q_Edit.php">Edit/Delete Question</a></li> 
-            <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
+            <li><a href="Q_Edit.php">Edit/Delete Question</a></li>
             <li><a href="reset.php">Reset Quiz</a></li>
+            <li><a href="ViewResult.php">View Result</a></li>
+            <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
+            <li><a href="Add_Quiz.php">Add New Quiz</a></li>
         </ul>
     </nav>
 
@@ -305,7 +320,7 @@ $quizDuration='';
         <button class="btn" id="logout" onclick="logout()">Log Out</button>
         <p>Active Quiz: <strong><?php echo $activeQuiz; ?></strong></p>
         <?php if ($result && $result->num_rows > 0) { ?>
-            <form method="post" action="admin.php" id="UpdateId">
+            <form method="post" action="">
             <table class="quiz-details">
                 <thead>
                     <tr>
@@ -421,7 +436,7 @@ $quizDuration='';
                 activeQuizId = activeQuizId.value;
                 document.getElementById('quizId').value = activeQuizId;
 
-                fetch(UpdateQuizTime.php?quizId=${activeQuizId})
+                fetch(`UpdateQuizTime.php?quizId=${activeQuizId}`)
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('quizHeader').innerText = data.quizHeader;
@@ -464,7 +479,11 @@ $quizDuration='';
             var endDateTime = new Date(endTime);
             var minEndDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000 + durationSeconds * 1000);
 
-            if (endDateTime < minEndDateTime) {
+            if(startDateTime < new Date()) {
+                document.getElementById('timeMessage').innerHTML = 'Start time must be in the future.';
+                return;
+            } 
+            else if (endDateTime < minEndDateTime) {
                 document.getElementById('timeMessage').innerHTML = 'End time must be at least ' + quizDuration + ' after the start time.';
                 return;
             }
@@ -479,6 +498,7 @@ $quizDuration='';
                 })
                 .then(response => response.json())
                 .then(data => {
+                    alert(data.message);
                     closeModal();
                     location.reload(); 
                 })
