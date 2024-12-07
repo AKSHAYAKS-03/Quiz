@@ -55,10 +55,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
-<!DOCTYPE html>
-<html>
-    <head>
-        <script src="inspect.js"></script>
-    </head> 
-</html>

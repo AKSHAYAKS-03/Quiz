@@ -352,7 +352,7 @@ $conn->close();
         </center>
         <div id="quizContent" class="quizContent">
         <br>
-        <div id="response" class='blink'></div>
+        <div id="response"></div>
         <center>
             <form id="quizForm">
                 <br>
@@ -458,8 +458,10 @@ function startQuiz() {
 
         if (timer <= halfway) {
             display.style.color = 'red';
+            display.classList.add('blink');
         } else {
             display.style.color = 'green';
+            display.classList.remove('blink');
         }
     }
 }

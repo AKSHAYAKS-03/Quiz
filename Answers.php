@@ -18,6 +18,12 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$query_QuizName = $conn->prepare("SELECT QuizName FROM quiz_details WHERE Quiz_Id = ?");
+$query_QuizName->bind_param("i", $_SESSION['active']);
+$query_QuizName->execute();
+$result_QuizName = $query_QuizName->get_result();
+$QuizName = $result_QuizName->fetch_assoc();
+
 // Fetch all questions for the quiz with QuestionNo
 $query_total = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ?");
 $query_total->bind_param("i", $_SESSION['active']);
@@ -96,7 +102,7 @@ $conn->close();
         }
         .head {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
         .parentdiv li {
             margin-left: 40px;
@@ -110,15 +116,16 @@ $conn->close();
             padding: 20px;
         }
         .score {
-            margin-top: 50px;
+            margin-top: 30px;
             display: flex;
             flex-direction: column;
+            margin-bottom: 30px;
         }
         .container {
             border-radius: 8px;
             height: auto;
             width: 900px;
-            margin-left: 200px;
+            margin: 0 auto;
             display: flex;
             padding: 30px;
             flex-direction: column;
@@ -220,7 +227,7 @@ $conn->close();
             justify-content: space-between;
         }
         .answers-container {
-            width: 600px;
+            width: 800px;
             padding: 50px;
             background-color: #fff;
             color: #13274F;
@@ -246,7 +253,7 @@ $conn->close();
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
-    <h2><?php echo htmlspecialchars($_SESSION['Name']); ?></h2>
+    <h2><?php echo $QuizName['QuizName']." - ".$rollno;?></h2>
 </div>
 <div class="score">
     <div class="container">

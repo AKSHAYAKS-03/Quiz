@@ -60,7 +60,7 @@ if (isset($_POST['Login_btn'])) {
     $result = $conn->query($sql);
 
     // Check if the current time is past the end time of the quiz (duration-based)
-    if ($currentUnixTime > $quizEndTime) {
+    if ($currentUnixTime > $endTime) {
         // Check if the student has already attended the quiz
         $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND QuizId='$activeQuizId'";
         $result = $conn->query($sql);
@@ -76,16 +76,10 @@ if (isset($_POST['Login_btn'])) {
             header("Location: Answers.php");
             exit();
         } else {
-            // User has not attended the quiz, show an alert and redirect to login
-            echo '<script>alert("You have not attended the quiz"); window.location.href = "login.php";</script>';
-            exit();
-        }
-    }
-    // If the current time is past the absolute end time of the quiz stored in the database
-    else if ($currentUnixTime > $endTime) {
         // Quiz is over, redirect the user back to the login page
         echo '<script>alert("Quiz is over"); window.location.href = "login.php";</script>';
         exit();
+        }
     }
 
 
