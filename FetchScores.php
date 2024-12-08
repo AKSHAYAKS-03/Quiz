@@ -15,12 +15,23 @@ if ($conn->connect_errno) {
 if (isset($_POST['quizId']) && isset($_POST['limit'])) {
     $quizId = $conn->real_escape_string($_POST['quizId']);
     $limit = $conn->real_escape_string($_POST['limit']);
+    $selectedDept = $_POST['department']; 
 
     if ($quizId === 'all') {
-        $sql = "SELECT * FROM student ORDER BY Score DESC, `Time`";
+        $sql = "SELECT * FROM student";  
     } else {
-        $sql = "SELECT * FROM student WHERE QuizId = '$quizId' ORDER BY Score DESC, `Time`";
+        $sql = "SELECT * FROM student WHERE QuizId = '$quizId'"; 
     }
+
+    if ($selectedDept !== 'all') {
+        if (strpos($sql, 'WHERE') !== false) {
+            $sql .= " AND Department = '$selectedDept'";
+        } else {
+            $sql .= " WHERE Department = '$selectedDept'";
+        }
+    }
+
+    $sql .= " ORDER BY Score DESC, `Time`";
 
     if ($limit !== 'all') {
         $sql .= " LIMIT " . intval($limit);
@@ -58,10 +69,3 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
 
 $conn->close();
 ?>
-
-<!DOCTYPE html>
-<html>
-    <head>
-        <script src="inspect.js"></script>
-    </head>
-</html>

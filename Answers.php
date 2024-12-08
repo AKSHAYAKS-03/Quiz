@@ -134,18 +134,21 @@ $conn->close();
             color: #13274F;
         }
         .correct-answer {
-            color: green;
-            font-size:22px;
+            color: darkgreen; /* Dark green for the user's correct answer */
+            font-size: 22px;
             font-weight: bold;
         }
+
         .incorrect-answer {
             color: red;
-            font-size:22px;
+            font-size: 22px;
             font-weight: bold;
         }
+
         .answer {
-            color: green;
+            color: #86af49; /* Light green for the correct answer */
         }
+
         .Logout {
             background-color: #13274F;
             color: white;
@@ -278,34 +281,33 @@ $conn->close();
     <center><h2>ANSWERS</h2></center>
     <div class="answers-container">
     <?php $index = 1; ?>
-        <?php foreach ($questions as $question): ?>
-            <h2 class="ques"><?php echo $index ?> . <?php echo htmlspecialchars($question['Question']); ?></h2>
-            <ul>
-                <?php foreach (['Choice1', 'Choice2', 'Choice3', 'Choice4'] as $option): ?>
-                    <li >
-                        <?php
-                        $choice = htmlspecialchars($question[$option]);
-                        $user_answer = isset($user_answers[$question['QuestionNo']]) ? htmlspecialchars($user_answers[$question['QuestionNo']]) : '';
-                        $correct_answer = htmlspecialchars($question['Answer']);
+    <?php foreach ($questions as $question): ?>
+    <h2 class="ques"><?php echo $index ?> . <?php echo htmlspecialchars($question['Question']); ?></h2>
+    <ul>
+        <?php foreach (['Choice1', 'Choice2', 'Choice3', 'Choice4'] as $option): ?>
+            <li>
+                <?php
+                $choice = htmlspecialchars($question[$option]);
+                $user_answer = isset($user_answers[$question['QuestionNo']]) ? htmlspecialchars($user_answers[$question['QuestionNo']]) : '';
+                $correct_answer = htmlspecialchars($question['Answer']);
 
-                        // Determine if the current option is the correct answer or user's selected answer
-                        if ($user_answer === $choice && $user_answer === $correct_answer) {
-                            echo "<span class='correct-answer'>{$choice}</span>";
-                        } elseif ($user_answer === $choice && $user_answer !== $correct_answer) {
-                            echo "<span class='incorrect-answer'>{$choice}</span>";
-                        } elseif ($correct_answer === $choice) {
-                            echo "<span class='answer'>{$choice}</span>";
-                        } else {
-                            echo $choice;
-                        }
-                        ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-            <br>
-            <?php $index++; ?>
-
+                if ($user_answer === $choice && $user_answer === $correct_answer) {
+                    echo "<span class='correct-answer'>{$choice}</span>";
+                } elseif ($user_answer === $choice && $user_answer !== $correct_answer) {
+                    echo "<span class='incorrect-answer'>{$choice}</span>";
+                } elseif ($correct_answer === $choice) {
+                    echo "<span class='answer'>{$choice}</span>";
+                } else {
+                    echo $choice;
+                }
+                ?>
+            </li>
         <?php endforeach; ?>
+    </ul>
+    <br>
+    <?php $index++; ?>
+    <?php endforeach; ?>
+
     </div>        
         <form method='post' action="Answers.php">
             <input type="submit" name="Logout" class="Logout" value="Logout">

@@ -154,38 +154,37 @@ $conn->close();
         body {
             background-color: #13274F;
             color: #fff;
-            font-family:"Poppins", sans-serif;;
+            font-family: "Poppins", sans-serif;
             margin: 0;
-            padding: 0;  
+            padding: 0;
             background-image: url("img3.jpg");
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-position: center;
             font-family: 'Poppins', sans-serif;
-            background-size: cover;       
+            background-size: cover;
         }
 
         .header {
             margin-top: 10px;
             padding: 15px 0;
-            text-align: center;
             font-size: 40px;
             font-weight: bold;
         }
 
         .container {
             color: #13274F;
-    width: 900px;
-    height: auto; /* Changed height to auto for dynamic content */
-    margin: 20px auto;
-    background-color: white;
-    padding: 50px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center; /* Center align content */
-    text-align: left; /* Left align text */
+            width: 900px;
+            height: auto; /* Dynamic height */
+            margin: 20px auto;
+            background-color: white;
+            padding: 50px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: left;
         }
 
         h2 {
@@ -193,22 +192,24 @@ $conn->close();
         }
 
         ul {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
-            margin: 0; /* Adjusted margin to 0 for better alignment */
-            text-align: left; /* Left align text */        }
+            width: 100%;
+        }
 
         li {
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        strong {
+            margin-right: 100px;
         }
 
         .new {
             margin-top: 20px;
-            text-align: center; /* Center align buttons */
-        }
-
-        strong {
-            margin-right: 40px;
+            text-align: center;
         }
 
         .new input[type="submit"] {
@@ -226,9 +227,8 @@ $conn->close();
         .new input[type="submit"]:hover {
             background-color: #13274F;
             color: #fff;
-        }
-
-               
+        }        
+      
     </style>
     <script>
      document.addEventListener('DOMContentLoaded', function () {
@@ -269,25 +269,44 @@ $conn->close();
 </head>
 <body>
 
-<div class="header">
+<center><div class="header">
     <?php echo htmlspecialchars($_SESSION['quiz_name']); ?>
-</div>
+</div></center>
 
 <div class="container">
     <h2 style="margin-bottom: 50px;margin-top:-20px"><?php echo $name; ?></h2>
-    <font size='4'>
+         <font size='4'>    
         <ul>
-            <li><strong style="margin-right: 150px;">Number of Questions </strong><?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></li>
-            <li><strong style="margin-right: 290px;">Type </strong> Multiple Choice</li>
-            <li><strong style="margin-right: 230px;">Total Marks </strong> <?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</li>
-            <li><strong style="margin-right: 290px;">Time </strong> <?php echo htmlspecialchars($_SESSION["duration"]); ?></li>
-            <li><strong style="margin-right: 175px;">Time per Question </strong> <?php echo htmlspecialchars($_SESSION["question_duration"]); ?></li>
-            <li><strong style="margin-right: 160px;">Marks per Question </strong> <?php echo htmlspecialchars($_SESSION["question_marks"]); ?></li>
-            <!-- <li><strong style="margin-right: 60px;">Your Quiz will start at:</strong> <?php echo date('Y-m-d H:i:s', strtotime($_SESSION['startingtime'])); ?></li> -->
-            <li><strong style="margin-right: 145px;">Your Quiz will start at </strong> <?php echo date('H:i  A', strtotime($_SESSION['startingtime'])); ?></li>
+            <li>
+                <strong>Number of Questions</strong>
+                <span><?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></span>
+            </li>
+            <li>
+                <strong>Type</strong>
+                <span>Multiple Choice</span>
+            </li>
+            <li>
+                <strong>Total Marks</strong>
+                <span><?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</span>
+            </li>
+            <li>
+                <strong>Time</strong>
+                <span><?php echo htmlspecialchars($_SESSION["duration"]); ?></span>
+            </li>
+            <li>
+                <strong>Time per Question</strong>
+                <span><?php echo htmlspecialchars($_SESSION["question_duration"]); ?></span>
+            </li>
+            <li>
+                <strong>Marks per Question</strong>
+                <span><?php echo htmlspecialchars($_SESSION["question_marks"]); ?></span>
+            </li>
+            <li>
+                <strong>Your Quiz will start at</strong>
+                <span><?php echo date('H:i A', strtotime($_SESSION['startingtime'])); ?></span>
+            </li>
+        </ul>      
 
-
-        </ul>
     </font>
     <form method="post" action="welcome.php">
         <div class="new">
@@ -300,35 +319,3 @@ $conn->close();
 </body>
 </html>
 
-
-
-<!-- document.addEventListener('DOMContentLoaded', function () {
-            var startButton = document.getElementById('start');
-            var startingTime = new Date("<?php echo $_SESSION['startingtime']; ?>").getTime();
-            var endingTime = new Date("<?php echo $_SESSION['endingtime']; ?>").getTime();
-
-            function checkTime() {
-                var currentTime = new Date().getTime();
-
-                // Enable the start button when the current time reaches the starting time
-                if (currentTime >= startingTime) {
-                    startButton.disabled = false;
-                } else {
-                    startButton.disabled = true;
-                }
-
-                // Redirect to final.php when the current time reaches the ending time
-                if (currentTime >= endingTime) {
-                    window.location.href = 'final.php';
-                }
-            }
-
-            // Initial check
-            checkTime();
-
-            // Check every second
-            setInterval(checkTime, 1000);
-        });
-
-        
-    </script> -->

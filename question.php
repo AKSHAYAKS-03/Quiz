@@ -333,6 +333,17 @@ $conn->close();
             opacity: 1;
         }
                 
+        /* .question-container {
+    width: 100%;
+    padding: 10px;
+}
+
+#questionText {
+    text-align: left; /* Align text to the left */
+    /* font-size: 18px;
+    margin: 10px 0;
+} */ */
+
             </style>
     <script src='DisableKeys.js'></script>
 </head>
@@ -346,7 +357,7 @@ $conn->close();
 <center>
         <div id="agreement">
             <h2>Terms of Quiz</h2>
-            <p>You are not allowed to switch screens during the quiz. Once you agree and start the quiz, you cannot attempt it again.</p><br>
+            <h4>You are not allowed to switch screens during the quiz. Once you agree and start the quiz, you cannot attempt it again.</h4><br>
             <button onclick="agreeAndStart()" id="agreebut">I Agree</button>
         </div>
         </center>
@@ -357,7 +368,13 @@ $conn->close();
             <form id="quizForm">
                 <br>
                 <?php $index = 1; ?>
-                <h2 id="questionText" class="ques"><?php echo $index; ?> . <?php echo htmlspecialchars($result['Question']); ?></h2>
+                <div class="question-container">
+                    <h2 id="questionText" class="ques">
+                    <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); ?>
+                    </h2>
+                </div>
+                
+
                 <br> 
                 <ul id="optionsList">
                 <?php foreach ($options as $option): ?>
@@ -457,10 +474,10 @@ function startQuiz() {
         display.textContent = minutes + ":" + seconds;
 
         if (timer <= halfway) {
-            display.style.color = 'red';
+            display.style.color = '#c94c4c';
             display.classList.add('blink');
         } else {
-            display.style.color = 'green';
+            display.style.color = '#82b74b';
             display.classList.remove('blink');
         }
     }
@@ -515,18 +532,15 @@ function handleNextQuestion(questionData) {
         clearInterval(interval);
     }
 
-        // Update question text and number
-        var questionTextElement = document.getElementById('questionText');
-        questionTextElement.innerHTML = questionData.currentIndex + 1 + ' . ' + questionData.question;
-
-
-    // Update question text
+    // Update question text and number
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
         console.error('Question text element not found');
         return;
     }
-    questionTextElement.innerText = questionData.question;
+
+    // Correctly display question number (1-based index)
+    questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
 
     // Clear existing options
     var optionsList = document.getElementById('optionsList');
@@ -537,7 +551,7 @@ function handleNextQuestion(questionData) {
     optionsList.innerHTML = '';
 
     // Add new options
-    questionData.options.forEach(function (option,index) {
+    questionData.options.forEach(function (option, index) {
         var listItem = document.createElement('li');
         var radioInput = document.createElement('input');
         var label = document.createElement('label');
@@ -545,16 +559,15 @@ function handleNextQuestion(questionData) {
         radioInput.type = 'radio';
         radioInput.name = 'choice';
         radioInput.value = option;
-        
-        radioInput.id = 'option_' + index; // Unique ID for each radio input
+        radioInput.id = 'option_' + index;
+
         label.htmlFor = radioInput.id;
         label.textContent = option;
 
         listItem.appendChild(radioInput);
         listItem.appendChild(label);
 
-        listItem.classList.add('option'); // Add 'option' class to the <li> element
-
+        listItem.classList.add('option');
         optionsList.appendChild(listItem);
     });
 
@@ -565,7 +578,7 @@ function handleNextQuestion(questionData) {
 
     // Restart the quiz timer for the new question
     startQuiz();
-    checkTime();
+    checkTime();    
 }
 
 function handleFinalPage() {
@@ -584,7 +597,20 @@ function checkTime() {
 
     if (remainingTime <= quesDurationMillis) {
         var remTimeElem = document.getElementById('remtime');
-        remTimeElem.innerHTML = "You have " + formatTime(remainingTime) + " Left";
+        
+        var hours = Math.floor(remainingTime / 3600000);
+        var minutes = Math.floor((remainingTime % 3600000) / 60000);
+        var seconds = Math.floor((remainingTime % 60000) / 1000);
+
+        if (hours > 0) {
+            displayTime = hours + ' hr ' + minutes + ' min';
+        } else if (minutes > 0) {
+            displayTime = minutes + ' min ' + seconds + ' sec';
+        } else {
+            displayTime = seconds + ' sec';
+        }
+
+        remTimeElem.innerHTML = "Quiz Ends In " + displayTime;
         remTimeElem.classList.add('show');
     }
     setTimeout(function() {

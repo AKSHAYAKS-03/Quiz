@@ -216,6 +216,18 @@ if (isset($_POST['Back'])) {
       <option value="100">Top 100</option>
       <option value="all">All</option>
     </select>
+
+    Department:
+    <select id="department">
+      <option value="all">All Departments</option>
+      <option value="CSE">CSE</option>
+      <option value="IT">IT</option>
+      <option value="ECE">ECE</option>
+      <option value="EEE">EEE</option>
+      <option value="MECH">MECH</option>
+      <option value="CIVIL">CIV</option>
+      <!-- Add other departments here -->
+    </select>
 </div>
 <br>
 
@@ -270,6 +282,8 @@ if (isset($_POST['Back'])) {
   function fetchScores() {
     const quizId = document.getElementById("quiz").value;
     const limit = document.getElementById("limit").value;
+    const department = document.getElementById("department").value;  // Correctly get the selected department value
+    
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "FetchScores.php", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -278,14 +292,15 @@ if (isset($_POST['Back'])) {
             document.getElementById("score").innerHTML = xhr.responseText;
         }
     };
-    xhr.send("quizId=" + quizId + "&limit=" + limit);
+    xhr.send("quizId=" + quizId + "&limit=" + limit + "&department=" + department);  // Send the department value correctly
 
     document.getElementById("selectedQuizName").value = document.getElementById("quiz").options[document.getElementById("quiz").selectedIndex].text;
     document.getElementById("selectedQuizId").value = quizId;
-  }
+}
 
-  document.getElementById("quiz").addEventListener('change', fetchScores);
-  document.getElementById("limit").addEventListener('change', fetchScores);
+document.getElementById("quiz").addEventListener('change', fetchScores);
+document.getElementById("limit").addEventListener('change', fetchScores);
+document.getElementById("department").addEventListener('change', fetchScores);
 
   function deleteConfirm() {
     const activeQuiz = document.getElementById("selectedQuizName").value;
