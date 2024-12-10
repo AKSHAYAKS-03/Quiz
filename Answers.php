@@ -51,12 +51,15 @@ if ($userquery_result->num_rows > 0) {
     $time = $row['Time'];
 }
 
-list($minutes, $seconds) = explode(":", $time);
+list($hours, $minutes, $seconds) = explode(':', $time);
 
-if ($minutes == 0) {
-    $unit = "sec";
+// Determine the appropriate time format to display
+if ($hours == 0 && $minutes == 0) {
+    $display_time = intval($seconds) . ' sec';
+} elseif ($hours == 0) {
+    $display_time = intval($minutes) . ' min ' . intval($seconds) . ' sec';
 } else {
-    $unit = "min";
+    $display_time = intval($hours) . ' hr ' . intval($minutes) . ' min';
 }
 
 // Fetch user's answers for the quiz
@@ -274,7 +277,7 @@ $conn->close();
                 <li><strong style="margin-right: 70px;">Register No  </strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></li>
                 <li><strong style="margin-right: 70px;">Department </strong> <?php echo htmlspecialchars($_SESSION['dept']); ?></li>
                 <li><strong style="margin-right: 75px;">Your Score  </strong> <?php echo htmlspecialchars($score) ?>/<?php echo $total; ?></li>
-                <li><strong style="margin-right: 70px;">Time Taken </strong><?php echo htmlspecialchars($time) ?> <?php echo $unit; ?></li>
+                <li><strong style="margin-right: 70px;">Time Taken </strong><?php echo htmlspecialchars($time) ?></li>
             </ul>
      </div>   
     </div>

@@ -96,11 +96,11 @@ $total_duration = $_SESSION['duration'];
 
 // Extract minutes and seconds from start time
 list($start_minutes, $start_seconds) = explode(':', $start_time);
-$start_time_seconds = ($start_minutes * 60) + $start_seconds;
+$start_time_seconds = ((int)$start_minutes * 60) + $start_seconds;
 
 // Extract minutes and seconds from total duration
 list($total_minutes, $total_seconds) = explode(':', $total_duration);
-$total_duration_seconds = ($total_minutes * 60) + $total_seconds;
+$total_duration_seconds = ((int)$total_minutes * 60) + $total_seconds;
 
 // Calculate end time in seconds
 $end_time_seconds = $start_time_seconds + $total_duration_seconds;

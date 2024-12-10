@@ -1,13 +1,13 @@
 <?php
 include 'core/db.php';
-// session_start(); // Ensure session is started
+session_start(); // Ensure session is started
 date_default_timezone_set('Asia/Kolkata');
 
-// Redirect to login page if not logged in
-// if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
-//     header('location: login.php');
-//     exit;
-// }
+//Redirect to login page if not logged in
+if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
+    header('location: login.php');
+    exit;
+}
 
 $flag = true;
 
@@ -130,25 +130,22 @@ $conn->close();
 
         .props {
             position: absolute;
-            top: -50px; /* Start above the viewport */
-            left: calc(100vw * var(--random-x)); /* Spread across the width randomly */
-            width: calc(30px + var(--size-delta)); /* Adjust size of props with random delta */
-            max-height: 150px; /* Limit maximum height */
-            animation: fall var(--animation-speed) linear infinite; /* Variable animation speed */
+            top: -50px; 
+            left: calc(100vw * var(--random-x)); 
+            width: calc(30px + var(--size-delta)); 
+            max-height: 150px; 
+            animation: fall var(--animation-speed) linear infinite; 
         }
 
-        /* Define animation keyframes */
         @keyframes fall {
             0% {
-                transform: translateY(-50px) scale(0); /* Start position and scale */
+                transform: translateY(-50px) scale(0); 
             }
             100% {
-                transform: translateY(calc(100vh + 50px)) scale(1); /* End position and scale */
+                transform: translateY(calc(100vh + 50px)) scale(1);
             }
         }
 
-
-        /* Remove background for GIF images */
         .props[src$=".gif"] {
             background-color: transparent;
             border-radius: 10px;
@@ -162,30 +159,30 @@ $conn->close();
     </div>
 
     <div class="celebration">
-        <img class="props" src="imgs/sparkler.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/firework.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/fireworks.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/confetti.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/confetti.gif" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/fireworks2.gif" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/balloons.gif" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/fireworks (1).png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/firecracker.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/craker.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/cookie.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/garlands.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props" src="imgs/sparkler.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/firework.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/fireworks.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/confetti.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/confetti.gif" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/fireworks2.gif" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/balloons.gif" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/fireworks (1).png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/firecracker.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/craker.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/cookie.png" alt="Falling Prop"> <!-- Replace with your prop image -->
-        <img class="props"  src="imgs/garlands.png" alt="Falling Prop"> <!-- Replace with your prop image -->
+        <img class="props" src="imgs/sparkler.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/firework.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/fireworks.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/confetti.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/confetti.gif" alt="Falling Prop"> 
+        <img class="props"  src="imgs/fireworks2.gif" alt="Falling Prop"> 
+        <img class="props"  src="imgs/balloons.gif" alt="Falling Prop"> 
+        <img class="props"  src="imgs/fireworks (1).png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/firecracker.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/craker.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/cookie.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/garlands.png" alt="Falling Prop"> 
+        <img class="props" src="imgs/sparkler.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/firework.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/fireworks.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/confetti.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/confetti.gif" alt="Falling Prop"> 
+        <img class="props"  src="imgs/fireworks2.gif" alt="Falling Prop"> 
+        <img class="props"  src="imgs/balloons.gif" alt="Falling Prop"> 
+        <img class="props"  src="imgs/fireworks (1).png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/firecracker.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/craker.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/cookie.png" alt="Falling Prop"> 
+        <img class="props"  src="imgs/garlands.png" alt="Falling Prop"> 
 
     </div>
 

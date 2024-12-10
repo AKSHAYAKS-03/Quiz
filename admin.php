@@ -312,6 +312,7 @@ $quizDuration='';
             <li><a href="ViewResult.php">View Result</a></li>
             <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="Add_Quiz.php">Add New Quiz</a></li>
+            <li><a href="store_excel.php">Upload Questions</a></li>
         </ul>
     </nav>
 

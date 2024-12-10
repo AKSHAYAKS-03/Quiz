@@ -40,7 +40,7 @@ if($activeQuizId === 'None'){
 
     // Convert totalduration (format: MM:SS) into seconds
     $timeParts = explode(':', $totalduration);
-    $durationInSeconds = ($timeParts[0] * 60) + $timeParts[1];  // Convert MM:SS to seconds
+    $durationInSeconds = ((int)$timeParts[0] * 60) + $timeParts[1];  // Convert MM:SS to seconds
 
     $quizEndTime = $startTime + $durationInSeconds;
 
@@ -455,7 +455,7 @@ $conn->close();
             </div>
             <br>
             <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
-                <label for="rollno">Register number:</label><br>
+                <label for="rollno">Register number </label><br>
                 <div class="fixed-input">
                     <span class="fixed-text">9131</span>
                     <input type="text" id="rollno" name="rollno" placeholder="22104001">            
