@@ -1,6 +1,6 @@
 <?php
 include 'core/db.php';
-//session_start(); // Start session at the beginning
+// session_start(); // Start session at the beginning
 date_default_timezone_set('Asia/Kolkata');
 
 
@@ -13,15 +13,15 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     exit;
 }
 
-$exited = isset($_GET['exitscore']) && $_GET['exitscore'] == 1;
+// $exited = isset($_GET['exitscore']) && $_GET['exitscore'] == 1;
 
-if (!$exited) {
-    if (!isset($_SESSION['score']) || empty($_SESSION['score']) ||
-        !isset($_SESSION['total_time']) || empty($_SESSION['total_time'])) {
-        header('Location: login.php');
-        exit;
-    }
-}
+// if (!$exited) {
+//     if (!isset($_SESSION['score']) || empty($_SESSION['score']) ||
+//         !isset($_SESSION['total_time']) || empty($_SESSION['total_time'])) {
+//         header('Location: login.php');
+//         exit;
+//     }
+// }
 
 $rollno = $_SESSION['RollNo'];
 $total_time = $_SESSION['total_time'];
@@ -48,8 +48,8 @@ $total = $query_total->num_rows;
 
 // Handle logout
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
-    session_unset(); // Unset all session variables
-    session_destroy(); // Destroy the session
+    session_unset(); 
+    session_destroy(); 
     header('Location: login.php');
     exit;
 }
@@ -57,131 +57,132 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
 
 <!DOCTYPE html>
 <html>
-<head>
+<head>    
     <title>Score Sheet</title>
     <style>
     body {
-        background-color: #13274F;
-        font-family: "Poppins", sans-serif;
-        color: #13274F;
-        margin: 0;
-        padding: 0;
-        background-image: url("img3.jpg");
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-position: center;
-        background-size: cover; /* This ensures the background image covers the entire page */
-    }
-
-    .head {
-        text-align: center;
-        margin-top: 20px;
-    }
-
-    .cot {
-        width: 500px;
-        height: 350px;            
-        font-family: 'Poppins', sans-serif;
-        background-size: cover;
-        background-color: white;
-        padding: 10px;
-        border-radius: 8px;
-        margin: 50px auto;
-        color: #13274F;
-        box-shadow: 1px 1px 20px 10px rgba(0, 0, 0, 0.2);
-        top: 60%;
-        left: 50%;
-        z-index: 1; /* Ensure the box appears above the background image */
-        animation: blinkJump 3s ease-in-out infinite; /* Apply a scale animation */
-    }
-
-    /* Blink and Jump Animation */
-    @keyframes blinkJump {
-        0%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-    }
-
-    .score {
-        padding-left: 400px;
-    }
-
-    
-    li {
-        font-size: 20px;
-        margin-bottom: 20px;
-        text-decoration: none;
-    }
-
-    ul {
-        margin-left: 50px;
-        list-style: none;
-        padding: 40px;
-    }
-
-    /* Lights animation for a glowing effect */
-    @keyframes lights {
-        0% {
-            box-shadow: 0 0 10px 5px transparent;
-        }
-        50% {
-            box-shadow: 0 0 20px 10px transparent, 0 0 40px 20px #AFDBF5;
-        }
-        100% {
-            box-shadow: 0 0 10px 5px transparent;
-        }
-    }
-    .submit-btn {
-    background-color: #13274F;
+    background: #13274F;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease, color 0.3s ease; /* For smooth hover transition */
 }
 
-.submit-btn:hover {
-    background: #fff;
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    color: #13274F;
+    width: 90%;
+    max-width: 550px;
+    padding: 30px 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    animation: slideIn 0.8s ease-in-out;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 32px;
+    margin: 0;
+    font-weight: 700;
     color: #13274F;
 }
 
-.fr {
-    text-align: center; /* Ensures the form is centered */
-    margin-top: -30px; /* Keeps the original margin */
+.score-details {
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+    line-height: 1.8;
+    padding: 0 15px;
 }
 
+.score-details strong {
+    font-weight: 600;
+    color: #13274F;
+    display: inline-block;
+    width: 150px;
+}
+
+.highlight {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+    text-align: center;
+    margin: 15px 0;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+}
+.submit-btn {
+    background-color: #13274F;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 </style>
-
 </head>
-<body oncontextmenu="return false;">
-    <br>
-<div class="head">
-        <h1>Score Sheet</h1>
-</div>
-<div class="cot">
-        <font size='05'>
-            <ul>
-                <li><strong style="margin-right:127px;">Name  </strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></li>
-                <li><strong style="margin-right:70px;">Register No  </strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></li>
-                <li><strong style="margin-right:70px;">Department </strong> <?php echo htmlspecialchars($_SESSION['dept']); ?></li>
-                <li><strong style="margin-right:75px;">Your Score  </strong> <?php echo htmlspecialchars($_SESSION['score']); ?>/<?php echo $total; ?></li>
-                <li><strong style="margin-right:70px;">Time Taken </strong><?php echo htmlspecialchars($display_time); ?></li>
-                </ul>
-        </font>
-        <div class="fr" style="text-align: center;">
-    <form method="post" action="scoresheet.php">
-        <input type="submit" name="Ok" value="Logout" class="submit-btn" />
-    </form>
-</div>
-
-</div>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Congratulations! 🎉</h1>
+            <p>Your Quiz Results</p>
+        </div>
+        <div class="score-details">
+            <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></p>
+            <p><strong>Register No:</strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></p>
+            <p><strong>Department:</strong> <?php echo htmlspecialchars($_SESSION['dept']); ?></p>
+            <p><strong>Your Score:</strong> 
+                <span class="highlight"><?php echo htmlspecialchars($_SESSION['score']); ?>/<?php echo $total; ?></span>
+            </p>
+            <p><strong>Time Taken:</strong> <?php echo htmlspecialchars($display_time); ?></p>
+        </div>
+        <div class="footer">
+            <form method="post" action="scoresheet.php">
+                <input type="submit" name="Ok" value="Logout" class="submit-btn" />
+            </form>
+        </div>
+    </div>
 </body>
 </html>
+
 
 <?php
 // Close MySQLi connection

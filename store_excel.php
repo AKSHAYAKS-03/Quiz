@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $correct_choice = isset($_POST['correct_choice']) ? $_POST['correct_choice'] : '';
             $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
-            if($_SESSION['current_question'] + 1  > count($_SESSION['questions'])) {
+            if(($currentIndex + 1) > count($questions)) {
                 $_SESSION['quiz_over'] = true;  
                 header('Location: Q_Add.php');
                 exit;  // Make sure the script stops after the redirect                
@@ -247,11 +247,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             resize: vertical;
         }
         button[type="submit"]:nth-of-type(2) {
-            background-color: #e74c3c; /* Red for Previous */
+            background-color: #e74c3c; 
         }
 
         button[type="submit"]:nth-of-type(1) {
-            background-color: #2ecc71; /* Green for Next */
+            background-color: #2ecc71; 
         }
 
     </style>
@@ -263,7 +263,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="contain">
             <h2>Add Question - Quiz ID: <?php echo htmlspecialchars($quizId); ?>, Question No: <?php echo $questionNo; ?></h2>
 
-            <!-- Form for uploading file -->
             <form action="store_excel.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="quizId" value="<?php echo $quizId; ?>">
                 <label for="file">Upload CSV or Excel File:</label>
@@ -278,7 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php if (isset($_SESSION['quiz_over']) && $_SESSION['quiz_over'] === true): ?>
                 <h3>Question Over</h3>
                 <script>
-                    document.getElementById('question-form')?.style.display = 'none'; // Ensure form is hidden if quiz is over
+                    document.getElementById('question-form')?.style.display = 'none'; 
                 </script>
             <?php else: ?>
 
@@ -286,7 +285,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php if (isset($_SESSION['questions']) && !empty($_SESSION['questions'])): ?>
                     <h3>Question <?php echo $_SESSION['current_question'] + 1; ?> of <?php echo count($_SESSION['questions']); ?></h3>
 
-                <!-- Form for displaying current question -->
                 <form action="store_excel.php" method="POST" id="question-form">
                     <?php
                     $currentQuestion = $_SESSION['questions'][$_SESSION['current_question']];

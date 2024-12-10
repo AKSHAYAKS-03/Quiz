@@ -54,75 +54,85 @@ $conn->close();
     
     <style>
         body {
-            background-color: #13274F;
-            font-family: "Poppins", sans-serif;
-            color: white;
-            margin: 0;
-            padding: 0;
-            background-image: url("img3.jpg");
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-position: center;
-            font-family: 'Poppins', sans-serif;
-            background-size: cover;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+    background-color: #13274F;
+    font-family: "Poppins", sans-serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+    background-image: url("img3.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    font-family: 'Poppins', sans-serif;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-        .head {
-            text-align: center;
-            margin-top: 20px;
-        }
+.head {
+    text-align: center;
+    margin-top: 20px;
+    text-transform: uppercase;
 
-        h1 {
-            font-size: 36px;
-        }
+}
 
-        .quizContent {
-            width: 900px;
-            height: 450px;
-            background-color: white;
-            padding: 40px; /* Adjust padding for inner content */
-            border-radius: 8px;
-            margin: 50px;
-            color: #333;
-            box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10 and IE 11 */
-            user-select: none; /* Standard syntax */
-        }
+h1 {
+    font-size: 36px;
+}
 
-        h2.ques {
-            color: #13274F;
-            margin-bottom: 20px;
-        }
+.quizContent {
+    width: 900px;
+    height: auto;
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    color: #333;
+    box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    backdrop-filter: blur(10px);
 
-        .quizContent ul {
-            list-style: none;
-            padding: 0;
-        }
+}
 
-        .quizContent ul li {
-            color: #13274F;
-            margin-bottom: 25px;
-        }
+h2.ques {
+    color: #13274F;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+}
 
-        #optionsList {
+.quizContent ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.quizContent ul li {
+    color: #13274F;
+    margin-bottom: 25px;
+}
+
+/* #optionsList {
     margin-top: 0;
     list-style: none;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between; /* Ensures even spacing */
-    gap: 10px; /* Adjust spacing between items */
-}
-
+    /* gap: 10px; /* Adjust spacing between items */
+/* } */ 
 .option {
-    flex-basis: calc(50% - 10px); /* Makes each option take up 50% of the width minus the gap */
-    margin-bottom: 30px; /* Space between rows */
+    margin: 0 auto;
+    align-items: center;
+    text-align: center;
 }
 
 .option input[type="radio"] {
@@ -130,15 +140,17 @@ $conn->close();
 }
 
 .option label {
-    display: inline-block;
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+    align-items: center; /* Centers content vertically */
     background-color: #f9f9f9;
     color: #13274F;
-    /* border: 2px solid #13274F; */
-    border-radius: 8px;
-    padding: 10px 15px;
+    border-radius: 10px;
+    padding: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
+    width:  300px;
+    height: 50px;
 }
 
 .option label:hover {
@@ -155,194 +167,229 @@ $conn->close();
 
 
 
-        .quizContent input[type="submit"] {
-            background-color: #13274F;
-            color: #fff;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: -100px;
-            font-size: 16px;
-            position: relative;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
 
-        .quizContent input[type="submit"]:hover {
-            background: #fff;
-            color: #13274F;
-        }
-        #response {
-            font-family: monospace;
-            width: 100px;
-            font-weight: bold;
-            font-size: 35px;
-            padding-right: 10px;
-            margin-top: -20px;
-            position: absolute;
-            right: 20px;
-            text-shadow: 1px 1px 5px #fff;
-        }
+.quizContent input[type="submit"] {
+    background-color: #13274F;
+    margin-top: 20px;
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100px;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 
-        /* Blink animation */
-        @keyframes blinker {
-            50% {
-                opacity: 0;
-            }
-        }
-        
-        .blink{
-            animation: blinker 1s ease-in-out infinite;
-        }                    
-                                    
-        @keyframes pop {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.2);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
+.quizContent input[type="submit"]:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
 
-        .pop {
-            animation: pop 0.5s ease-in-out;
-        }
+.quizContent input[type="submit"]:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
 
-        /* Full screen styles */
-        :-webkit-full-screen {
-            background-color: transparent;
-        }
+#response {
+    font-family: monospace;
+    width: 100px;
+    font-weight: bold;
+    font-size: 35px;
+    padding-right: 10px;
+    margin-top: -20px;
+    position: absolute;
+    right: 20px;
+    text-shadow: 1px 1px 5px #fff;
+}
 
-        :-ms-fullscreen {
-            background-color: transparent;
-        }
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
 
-        :fullscreen {
-            background-color: transparent;
-        }
+.blink{
+    animation: blinker 1s ease-in-out infinite;
+}
 
-        #quizContent {
-            display: none;
-        }
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
 
-        #quizForm {
-            text-align: center;
-        }
-        #agreement{
-            text-align: center;
-            font-size:15px;
-            background-color: white;
-            padding: 50px;
-            height:200px;
-            width:60%;
-            color : #13274F;
-        border-radius: 10px;
-        }
-        #agreebut{
-            background-color: #fff;
-            color: #13274F;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: -20px;
-            font-size: 16px;
-            position: relative;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        #agreebut:hover {
-            background: #13274F;
-            color: #fff;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-        }
+.pop {
+    animation: pop 0.5s ease-in-out;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 450px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            transform: scale(0);
-            transition: transform 0.5s ease;
-        }
+#quizContent {
+    display: none;
+}
 
-        .modal-content.show-modal {
-            transform: scale(1); 
-        }
+#quizForm {
+    text-align: center;
+}
+#agreement {
+    text-align: center;
+    font-size: 16px;
+    background-color: #ffffff;
+    padding: 40px 30px;
+    width: 50%;
+    margin: 50px auto;
+    color: #13274F;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
+}
 
-        #msg {
-            color: black;
-            font-weight: bold;
-            font-size: 20px;
-            padding: 10px;
-            padding-bottom: 25px;
-            text-align: center;
-            margin-top: 10px;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-        }
+#agreement h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
 
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 30px; 
-            margin-top: 10px;
-        }
+.terms-content {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
 
-        .modal-content button {
-            padding: 8px 10px;
-            background-color: #13274F;
-            color: #ecf0f1;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 80px;
-            height: 30px;
-            transition: background-color 0.3s ease;
-        }
+#agreebut {
+    background-color: #13274F;
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
 
-        .modal-content button:hover {
-            background-color: #0d1b37;
-        }
-        #remtime{
-            font-size: 40px;
-            color: red;
-            font-weight: bold;
-            font-family: 'poppins' sans-serif;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
+#agreebut:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
 
-        #remtime.show {
-            opacity: 1;
-        }
+#agreebut:active {
+    transform: scale(0.95);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 450px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transform: scale(0);
+    transition: transform 0.5s ease;
+}
+
+.modal-content.show-modal {
+    transform: scale(1); 
+}
+
+#msg {
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px;
+    padding-bottom: 25px;
+    text-align: center;
+    margin-top: 10px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px; 
+    margin-top: 10px;
+}
+
+.modal-content button {
+    padding: 8px 10px;
+    background-color: #13274F;
+    color: #ecf0f1;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 80px;
+    height: 30px;
+    transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+    background-color: #0d1b37;
+}
+
+#remtime {
+    font-size: 40px;
+    color: red;
+    font-weight: bold;
+    font-family: 'poppins' sans-serif;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+#remtime.show {
+    opacity: 1;
+}
+
                 
-        /* .question-container {
+.question-container {
     width: 100%;
     padding: 10px;
 }
 
 #questionText {
-    text-align: left; /* Align text to the left */
-    /* font-size: 18px;
+    color: black;
+    text-align: left; 
+    font-size: 20px;
     margin: 10px 0;
-} */ */
+} 
 
             </style>
     <script src='DisableKeys.js'></script>
@@ -393,7 +440,7 @@ $conn->close();
                 <input type="hidden" name="total" id="total" value="<?php echo count($questions); ?>">
                 <input type="hidden" name="timeout" id="timeout" value="0">
                 <input type="hidden" name="currentIndex" id="currentIndex" value="<?php echo $currentIndex; ?>">
-                <input type="submit" name="submit" value="Submit Answer" id="submit">
+                <input type="submit" name="submit" value="Submit" id="submit">
                 <?php $index+=1; ?>
             </form>
                 </center>
@@ -434,14 +481,14 @@ function agreeAndStart() {
 var interval;
 
 function startQuiz() {
-    var durationStr = "<?php echo $question_duration; ?>"; // duration in "MM:SS" format
+    var durationStr = "<?php echo $question_duration; ?>"; 
     var durationParts = durationStr.split(":");
     var minutes = parseInt(durationParts[0], 10);
     var seconds = parseInt(durationParts[1], 10);
-    var duration = (minutes * 60) + seconds; // convert total duration to seconds
+    var duration = (minutes * 60) + seconds; 
 
     var display = document.getElementById("response");
-    if (!display) return; // Check if display element exists
+    if (!display) return; 
 
     if (interval) {
         clearInterval(interval);
@@ -485,9 +532,9 @@ function startQuiz() {
 
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('quizForm').addEventListener('submit', function (event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
 
-        var formData = new FormData(this); // Capture form data
+        var formData = new FormData(this); 
 
         formData.append('submit', 'Submit Answer');
         var xhr = new XMLHttpRequest();
@@ -508,14 +555,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         } else if (response.status === 'error') {
                             console.error('Error:', response.message);
                             if (response.output) {
-                                console.error('Output:', response.output); // Debugging output
+                                console.error('Output:', response.output); 
                             }
                         }
                     } catch (e) {
                         console.error('Error parsing JSON response:', e);
                     }
                 } else {
-                    // Handle errors (optional)
                     console.error('Error saving quiz data.');
                 }
             }

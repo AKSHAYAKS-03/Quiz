@@ -1,6 +1,6 @@
 <?php
 include 'core/db.php';
-session_start(); // Ensure session is started
+session_start(); 
 date_default_timezone_set('Asia/Kolkata');
 
 //Redirect to login page if not logged in
@@ -36,7 +36,6 @@ $total_time_seconds = 0;
 
 
 for ($i = 1; $i <= $total; $i++) {
-    // Fetch time taken for the current question from the database
     $tim_query = "SELECT time FROM stud WHERE regno='$rollno' AND questionno ='$i' and QuizId = '$quizId'";
     $tim_result = $conn->query($tim_query);
 
@@ -44,16 +43,13 @@ for ($i = 1; $i <= $total; $i++) {
         $row = $tim_result->fetch_assoc();
         $time = $row['time'];
         
-        // Convert "HH:MM:SS" format to seconds
         list($hours, $minutes, $seconds) = explode(':', $time);
         $time_in_seconds = ($hours * 3600) + ($minutes * 60) + $seconds;
     
-        // Add time taken for this question to total time
         $total_time_seconds += $time_in_seconds;
     }
 }
 
-        // Convert total time in seconds to hours, minutes, and seconds
         $total_hours = floor($total_time_seconds / 3600);
         $total_minutes = floor(($total_time_seconds % 3600) / 60);
         $total_seconds = $total_time_seconds % 60;
@@ -96,7 +92,7 @@ $conn->close();
             background-attachment: fixed;
             background-position: center;
             background-size: cover;
-            overflow: hidden; /* Hide overflow to prevent scrolling */
+            overflow: hidden; 
         }
 
         #timer-container {
@@ -113,7 +109,7 @@ $conn->close();
             font-size: 100px;
             color : #13274F;
             text-shadow: 1px 1px 5px white;
-            z-index: 2; /* Ensure timer is on top */
+            z-index: 2;
         }
 
         .celebration {
@@ -125,7 +121,7 @@ $conn->close();
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1; /* Ensure props are behind the timer */
+            z-index: 1; 
         }
 
         .props {
@@ -187,7 +183,7 @@ $conn->close();
     </div>
 
     <script>
-        var timer = 5; // Adjust countdown timer duration as needed
+        var timer = 5; 
         document.getElementById('timer').textContent = timer;
 
         // Function to start countdown timer
@@ -197,8 +193,8 @@ $conn->close();
                 <?php $_SESSION['logi'] = true; ?>
                 if (<?php echo $flag ? 'true' : 'false'; ?>) {
                     window.location.href = "scoresheet.php";
-                } else {
-                    window.location.href = "scoresheet.php?exitscore=1";
+                // } else {
+                //     window.location.href = "scoresheet.php?exitscore=1";
                 }
             } else {
                 document.getElementById('timer').textContent = timer;
@@ -206,10 +202,8 @@ $conn->close();
             }
         }
 
-        // Start countdown timer immediately
         startTimer();
 
-        // Function to generate random number between min and max (inclusive)
         function getRandom(min, max) {
             return Math.random() * (max - min) + min;
         }
@@ -218,10 +212,10 @@ $conn->close();
         document.addEventListener('DOMContentLoaded', function () {
             const props = document.querySelectorAll('.props');
             props.forEach(function (prop) {
-                prop.style.top = `${getRandom(-200, -50)}px`; // Randomize starting top position
-                prop.style.left = `calc(100vw * ${getRandom(0, 1)})`; // Randomize starting left position
-                prop.style.setProperty('--animation-speed', `${getRandom(1,3)}s`); // Randomize animation duration (falling speed)
-                prop.style.setProperty('--size-delta', `${getRandom(-20, 20)}px`); // Randomize size delta
+                prop.style.top = `${getRandom(-200, -50)}px`; 
+                prop.style.left = `calc(100vw * ${getRandom(0, 1)})`;
+                prop.style.setProperty('--animation-speed', `${getRandom(1,3)}s`); 
+                prop.style.setProperty('--size-delta', `${getRandom(-20, 20)}px`);
             });
             
         });

@@ -35,12 +35,11 @@ if($activeQuizId === 'None'){
     $totalduration = $activeQuizData["TimeDuration"];
     $startTime = strtotime($activeQuizData["startingtime"]);
     $endTime = strtotime($activeQuizData["EndTime"]);
-    $currentUnixTime = time(); // Current Unix timestamp
+    $currentUnixTime = time(); 
 
 
-    // Convert totalduration (format: MM:SS) into seconds
     $timeParts = explode(':', $totalduration);
-    $durationInSeconds = ((int)$timeParts[0] * 60) + $timeParts[1];  // Convert MM:SS to seconds
+    $durationInSeconds = ((int)$timeParts[0] * 60) + $timeParts[1];  
 
     $quizEndTime = $startTime + $durationInSeconds;
 
@@ -131,7 +130,7 @@ $conn->close();
     <title>Quiz Login</title>
     <script type="text/javascript" src="inspect.js"></script>
     <style>
-        body {
+          body {
             background-color: white;  
             color: #13274F;
             background-image: url("img3.jpg");
@@ -139,7 +138,7 @@ $conn->close();
             background-attachment: fixed;
             background-position: center;
             font-family: 'Poppins', sans-serif;
-            background-size: cover; /* Use contain to reduce image size while maintaining aspect ratio */  
+            background-size: cover;  
             margin: 0;
             padding: 0;
             display: flex;
@@ -299,12 +298,23 @@ $conn->close();
             background-color: #13274F;
             color: #fff;
         }
-        
+        .form-group {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 5px;
+                margin-top: 10px;
+            }
+
+            button, input[type="reset"] {
+                flex: 1;
+                max-width: 150px;
+                text-align: center;
+            }
 
         .login-register {
             font-weight: 500;
             text-align: center;
-            font-weight: 500;   
             color: #13274F;
 
         }
@@ -318,6 +328,8 @@ $conn->close();
         .login-register a:hover {
             color: #716f81;
         }
+
+        
 
         .container .icon-close {
             position: absolute;
@@ -341,28 +353,61 @@ $conn->close();
         }
         
         
-
-        #reset{
-                width: 100%;
-            margin-top: 10px;
-            padding: 10px;
+        #reset {
+            background-color: #13274F;
+            color: #fff;
+            padding: 10px 15px;
             border: none;
-            border-radius: 10px;
-            background: transparent;
-            color: #13274F;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            
-            }
-            #reset:hover {
-                background-color: #13274F;
-                color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
         }
+
+#reset:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+#reset:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+#Login_btn{
+    background-color: #13274F;
+    margin-top: 0px;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#Login_btn:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+#Login_btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
         .fixed-input {
         position: relative;
         display: inline-block;
-        width: 200px; 
-    }
+       }
         .fixed-text {
         position: absolute;
         left: 20px;
@@ -378,7 +423,7 @@ $conn->close();
         padding-left: 50px; 
         box-sizing: border-box; 
     }
-    .close-button{
+    /* .close-button{
         width: 20px;
         border-radius: 50px;
     }
@@ -388,18 +433,18 @@ $conn->close();
     input[type="text"] {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-        }
+        } */
 
 
     .header {
-    text-align: center; /* Center-align the contents */
+    text-align: center;
     font-size: 50px;
-    position: relative; /* Ensure relative positioning for absolute child */
+    position: relative; 
 }
 
 .quiz-container {
-    position: relative; /* Position container relatively */
-    display: inline-block; /* Ensure container wraps around images */
+    position: relative; 
+    display: inline-block; 
 }
 
 .quiz {
@@ -410,18 +455,18 @@ $conn->close();
 }
 
 .bulb-man {
-    position: absolute; /* Position the bulb absolutely */
-    top: 50%; /* Adjust top position */
-    left: 50%; /* Adjust left position */
-    transform: rotate(-25deg); 
-    width: 150px;
-    margin-left:-150px;
-    margin-top:-70px;
-    height: auto;
-    border-radius: 50px;
-    z-index: 1; /* Ensure the bulb is above the background image */
-    animation: blinkJump 2s ease-in-out infinite; /* Apply animation */
-}
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: rotate(-25deg); 
+        width: 150px;
+        margin-left: -150px;
+        margin-top: -70px;
+        height: auto;
+        border-radius: 50px;
+        z-index: 1;
+        animation: blinkJump 2s ease-in-out infinite;
+    }
 
 @keyframes blinkJump {
     0%, 100% {
@@ -462,18 +507,21 @@ $conn->close();
                 </div>           
             </div>
             <br>
-            <div class="form-group" style="display:flex;flex-direction:row">
+            <div class="form-group" style="display: flex; flex-direction: row;">
                 <label for="dept">Department</label>
-                <select name="dept" style="width:100px;margin-left:40px;text-decoration:none;border-radius:5px;background-color:transparent;color:#13274F;">
-                    <option style="color:black">select</option>
-                    <option value="CSE"  style="color:black">CSE</option>
-                    <option value="IT"  style="color:black">IT</option>
-                    <option value="EEE"  style="color:black">EEE</option>
-                    <option value="ECE"  style="color:black">ECE</option>
-                    <option value="MECH"  style="color:black">MECH</option>
-                    <option value="CIV"  style="color:black">CIV</option>
+                <select name="dept" 
+                        style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
+                            color: #13274F; padding: 5px;margin-left:-70px">
+                    <option style="color: black;">Select</option>
+                    <option value="CSE" style="color: black;">CSE</option>
+                    <option value="IT" style="color: black;">IT</option>
+                    <option value="EEE" style="color: black;">EEE</option>
+                    <option value="ECE" style="color: black;">ECE</option>
+                    <option value="MECH" style="color: black;">MECH</option>
+                    <option value="CIV" style="color: black;">CIV</option>
                 </select>
-            </div>     
+            </div>
+                
             <br>
             <div class="form-group" style="display:flex;flex-direction:row">
                 <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
@@ -500,7 +548,7 @@ $conn->close();
             </div>
             <br>
             <div class="form-group" style="display:flex;flex-direction:row ;justify-content:space-between">
-                <button type="submit" name="logged" value="Login">Login</button>
+                <button type="submit" name="logged" value="Login" id="Login_btn">Login</button>
                 <input type="reset" id="reset" name="Reset" value="Clear">
             </div>
             <br>

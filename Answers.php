@@ -45,7 +45,6 @@ $userquery->execute();
 $userquery_result = $userquery->get_result();
 
 if ($userquery_result->num_rows > 0) {
-    // Fetching the first row from the result set
     $row = $userquery_result->fetch_assoc();
     $score = $row['Score'];
     $time = $row['Time'];
@@ -75,8 +74,8 @@ while ($row = $user_answers_result->fetch_assoc()) {
 
 // Handle logout
 if (isset($_POST['Logout'])) {
-    session_unset(); // Unset all session variables
-    session_destroy(); // Destroy the session
+    session_unset(); 
+    session_destroy(); 
     header('Location: login.php');
     exit;
 }
@@ -106,6 +105,8 @@ $conn->close();
         .head {
             text-align: center;
             margin-top: 30px;
+            text-transform: uppercase;
+
         }
         .parentdiv li {
             margin-left: 40px;
@@ -133,11 +134,11 @@ $conn->close();
             padding: 30px;
             flex-direction: column;
             margin-top: 20px;
-            background-color: #fff;
+            background-color: #f0f2f5;
             color: #13274F;
         }
         .correct-answer {
-            color: darkgreen; /* Dark green for the user's correct answer */
+            color: darkgreen; 
             font-size: 22px;
             font-weight: bold;
         }
@@ -149,24 +150,36 @@ $conn->close();
         }
 
         .answer {
-            color: #86af49; /* Light green for the correct answer */
+            color: #86af49; 
+        }
+        
+
+        .Logout{
+            background-color: #13274F;
+            margin-top: 0px;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .Logout {
-            background-color: #13274F;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin: 5px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
         .Logout:hover {
             background-color: #fff;
             color: #13274F;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
         }
+
+        .Logout:active {
+            transform: scale(0.98);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
       
         .cot {
             width: auto;
@@ -185,48 +198,52 @@ $conn->close();
         } 
 
         .score-container {
-            width: 150px;
-            height: 150px;
-            margin-left: 10px;
+            width: 200px;
+            height: 200px;
             position: relative;
-            background-color: #fff;
+            background: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin: 0 auto;
         }
 
-        .circle {
-            width: 100%;
-            height: 100%;
+
+                .circle {
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            background: conic-gradient(#4caf50 var(--percentage), #e0e0e0 0);
+            background: conic-gradient(#32CD32 var(--percentage), #fff 0);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            transition: --percentage 0.5s ease-in-out; /* Adjust animation duration and timing */
+            transition: --percentage 2s ease-out;
+            clip-path: circle(50%);
         }
 
-        .circle::before {
-            content: '';
-            position: absolute;
-            width: 80%;
-            height: 80%;
-            background-color: #fff;
-            border-radius: 50%;
-            transition: opacity 0.3s ease-in-out; /* Optional: Adjust opacity transition */
-        }
-
-        .score-final {
-            font-size: 34px;
+        .circle .score-final {
+            font-size: 30px;
             font-weight: bold;
-            color: #333;
-            position: relative;
+            color: black;
             z-index: 1;
         }
 
+        @media (max-width: 768px) {
+            .score-container {
+                width: 160px;
+                height: 160px;
+            }
+            .circle {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        
         .parentdiv {
             display: flex;
             align-items: center;
@@ -236,8 +253,9 @@ $conn->close();
             width: 800px;
             padding: 50px;
             background-color: #fff;
-            color: #13274F;
+            color: black;
             border-radius: 8px;
+            font-size: 20px;
         }
         .ques {
             font-size: 20px;
@@ -255,11 +273,52 @@ $conn->close();
             font-size: 20px;
             margin-bottom: 20px;
         }
+        .response-labels {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.response {
+    padding: 12px 20px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 8px;
+    width: 200px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.success {
+    background-color: darkgreen;  
+    border-color: darkgreen;      
+    color: white;
+}
+
+.warning {
+    background-color: #86af49;  
+    border-color: #86af49;      
+    color: white;
+}
+
+.error {
+    background-color: red;  
+    border-color: red;      
+    color: white;
+}
+
+.response:hover {
+    transform: translateY(-5px);  
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
     </style>
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
-    <h2><?php echo $QuizName['QuizName']." - ".$rollno;?></h2>
+    <h1><?php echo $QuizName['QuizName']." - ".$rollno;?></h1>
 </div>
 <div class="score">
     <div class="container">
@@ -271,6 +330,8 @@ $conn->close();
         </div>
         
     </div>
+   
+
     <div class="parentdiv">
             <ul>
                 <li><strong style="margin-right: 127px;">Name  </strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></li>
@@ -280,8 +341,17 @@ $conn->close();
                 <li><strong style="margin-right: 70px;">Time Taken </strong><?php echo htmlspecialchars($time) ?></li>
             </ul>
      </div>   
+     
     </div>
-    <center><h2>ANSWERS</h2></center>
+    <center><h2><strong>ANSWERS</strong><h2></center>
+
+    <div class="response-labels">
+    <div class="response success">Selected And Correct</div>
+    <div class="response warning">Correct Answer</div>
+    <div class="response error">Selected But Wrong</div>
+</div>
+
+<br>
     <div class="answers-container">
     <?php $index = 1; ?>
     <?php foreach ($questions as $question): ?>
@@ -312,6 +382,7 @@ $conn->close();
     <?php endforeach; ?>
 
     </div>        
+    <br>
         <form method='post' action="Answers.php">
             <input type="submit" name="Logout" class="Logout" value="Logout">
         </form>
@@ -323,17 +394,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const total = <?php echo $total; ?>;
     const circle = document.querySelector('.circle');
     const scoreFinal = document.querySelector('.score-final');
-    const duration = 2000; // Animation duration in milliseconds
-    const fps = 60; // Frames per second for smooth animation
+    const duration = 2000; 
+    const fps = 60; 
 
     // Calculate step size based on animation duration and total frames
     const step = (score / total) * 100 / (duration / 1000 * fps);
     let currentPercentage = 0;
 
-    // Update score and total displayed
     scoreFinal.textContent = `0 / ${total}`;
 
-    // Function to animate score percentage
     const animateScore = setInterval(() => {
         currentPercentage += step;
         if (currentPercentage >= (score / total) * 100) {
@@ -342,8 +411,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         circle.style.setProperty('--percentage', `${currentPercentage}%`);
         scoreFinal.textContent = `${Math.round(currentPercentage * total / 100)} / ${total}`;
-    }, 1000 / fps); // Adjust frame rate for smoother animation
+    }, 1000 / fps); 
 });
+
 </script>
 </body>
 </html>
