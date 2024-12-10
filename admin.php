@@ -48,6 +48,7 @@ $quizDuration='';
     <title>Admin</title>
 
     <script src="inspect.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -157,10 +158,21 @@ $quizDuration='';
             background-color: #0d1b37;
         }
 
-        #logout {
+        .header-right {
             position: absolute;
             top: 10px;
             right: 20px;
+            padding: 10px;
+        }
+        .header-right a {
+            text-decoration: none;
+            color: #13274F;
+            padding: 4px;
+        }
+        
+        .header-right a i {
+            font-size: 24px;
+            cursor: pointer;
         }
 
         body.blur .content,
@@ -318,7 +330,15 @@ $quizDuration='';
 
     <div class="content">
         <h1>Quiz Details</h1>
-        <button class="btn" id="logout" onclick="logout()">Log Out</button>
+        <div class="header-right">
+            <a href="about.html" title="About">
+                <i class="fas fa-question-circle"></i>
+            </a>
+            <a href="logout.php" id="logout" title="Log Out">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+
         <p>Active Quiz: <strong><?php echo $activeQuiz; ?></strong></p>
         <?php if ($result && $result->num_rows > 0) { ?>
             <form method="post" action="">
@@ -420,10 +440,6 @@ $quizDuration='';
                 };
                 xhr.send("deleteAll=true");
             }
-        }
-
-        function logout() {
-            window.location.href = "logout.php";
         }
 
         document.querySelector('form').addEventListener('submit', function(event) {

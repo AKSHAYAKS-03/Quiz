@@ -22,6 +22,8 @@ if ($quizId !== $_SESSION['active']) {
     exit;
 }
 
+$QuizName = $conn->query("SELECT QuizName FROM quiz_details WHERE Quiz_Id = $quizId")->fetch_assoc()['QuizName'];
+
 $Q_NoResult = $conn->query("SELECT count(QuestionNo) FROM multiple_choices WHERE QuizId = $quizId"); 
 $questionNo = ($Q_NoResult->fetch_assoc()['count(QuestionNo)']) + 1;
 
@@ -135,7 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       
         }   
 
-
         if (isset($_POST['previous'])) {
             // Decrease the current question index if "Previous" button is clicked
             $currentIndex = $_SESSION['current_question'];
@@ -213,6 +214,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 5px;
             margin-top: 20px;
             width: 100px;
+            cursor: pointer;
+            margin-right: 20px;
         }
 
         input[type='submit']:hover, button:hover {
@@ -254,6 +257,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #2ecc71; 
         }
 
+        .button-container {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>   
@@ -261,16 +268,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script type="text/javascript" src="inspect.js"></script>
     <div class="cont" id="add-container">
         <div class="contain">
-            <h2>Add Question - Quiz ID: <?php echo htmlspecialchars($quizId); ?>, Question No: <?php echo $questionNo; ?></h2>
+            <h2>Add Question - Quiz Name: <?php echo htmlspecialchars($QuizName); ?>, Question No: <?php echo $questionNo; ?></h2>
 
             <form action="store_excel.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="quizId" value="<?php echo $quizId; ?>">
                 <label for="file">Upload CSV or Excel File:</label>
                 <input type="file" name="file" accept=".csv, .xls, .xlsx" required><br><br>
-                <input type="submit" value="Upload File">
-            </form>
-            <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
 
+                <div class="button-container">
+                    <input type="submit" value="Upload File">
+                    <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
+                </div>
+                
+            </form>
             </div>
     <!-- </div> -->
 
@@ -309,10 +319,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <label for="explanation">Explanation:</label>
                     <textarea id="explanation" name="explanation">NO EXPLANATION</textarea><br><br>
-
-                    <input type="submit" name="next" value="Next">
-                    <button type="submit" name="previous" value="Previous">Previous</button>
+                    
                     <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
+                    <button type="submit" name="previous" value="Previous">Previous</button>
+                    <input type="submit" name="next" value="Next">
 
 
                 </form>

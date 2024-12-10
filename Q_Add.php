@@ -87,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #13274F;
             margin-bottom: 30px;
             text-align: center;
+            text-transform: capitalize;
         }
 
         .cont p {
@@ -131,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #0d1b37;
         }
 
-
         a {
             text-decoration: none;
             border: 2px solid #333;
@@ -158,7 +158,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             resize: vertical;
         }
 
-    </style>
+        #upload{
+            float: right;
+            width: auto;
+            height: auto;
+            font-weight: bold;
+        }
+
+ </style>
 </head>
 <body oncontextmenu="return false;">
     <script type="text/javascript" src="inspect.js"></script>
@@ -166,10 +173,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="cont" id="add-container">
         <div class="contain">
             
-            <h1><?php echo $activeQuiz?> Quiz</h1> 
+            <h1><?php echo $activeQuiz?> Quiz
+                <button type="button" id="upload" onclick="window.location.href = 'store_excel.php';">Upload Questions</button>  
+            </h1>
             <h3>Add Question 
-                <span id="current-question-no"><?php echo $Q_NO; ?> </span>  
+                <span id="current-question-no"><?php echo $Q_NO; ?> </span>
             </h3> <br>
+
 
             <form id="question-form" method="post">            
                 <p class="form-group">

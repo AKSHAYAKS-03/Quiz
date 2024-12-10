@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="inspect.js"></script>
+    <title>Quiz Administration</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+        header {
+            background: linear-gradient(155deg, #325e80, #13274F);
+            color: #fff;
+            text-align: center;
+            padding: 80px 20px;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        header p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 30px;
+            background-color: #ff5e57; 
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #d94d4d;
+            transform: translateY(-3px);
+        }
+
+        .h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 40px 0;
+        }
+        .feature-container {
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        .feature {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            width: 30%;
+            padding: 20px;
+            text-align: center;
+            margin: 15px;
+            transition: all 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+        .feature i {
+            font-size: 3rem;
+            color: #ff5e57; 
+            margin-bottom: 20px;
+        }
+        .feature h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .feature p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        footer {
+            background: #13274F; 
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to BrainBite Quiz!</h1>
+        <p>Manage Quiz, Timers, and Results Effectively</p>
+        <a href="logout.php" class="btn">Start Quiz</a>
+        <a href="admin.php" class="btn">Admin Panel</a>
+    </header>
+
+    <h2 class="h2">Admin Guidance</h2>
+    <div class="feature-container">
+        
+        <div class="feature">
+            <i class="fas fa-toggle-on"></i>
+            <h3>Manage Active Quiz</h3>
+            <p>Activate a quiz for students to take. Only one quiz can be active at a time, and it will be shown to students once active.</p>
+        </div>
+        
+        <div class="feature">
+            <i class="fas fa-clock"></i>
+                <h3>Set Timers</h3>
+                <p>Question Time: Alloted Time for each question.</br>Available Time: Total quiz duration. Students can take the quiz only within this period.</p>
+        </div>
+        
+        <div class="feature">
+            <i class="fas fa-eye"></i>
+            <h3>Results Viewing</h3>
+            <p>Once the available time expires, students can view their results, including the questions they attended and the correct answers. Until then, they can only view their score.</p>
+        </div>
+        
+        <div class="feature">
+            <i class="fas fa-question-circle"></i>
+            <h3>Question Management</h3>
+            <p>Admin can add, edit, or update questions for the active quiz. Questions can be added manually or uploaded via Excel/CSV files.</p>
+        </div>
+        
+        <div class="feature">
+            <i class="fas fa-random"></i>
+            <h3>Shuffling Questions and Options</h3>
+            <p>Questions and answer options can be shuffled to ensure fairness and prevent cheating.</p>
+        </div>
+        
+        <div class="feature">
+            <i class="fas fa-edit"></i>
+            <h3>Edit Quiz Settings</h3>
+            <p>Admins can modify the start and end times for the quiz, as well as the time allocated for each question, at any point before the quiz begins.</p>
+        </div>
+
+        <div class="feature">
+            <i class="fas fa-expand-arrows-alt"></i>
+            <h3>Full-Screen Mode</h3>
+            <p>Students must be in full-screen mode while attending the quiz for an immersive experience, ensuring they focus on the quiz without distractions.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 BrainBite Quiz Application</p>
+        <p>Developed by Akshaya & Suriya Lakshmi (2022-26)</p>
+    </footer>
+</body>
+</html>
