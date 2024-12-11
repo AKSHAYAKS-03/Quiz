@@ -318,13 +318,17 @@ $quizDuration='';
     <nav class='admin-nav'>
         <h2>Admin</h2>
         <ul>
-            <li><a href="Q_add.php">Add Question</a></li>
-            <li><a href="Q_Edit.php">Edit/Delete Question</a></li>
-            <li><a href="reset.php">Reset Quiz</a></li>
-            <li><a href="ViewResult.php">View Result</a></li>
-            <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="Add_Quiz.php">Add New Quiz</a></li>
-            <li><a href="store_excel.php">Upload Questions</a></li>
+            <li><a href="#" onclick="toggleSubmenu('multipleChoicesMenu')">Multiple Choices</a></li>
+            <ul id="multipleChoicesMenu" style="display: none;">
+                <li><a href="Q_add.php">Add Question</a></li>
+                <li><a href="Q_Edit.php">Edit/Delete Question</a></li>
+            </ul>
+            <li><a href="#">Fill Up</a></li>
+            <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
+            <li><a href="reset.php">Reset Options</a></li>
+            <li><a href="ViewResult.php">View Result</a></li>
+            
         </ul>
     </nav>
 
@@ -401,6 +405,15 @@ $quizDuration='';
     </div>
 
     <script>
+        function toggleSubmenu(menuId) {
+            const menu = document.getElementById(menuId);
+            if (menu.style.display === "none") {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
+        }
+
         function redirectIframe(iframeId, newUrl) {
             var iframeContainer = document.getElementById('iframeContainer');
             var iframe = document.getElementById(iframeId);
@@ -453,7 +466,7 @@ $quizDuration='';
                 activeQuizId = activeQuizId.value;
                 document.getElementById('quizId').value = activeQuizId;
 
-                fetch(`UpdateQuizTime.php?quizId=${activeQuizId}`)
+                fetch(UpdateQuizTime.php?quizId=${activeQuizId})
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('quizHeader').innerText = data.quizHeader;

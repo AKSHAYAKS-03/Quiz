@@ -11,6 +11,8 @@ $msg = '';
 $activeQuizId = $_SESSION['active'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
+$activeNoOfQuestions = $conn->query("Select NumberOfQuestions from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['NumberOfQuestions'];
+
 if (isset($_POST['Reset'])) {
     if (empty($_POST['RollNo'])) {
         $msg = 'RollNo is required';
@@ -25,6 +27,25 @@ if (isset($_POST['Reset'])) {
         $conn->query("DELETE FROM student WHERE RollNo= '$roll' and QuizId= $activeQuizId ");
         $conn->query("DELETE FROM stud WHERE regno= '$roll' and QuizId= $activeQuizId");
 
+        $conn->close();
+    }
+}
+
+if(isset($_POST['Questions'])){
+    if(empty($_POST['ques']))
+        $msg = "Enter active No.of Questions & Try Again";
+    else{
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $quesCount = $_POST['ques'];
+        $query = "UPDATE quiz_details SET Active_NoOfQuestions='$quesCount' WHERE Quiz_id = $activeQuizId";
+        if ($conn->query($query) === true) {
+            $msg = "Active No of Questions was Updated successfully as $quesCount";
+        } else {
+            $msg = "Failed to update Active Question Count for $activeQuiz Quiz";
+        }
         $conn->close();
     }
 }
@@ -218,6 +239,13 @@ if (isset($_POST['Back'])) {
         <input type="text" id="RollNo" name="RollNo" placeholder="Enter RollNo" />
         <input type="submit" name="Reset" value="Reset" />
       </div>
+
+      <div class="form-group">
+        <label for="ques">Active No.of Questions:</label>
+        <input type="number" id="ques" name="ques" min="1" max= "<?php echo $activeNoOfQuestions ?>"/>
+        <input type="submit" name="Questions" value="Update" />
+      </div>
+
       <div class="form-group">
         <label for="min">Timer (per Question):</label>
         <input type="number" id="min" name="min" placeholder="Minutes" min="0" max="59" />
@@ -261,7 +289,7 @@ if (isset($_POST['Back'])) {
     function defaultTime() {
         var activeQuizId = <?= $activeQuizId ?>;
 
-        fetch(`UpdateQuizTime.php?quizId=${activeQuizId}`)
+        fetch(UpdateQuizTime.php?quizId=${activeQuizId})
             .then(response => response.json())
             .then(data => {
                 document.getElementById('startTime').value = data.startTime;

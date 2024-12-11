@@ -39,7 +39,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$quiz_query = "SELECT QuizName, TotalMarks, TimeDuration, NumberOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime, EndTime
+$quiz_query = "SELECT QuizName, TimeDuration, NumberOfQuestions, QuizType, active_NoOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime, EndTime
                FROM quiz_details 
                WHERE Quiz_ID = ?";
 $stmt = $conn->prepare($quiz_query);
@@ -51,15 +51,17 @@ $stmt->close();
 if ($quiz_result->num_rows > 0) {
     $row = $quiz_result->fetch_assoc();
     $_SESSION['quiz_name'] = $row["QuizName"];
-    $_SESSION['Marks'] = $row["TotalMarks"];
     $_SESSION["duration"] = $row["TimeDuration"];
+    $_SESSION['QuizType'] = $row['QuizType'];
     $_SESSION['numberofquestions'] = $row["NumberOfQuestions"];
+    $_SESSION['active_NoOfQuestions'] = $row["active_NoOfQuestions"]===0? $row["NumberOfQuestions"]: $row["active_NoOfQuestions"];
     $_SESSION['question_duration'] = $row["QuestionDuration"];
     $_SESSION['question_marks'] = $row["QuestionMark"];
     $_SESSION['shuffle'] = $row["IsShuffle"];
     $_SESSION['startingtime'] = $row["startingtime"];
     $_SESSION['endingtime'] = $row["EndTime"];
 }
+$_SESSION['Marks'] = $_SESSION['active_NoOfQuestions'] * $_SESSION['question_marks'];
 
 $isshuffle = $_SESSION['shuffle'];
 
@@ -82,7 +84,17 @@ $_SESSION['shuffled_questions'] = $questions;
 $_SESSION["start_time"] = date('i:s');
 $start_time = $_SESSION["start_time"];
 
-$total_duration = $_SESSION['duration'];
+list($minutes, $seconds) = explode(':', $_SESSION['question_duration']);
+$question_duration_seconds =((int)$minutes * 60) + (int)$seconds;
+$total_duration_seconds = $_SESSION['active_NoOfQuestions'] * $question_duration_seconds;
+
+// Format the total duration into minutes and seconds
+$total_minutes = floor($total_duration_seconds / 60);
+$total_seconds = $total_duration_seconds % 60;
+$total_duration = sprintf('%02d:%02d', $total_minutes, $total_seconds);
+
+$_SESSION["duration"] = $total_duration;
+
 list($start_minutes, $start_seconds) = explode(':', $start_time);
 $start_time_seconds = ((int)$start_minutes * 60) + $start_seconds;
 
@@ -166,12 +178,14 @@ $conn->close();
         strong {
             margin-right: auto; 
         }
-        @keyframes slideIn {
+        @keyframes fadeIn {
     0% {
-        transform: translateX(-100%);
+        opacity: 0;
+        transform: translateY(-20px);
     }
     100% {
-        transform: translateX(0);
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -188,16 +202,13 @@ $conn->close();
     align-items: center;
     text-align: left;
     
-    animation: slideIn 0.5s ease-out forwards;
+    animation: fadeIn 0.5s ease-out forwards;
     transition: background-color 0.3s ease; 
 }
 
 .container:hover {
     background-color: #f4f4f4;
 }
-
-
-
 
         .btn {
             display: inline-block;
@@ -270,8 +281,8 @@ $conn->close();
 <div class="container">
     <h2>Welcome, <?php echo htmlspecialchars($name); ?>!</h2>
     <ul>
-        <li><strong>Number of Questions</strong><span><?php echo htmlspecialchars($_SESSION["numberofquestions"]); ?></span></li>
-        <li><strong>Type</strong><span>Multiple Choice</span></li>
+        <li><strong>Number of Questions</strong><span><?php echo htmlspecialchars($_SESSION["active_NoOfQuestions"]); ?></span></li>
+        <li><strong>Type</strong><span> <?php echo $_SESSION["QuizType"]===0? "Multiple Choices": 'Fill Up'?></span></li>
         <li><strong>Total Marks</strong><span><?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</span></li>
         <li><strong>Time</strong><span><?php echo htmlspecialchars($_SESSION["duration"]); ?></span></li>
         <li><strong>Time per Question</strong><span><?php echo htmlspecialchars($_SESSION["question_duration"]); ?></span></li>

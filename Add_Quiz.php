@@ -11,11 +11,11 @@ $error = '';
 
 if (isset($_POST['submit'])) {
     $quizName = $_POST['quizName'];
+    $QuizType = $_POST['QuizType'];
     $isActive = $_POST['isActive'];
     $createdBy = $_POST['createdBy'];
     $quizMarks = $_POST['quizMarks'];
     $quizTime = $_POST['quizTime'];
-    $noOfQuestions = $_POST['noOfQuestions'];
     $shuffle = $_POST['shuffle'];
     $startTime = $_POST['startTime'];
     $endTime = $_POST['endTime'];
@@ -25,19 +25,22 @@ if (isset($_POST['submit'])) {
     if (mysqli_num_rows($result) > 0) {
         $error = "Quiz already exists with the same name.";
     } else {
-        $sql = "INSERT INTO quiz_details (QuizName, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) VALUES ('$quizName', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
+        $sql = "INSERT INTO quiz_details (QuizName, QuizType, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) VALUES ('$quizName', '$QuizType', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
             $quizId = mysqli_insert_id($conn);
             $_SESSION['quiz'] = $quizId;
-            $_SESSION['noOfQuestions'] = $noOfQuestions;
             if ($isActive === "1") {
                 $conn->query("UPDATE quiz_details SET IsActive = 0");
                 $conn->query("UPDATE quiz_details SET IsActive = 1 WHERE Quiz_Id = $quizId");
             }
-
-            header('Location: Q_Add.php');
+            if($QuizType === "0"){
+                header('Location: Q_Add.php');
+            }
+            else{
+                header('Location: Fillup_Q_Add.php');
+            }
             exit;
         } else {
             $error = "Error: " . $sql . "<br>" . mysqli_error($conn);
@@ -100,13 +103,16 @@ if (isset($_POST['submit'])) {
             text-align: left;
         }
 
+        #quizType{
+            margin-left: 10px;
+        }
+        
         .input-field input {
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
             width: 300px;
             font-size: 14px;
-
         }
 
         .input-field input:focus {
@@ -170,6 +176,13 @@ if (isset($_POST['submit'])) {
             </div>
 
             <div class="input-field">
+                <label for="quizType" id="quizType">Quiz Type:</label>
+                <input type="radio" name="QuizType" value="0" required>Multiple Choice <span class="space"></span>
+                <input type="radio" name="QuizType" value="1" required>Fill Up<span class="space"></span>
+                
+            </div>
+
+            <div class="input-field">
                 <label for="isActive" id="rad1">Want to make the Quiz Active:</label>
                 <input type="radio" name="isActive" value="1" required>Yes  <span class="space"></span>
                 <input type="radio" name="isActive" value="0" required>No <span class="space"></span>
@@ -198,11 +211,6 @@ if (isset($_POST['submit'])) {
             <div class="input-field">
                 <label for="quizTime">Quiz Time  (per Question):</label>
                 <input type="time" id="quizTime" name="quizTime" required value="00:30">
-            </div>
-
-            <div class="input-field">
-                <label for="noOfQuestions">No.of Questions:</label>
-                <input type="number" id="noOfQuestions" name="noOfQuestions" value="1" required>
             </div>
 
             <div class="input-field">

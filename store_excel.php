@@ -96,10 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $correct_choice = isset($_POST['correct_choice']) ? $_POST['correct_choice'] : '';
             $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
-            if(($currentIndex + 1) > count($questions)) {
+            echo "Question No: $questionNo<br>";
+            echo "Current Index: $currentIndex<br>";
+            echo "Total Questions: " . count($questions) . "<br>";
+
+            if(($currentIndex + 1 ) == count($questions)) {
                 $_SESSION['quiz_over'] = true;  
                 header('Location: Q_Add.php');
-                exit;  // Make sure the script stops after the redirect                
+                exit;                
             }
             
             if ($currentIndex < count($questions)) {
@@ -164,7 +168,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             align-items: center;
             height: 100vh;
             margin: 0;
-            margin-top: 230px;
         }
 
         .cont {
@@ -173,6 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 30px;
             width: 60%;
+            margin-top:350px;
         }
 
         .cont h1, h3 {
@@ -261,34 +265,144 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             display: flex;
             align-items: center;
         }
+        .contain{
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 60%;
+            margin-top: 230px;
+
+        }
+        h3 {
+    color: #13274F;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.contain {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.contain h2 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #13274F;
+    padding-bottom: 10px;
+}
+
+.form-group input[type="file"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="file"]:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+#upload{
+    background-color: #13274F;
+    margin-top: 0px;
+    color: #fff;
+    width: auto;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#upload:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+#upload:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+#back{
+    background-color: #13274F;
+    margin-top: 0px;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#back:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+#back:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
     </style>
 </head>
 <body>   
     <body oncontextmenu="return false;">
     <script type="text/javascript" src="inspect.js"></script>
     <div class="cont" id="add-container">
+        <h2 style="text-align: center;text-transform: uppercase"><?php echo htmlspecialchars($QuizName); ?></h2>        
         <div class="contain">
-            <h2>Add Question - Quiz Name: <?php echo htmlspecialchars($QuizName); ?>, Question No: <?php echo $questionNo; ?></h2>
+            <h2>Add Question -  Question No: <?php echo $questionNo; ?></h2>
 
             <form action="store_excel.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="quizId" value="<?php echo $quizId; ?>">
-                <label for="file">Upload CSV or Excel File:</label>
-                <input type="file" name="file" accept=".csv, .xls, .xlsx" required><br><br>
-
+                <div class="file-form" style= "display: flex;">
+                    <label for="file" style="font-weight: bold;width:auto;margin-right: 10px">Upload CSV or Excel File:  </label>
+                    <input type="file" name="file" accept=".csv, .xls, .xlsx" required><br><br>
+                </div>      
                 <div class="button-container">
-                    <input type="submit" value="Upload File">
-                    <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
+                    <input type="submit" value="Upload File" id="upload"> 
+                    <button type="button" onclick="window.location.href = 'admin.php'" id="back">Back</button>
                 </div>
                 
             </form>
-            </div>
-    <!-- </div> -->
+        </div>
 
             <?php if (isset($_SESSION['quiz_over']) && $_SESSION['quiz_over'] === true): ?>
                 <h3>Question Over</h3>
                 <script>
                     document.getElementById('question-form')?.style.display = 'none'; 
                 </script>
+                </div>
+
             <?php else: ?>
 
 

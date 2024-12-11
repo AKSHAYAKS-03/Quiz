@@ -43,8 +43,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch total number of questions for the quiz
-$query_total = $conn->query("SELECT * FROM multiple_choices WHERE QuizId = '" . $_SESSION['active'] . "'");
-$total = $query_total->num_rows;
+$total = $_SESSION['Marks'];
 
 // Handle logout
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {

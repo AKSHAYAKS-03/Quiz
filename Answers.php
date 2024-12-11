@@ -273,47 +273,7 @@ $conn->close();
             font-size: 20px;
             margin-bottom: 20px;
         }
-        .response-labels {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.response {
-    padding: 12px 20px;
-    font-weight: 500;
-    font-size: 14px;
-    border-radius: 8px;
-    width: 200px;
-    text-align: center;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.success {
-    background-color: darkgreen;  
-    border-color: darkgreen;      
-    color: white;
-}
-
-.warning {
-    background-color: #86af49;  
-    border-color: #86af49;      
-    color: white;
-}
-
-.error {
-    background-color: red;  
-    border-color: red;      
-    color: white;
-}
-
-.response:hover {
-    transform: translateY(-5px);  
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
-}
-
+      
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -343,13 +303,7 @@ $conn->close();
      </div>   
      
     </div>
-    <center><h2><strong>ANSWERS</strong><h2></center>
-
-    <div class="response-labels">
-    <div class="response success">Selected And Correct</div>
-    <div class="response warning">Correct Answer</div>
-    <div class="response error">Selected But Wrong</div>
-</div>
+    <center><h2><strong>ANSWERS</strong><h2></center>    
 
 <br>
     <div class="answers-container">

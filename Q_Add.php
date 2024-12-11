@@ -157,15 +157,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .form-group textarea {
             resize: vertical;
         }
-
-        #upload{
-            float: right;
+       
+        #upload {
+            padding: 10px 20px;
+            background-color: #13274F;
+            color: #fff;
             width: auto;
-            height: auto;
-            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            float : right;
+            margin-left: -150px;
         }
-
+      
+      
  </style>
+ 
 </head>
 <body oncontextmenu="return false;">
     <script type="text/javascript" src="inspect.js"></script>
@@ -174,12 +181,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="contain">
             
             <h1><?php echo $activeQuiz?> Quiz
-                <button type="button" id="upload" onclick="window.location.href = 'store_excel.php';">Upload Questions</button>  
             </h1>
-            <h3>Add Question 
-                <span id="current-question-no"><?php echo $Q_NO; ?> </span>
-            </h3> <br>
+            
+            <div class="top">
+                    <button type="button" id="upload" onclick="window.location.href = 'store_excel.php';">Upload Questions</button>  
 
+                    <h3>Add Question 
+                        <span id="current-question-no"><?php echo $Q_NO; ?> </span>
+                    </h3> <br>
+            </div>
 
             <form id="question-form" method="post">            
                 <p class="form-group">

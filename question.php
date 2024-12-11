@@ -16,8 +16,9 @@ $question_duration = $_SESSION['question_duration'];
 $duration = $_SESSION['duration'];
 $questions = $_SESSION['shuffled_questions']; // Get shuffled questions
 
+$activeQuestions = $_SESSION['active_NoOfQuestions'];
 // Redirect to final page if all questions are answered
-if ($currentIndex >= count($questions)) {
+if ($currentIndex >= $activeQuestions) {
     header('Location: final.php');
     exit;
 }
@@ -437,7 +438,7 @@ h2.ques {
                 
                 <input type="hidden" name="questionNo" id="questionNo" value="<?php echo $currentQuestionNo; ?>">
                 <input type="hidden" name="question_start_time" id="question_start_time" value="<?php echo time()?>">
-                <input type="hidden" name="total" id="total" value="<?php echo count($questions); ?>">
+                <input type="hidden" name="total" id="total" value="<?php echo $activeQuestions; ?>">
                 <input type="hidden" name="timeout" id="timeout" value="0">
                 <input type="hidden" name="currentIndex" id="currentIndex" value="<?php echo $currentIndex; ?>">
                 <input type="submit" name="submit" value="Submit" id="submit">
@@ -678,7 +679,7 @@ function formatTime(ms) {
     var minutes = Math.floor((totalSeconds % 3600) / 60);
     var seconds = totalSeconds % 60;
 
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')};
 }
 </script>
 </body>

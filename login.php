@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -141,12 +141,20 @@ $conn->close();
             background-size: cover;  
             margin: 0;
             padding: 0;
-            display: flex;
+            /* display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: center; */
             height: 100vh;
           }
 
+        .full-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            flex: 1;
+          }
         * {
             margin: 0;
             padding: 0;
@@ -476,90 +484,108 @@ $conn->close();
         transform: rotate(-25deg) scale(1.2);
     }
 }
+footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background: #13274F; 
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
 
         
     </style>
 </head>
 <body oncontextmenu="return false;">
-<div class="header">
-    <center><h3>BRAINBITE</h3></center>
-    <img src="imgs/quiz4.jpg" class="quiz">
-    <img src="imgs/bulb3.gif" class="bulb-man">
+<div class="full-container">    
+        <div class="header">
+            <center><h3>BRAINBITE</h3></center>
+            <img src="imgs/quiz4.jpg" class="quiz">
+            <img src="imgs/bulb3.gif" class="bulb-man">
+        </div>
+
+        <div class="container">
+            
+            <div class="form-box login">
+                <br>
+                <center><h1>Student Login</h1> </center>
+                <br>
+                <form name="lg" method="post" action="login.php" onsubmit="return validateStudentLogin();">
+                    <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
+                        <label for="username">Name </label>
+                        <input type="text" id="username" name="name">
+                    </div>
+                    <br>
+                    <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
+                        <label for="rollno">Register number </label><br>
+                        <div class="fixed-input">
+                            <span class="fixed-text">9131</span>
+                            <input type="text" id="rollno" name="rollno" placeholder="22104001">            
+                        </div>           
+                    </div>
+                    <br>
+                    <div class="form-group" style="display: flex; flex-direction: row;">
+                        <label for="dept">Department</label>
+                        <select name="dept" 
+                                style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
+                                    color: #13274F; padding: 5px;margin-left:-70px">
+                            <option style="color: black;">Select</option>
+                            <option value="CSE" style="color: black;">CSE</option>
+                            <option value="IT" style="color: black;">IT</option>
+                            <option value="EEE" style="color: black;">EEE</option>
+                            <option value="ECE" style="color: black;">ECE</option>
+                            <option value="MECH" style="color: black;">MECH</option>
+                            <option value="CIV" style="color: black;">CIV</option>
+                        </select>
+                    </div>
+                        
+                    <br>
+                    <div class="form-group" style="display:flex;flex-direction:row">
+                        <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
+                        <input type="reset" name="Reset" id="reset" value="Clear">
+                    </div>
+                    <br>
+                    <div class="login-register">               
+                        <a href="#" class="register-link" style="text-decoration:none">Admin Login ?</a>                
+                    </div>
+                </form>
+            </div>
+            <div class="form-box register">
+                <center> <h1>Admin Login</h1></center>
+                <br>
+                <form name="lg_admin" method="post" action="login.php" onsubmit="return validateAdminLogin();">
+                    <div class="form-group" style="display:flex;flex-direction:row; justify-content:space-between">
+                        <label for="username_admin">Username</label>
+                        <input type="text" id="username_admin" name="username">
+                    </div>
+                    <br>
+                    <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    <br>
+                    <div class="form-group" style="display:flex;flex-direction:row ;justify-content:space-between">
+                        <button type="submit" name="logged" value="Login" id="Login_btn">Login</button>
+                        <input type="reset" id="reset" name="Reset" value="Clear">
+                    </div>
+                    <br>
+                    <div class="login-register">               
+                        <a href="#" class="login-link" style="text-decoration:none">Student Login?</a>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
 </div>
 
-<div class="container">
-      
-    <div class="form-box login">
-        <br>
-        <center><h1>Student Login</h1> </center>
-        <br>
-        <form name="lg" method="post" action="login.php" onsubmit="return validateStudentLogin();">
-            <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
-                <label for="username">Name </label>
-                <input type="text" id="username" name="name">
-            </div>
-            <br>
-            <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
-                <label for="rollno">Register number </label><br>
-                <div class="fixed-input">
-                    <span class="fixed-text">9131</span>
-                    <input type="text" id="rollno" name="rollno" placeholder="22104001">            
-                </div>           
-            </div>
-            <br>
-            <div class="form-group" style="display: flex; flex-direction: row;">
-                <label for="dept">Department</label>
-                <select name="dept" 
-                        style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
-                            color: #13274F; padding: 5px;margin-left:-70px">
-                    <option style="color: black;">Select</option>
-                    <option value="CSE" style="color: black;">CSE</option>
-                    <option value="IT" style="color: black;">IT</option>
-                    <option value="EEE" style="color: black;">EEE</option>
-                    <option value="ECE" style="color: black;">ECE</option>
-                    <option value="MECH" style="color: black;">MECH</option>
-                    <option value="CIV" style="color: black;">CIV</option>
-                </select>
-            </div>
-                
-            <br>
-            <div class="form-group" style="display:flex;flex-direction:row">
-                <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
-                <input type="reset" name="Reset" id="reset" value="Clear">
-            </div>
-            <br>
-            <div class="login-register">               
-                <a href="#" class="register-link" style="text-decoration:none">Admin Login ?</a>                
-            </div>
-        </form>
-    </div>
-    <div class="form-box register">
-        <center> <h1>Admin Login</h1></center>
-        <br>
-        <form name="lg_admin" method="post" action="login.php" onsubmit="return validateAdminLogin();">
-            <div class="form-group" style="display:flex;flex-direction:row; justify-content:space-between">
-                <label for="username_admin">Username</label>
-                <input type="text" id="username_admin" name="username">
-            </div>
-            <br>
-            <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password">
-            </div>
-            <br>
-            <div class="form-group" style="display:flex;flex-direction:row ;justify-content:space-between">
-                <button type="submit" name="logged" value="Login" id="Login_btn">Login</button>
-                <input type="reset" id="reset" name="Reset" value="Clear">
-            </div>
-            <br>
-            <div class="login-register">               
-                <a href="#" class="login-link" style="text-decoration:none">Student Login?</a>
-            </div>
-        </form>
-    </div>
-    
+<div>
+<footer>
+        <a href="about.html" style="text-decoration:none;color:white"><p>&copy; 2024 BrainBite Quiz Application | Developed by Akshaya K S  &  Suriya Lakshmi M (CSE 2022-26)</p></a>
+</footer>
 </div>
-
 <script>
     // Add event listener for login button
     const container = document.querySelector('.container');
