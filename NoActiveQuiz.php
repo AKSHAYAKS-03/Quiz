@@ -1,3 +1,8 @@
+<?php 
+    session_start();
+    $quiz = $_SESSION['QuizType']==0 ? "Fill Up" : "Multiple Choice"; 
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -6,7 +11,7 @@
         <style>
             body {
                 font-family: Arial, sans-serif;
-                background-color: #2c3e50;
+                background: linear-gradient(155deg, #325e80, #13274F);
                 color: white;
                 display: flex;
                 flex-direction: column;
@@ -28,7 +33,7 @@
     </head>
     <body>
         <div class='message'>
-            <h1>No active or selected quiz found. Please select or create a quiz.</h1>
+            <h1>No active or selected <?php echo $quiz?> Quiz found. Please select or create a quiz.</h1>
             <p>You will be redirected to the admin page within few seconds.</p>
         </div>
         <script>

@@ -10,7 +10,11 @@ if (!isset($_SESSION['logged']) || empty($_SESSION['logged'])) {
 $ActiveQuizId = empty($_SESSION['quiz']) ? $_SESSION['active'] : $_SESSION['quiz'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
-if ($ActiveQuizId !== $_SESSION['active']) {
+if($_SESSION['QuizType']==0){  
+    header('Location: NoActiveQuiz.php');
+    exit;
+}
+else if ($ActiveQuizId !== $_SESSION['active']) {
     $query = 'SELECT QuizName FROM quiz_details WHERE quiz_id = ?';
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $ActiveQuizId);
@@ -203,12 +207,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 }
 ?>
-<!-- 
-// else {
-//     $json_data = file_get_contents('php://input');
-// }
-// ?>
- -->
 
 <!DOCTYPE html>
 <html lang="en">

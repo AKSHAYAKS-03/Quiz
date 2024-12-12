@@ -60,8 +60,8 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
-    <script src='DisableKeys.js'></script>
     <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
@@ -114,7 +114,7 @@ $conn->close();
                 <?php else: ?>
                 <div class="answer-container" id="answer" style="display: block;">
                     <strong><label for="option">Your Answer: </label></strong>
-                    <input type="text" id="option" name="choice" placeholder="Type your answer here" required>
+                    <input type="text" id="option" name="choice" placeholder="Type your answer here">
                 </div>
                 <?php endif; ?>
                 

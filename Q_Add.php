@@ -10,7 +10,13 @@ if(!$_SESSION['logged'] || $_SESSION['logged']===''){
 $ActiveQuizId = $_SESSION['quiz']==='' ? $_SESSION['active'] : $_SESSION['quiz'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
-if($ActiveQuizId!==$_SESSION['active']){
+echo '<script>console.log("Active Quiz type: ' . $_SESSION['QuizType'] . '");</script>';
+if($_SESSION['QuizType']==1){  
+    header('Location: NoActiveQuiz.php');
+    exit;
+}
+
+else if($ActiveQuizId!==$_SESSION['active']){
     $query = 'SELECT QuizName FROM quiz_details where quiz_id = '.$ActiveQuizId;
     $result = $conn->query($query);
     $activeQuiz = $result->fetch_assoc()['QuizName'];

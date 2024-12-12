@@ -80,6 +80,7 @@ body {
 
 .quiz-details td {
     color: #2c3e50;
+    text-align: center;
 }
 
 .quiz-details tr:nth-child(even) {
@@ -110,17 +111,18 @@ body {
     position: absolute;
     top: 10px;
     right: 20px;
-    padding: 10px;
+    padding: 8px;
 }
 .header-right a {
     text-decoration: none;
-    color: #13274F;
-    padding: 4px;
+    padding: 2px;
+    display: inline-block;
 }
 
-.header-right a i {
-    font-size: 24px;
+.header-right a img {
     cursor: pointer;
+    width: 26px;  
+    height: 32px; 
 }
 
 body.blur .content,

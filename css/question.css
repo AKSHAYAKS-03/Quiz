@@ -10,7 +10,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 80px;
+    margin-top: 60px;
 }
 
 .head {
@@ -226,7 +226,7 @@ h2.ques {
     display: block;
     width: 100%;
     padding: 12px;
-    background-color: #3498db;
+    background-color:#13274F;
     color: white;
     border: none;
     border-radius: 5px;
@@ -237,7 +237,8 @@ h2.ques {
 }
 
 #agreebut:hover {
-    background-color: #2980b9;
+    background-color: white;
+    color: #13274F;
 }
 
 @keyframes fadeIn {

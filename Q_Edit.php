@@ -7,7 +7,7 @@ if(!$_SESSION['logged'] || $_SESSION['logged']===''){
     exit;
 }
 
-if($_SESSION['active']==='None' && $_SESSION['activeQuiz']==='None'){
+if(($_SESSION['active']==='None' && $_SESSION['activeQuiz']==='None') || $_SESSION['QuizType']==1){
     header('Location: NoActiveQuiz.php');
     exit;
 }

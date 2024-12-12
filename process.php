@@ -53,12 +53,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("ii", $quizid, $questionNo);
                 $stmt->execute();
                 $result = $stmt->get_result();
-                
+
+                $question_Type = "SELECT Ques_Type FROM fillup WHERE QuizId = ? AND QuestionNo = ?";
+                $stmt = $conn->prepare($question_Type);
+                $stmt->bind_param("ii", $quizid, $questionNo);
+                $stmt->execute();
+                $result2 = $stmt->get_result();
+                $Q_type = $result2->fetch_assoc();
+
                 $is_correct = false;
-                while ($row = $result->fetch_assoc()) {
-                    if (strcasecmp(trim($selected_choice), trim($row['answer'])) === 0) { // Case-insensitive comparison
-                        $is_correct = true;
-                        break;
+                if($Q_type['Ques_Type'] == 0){
+                    while ($row = $result->fetch_assoc()) {
+                        if (strcasecmp(trim($selected_choice), trim($row['answer'])) === 0) { // Case-insensitive comparison
+                            $is_correct = true;
+                            break;
+                        }
+                    }
+                }
+                else{
+                    $bound1 = null;
+                    $bound2 = null;
+                    while ($row = $result->fetch_assoc()) {
+                        if ($bound1 == null) { // Assuming a column to distinguish bounds
+                            $bound1 = floatval(trim($row['answer']));
+                        } 
+                        else{
+                            $bound2 = floatval(trim($row['answer']));
+                        }
+                    }
+                    if ($bound1 !== null && $bound2!== null) {
+                        $selected_choice = floatval(trim($selected_choice)); // Ensure numeric input
+                
+                        if(($selected_choice >= $bound1 && $selected_choice <= $bound2) || ($selected_choice <= $bound1 && $selected_choice >= $bound2) ){
+                            $is_correct = true;
+                        }
                     }
                 }
                 $stmt->close();
