@@ -64,7 +64,7 @@ $quizDuration='';
             </ul>
             <li><a href="#" onclick="toggleSubmenu('FillupMenu')">Fill Up</a></li>
             <ul id="FillupMenu" style="display: none;background-color:#2c3e50">
-                <li><a href="Fillup_Q_add.php">Add Question</a></li>
+                <li><a href="Fillup_Q_add.php">Add/Edit Question </a></li>
             </ul>
             <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="reset.php">Reset Options</a></li>

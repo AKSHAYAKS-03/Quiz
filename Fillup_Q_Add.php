@@ -128,6 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmtDeleteQuestions->close();
 
     $newQuestionsAdded = 0;
+    $questionNo = 1;
+
 
     foreach ($data as $question) {
         $questionText = $question['question'];
@@ -135,7 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $options = $question['options'] ?? [];
         $range = $question['range'] ?? null;
         $quizId = $ActiveQuizId;
-        $questionNo = $Q_NO;
 
         $stmtInsert = $conn->prepare("INSERT INTO fillup (QuizId, QuestionNo, Question, Ques_Type) VALUES (?, ?, ?, ?)");
         $stmtInsert->bind_param("iisi", $quizId, $questionNo, $questionText, $quesType);
@@ -170,7 +171,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Increment the question number for the next question
-            $Q_NO++;
+            // $Q_NO++;
+            $questionNo++;
+
         } else {
             // Error inserting new question
             http_response_code(500);
@@ -181,15 +184,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // After all new questions are inserted, update the number of questions in the quiz details
     if ($newQuestionsAdded > 0) {
-        $stmtGetExisting = $conn->prepare("SELECT NumberOfQuestions FROM quiz_details WHERE Quiz_id = ?");
-        $stmtGetExisting->bind_param("i", $quizId);
-        $stmtGetExisting->execute();
-        $stmtGetExisting->bind_result($existingQuestions);
-        $stmtGetExisting->fetch();
-        $stmtGetExisting->close();
-
+        
         $stmtUpdateQuiz = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = ? WHERE Quiz_id = ?");
         $stmtUpdateQuiz->bind_param("ii", $newQuestionsAdded, $quizId);
+
         if ($stmtUpdateQuiz->execute()) {
             http_response_code(200); // Success
             echo json_encode(["message" => "Questions and answers added successfully."]);
@@ -225,13 +223,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div id="questions" data-questions='<?= json_encode($questions) ?>'></div>
 
 <div class="outer">
+
     <div id="form-container">
         <h1 style="text-align: center; text-transform: uppercase;">Fillup Add Questions</h1>
         <button class="btn btn-add" onclick="addQuestion()">Add Question</button>
         <form id="quiz-form">
+
             <div id="questions-container">
                 <!-- Questions will be dynamically inserted here -->
             </div>
+            <strong><p style="color: #ff0000;">*Kindly submit the form after doing minor changes to see the results.</p></strong>
+
             <button type="submit" class="submit" id="submit">Submit</button>
         </form>
     </div>
@@ -274,8 +276,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="checkbox" id="checkbox-${question.questionNo}" onclick="toggleRange(this, ${question.questionNo})" checked> Enable range choice
                 </label>
                 <div class="range-fields" id="range-fields-${question.questionNo}" style="display: block;">
-                    <input type="number" name="range-start-${question.questionNo}" placeholder="Start range" value="${question.range['start'] || ''}">
-                    <input type="number" name="range-end-${question.questionNo}" placeholder="End range" value="${question.range['end'] || ''}">
+                    <input type="number" step="0.01" name="range-start-${question.questionNo}" placeholder="Start range" value="${question.range['start'] || ''}">
+                    <input type="number" step="0.01" name="range-end-${question.questionNo}" placeholder="End range" value="${question.range['end'] || ''}">
                 </div>
             `;
         } else {
@@ -330,8 +332,8 @@ displayQuestions();
                     <input type="checkbox" onclick="toggleRange(this, ${questionCount})"> Enable range choice
                 </label>
                 <div class="range-fields" id="range-fields-${questionCount}" style="display: none;">
-                    <input type="number" name="range-start-${questionCount}" placeholder="Start range">
-                    <input type="number" name="range-end-${questionCount}" placeholder="End range">
+                    <input type="number" step="0.01" name="range-start-${questionCount}" placeholder="Start range">
+                    <input type="number" step="0.01" name="range-end-${questionCount}" placeholder="End range">
                 </div>
                 <div class="options" id="options-${questionCount}">
                     <div>
