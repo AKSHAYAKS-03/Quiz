@@ -25,24 +25,31 @@ if ($currentIndex >= $activeQuestions) {
 
 $currentQuestionNo = $questions[$currentIndex];
 
-// Fetch the specific question from the database
-$query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?");
-$query->bind_param("ii", $quizid, $currentQuestionNo);
-$query->execute();
-$result = $query->get_result()->fetch_assoc();
+if($_SESSION['QuizType'] ===0){
+    // Fetch the specific question from the database
+    $query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?");
+    $query->bind_param("ii", $quizid, $currentQuestionNo);
+    $query->execute();
+    $result = $query->get_result()->fetch_assoc();
+    // Fetch options for the current question
+    $options = [
+        $result['Choice1'],
+        $result['Choice2'],
+        $result['Choice3'],
+        $result['Choice4']
+    ];
 
-
-// Fetch options for the current question
-$options = [
-    $result['Choice1'],
-    $result['Choice2'],
-    $result['Choice3'],
-    $result['Choice4']
-];
-
-// Shuffle options if required
-if ($_SESSION['shuffle'] == 1) {
-    shuffle($options);
+    // Shuffle options if required
+    if ($_SESSION['shuffle'] == 1) {
+        shuffle($options);
+    }
+}
+else{
+    // Fetch the specific question from the database
+    $query = $conn->prepare("SELECT * FROM FillUp WHERE QuizId = ? AND QuestionNo = ?");
+    $query->bind_param("ii", $quizid, $currentQuestionNo);
+    $query->execute();
+    $result = $query->get_result()->fetch_assoc();
 }
 
 $conn->close();
@@ -52,348 +59,9 @@ $conn->close();
 <html>
 <head>
     <title>Quizze</title>
-    
-    <style>
-        body {
-    background-color: #13274F;
-    font-family: "Poppins", sans-serif;
-    color: white;
-    margin: 0;
-    padding: 0;
-    background-image: url("img3.jpg");
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    font-family: 'Poppins', sans-serif;
-    background-size: cover;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.head {
-    text-align: center;
-    margin-top: 20px;
-    text-transform: uppercase;
-
-}
-
-h1 {
-    font-size: 36px;
-}
-
-.quizContent {
-    width: 900px;
-    height: auto;
-    background-color: white;
-    padding: 40px;
-    border-radius: 8px;
-    color: #333;
-    box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.2);
-    position: relative;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    backdrop-filter: blur(10px);
-
-}
-
-h2.ques {
-    color: #13274F;
-    font-size: 24px;
-    margin-bottom: 20px;
-    font-weight: 600;
-    line-height: 1.4;
-    text-align: center;
-}
-
-.quizContent ul {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.quizContent ul li {
-    color: #13274F;
-    margin-bottom: 25px;
-}
-
-/* #optionsList {
-    margin-top: 0;
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between; /* Ensures even spacing */
-    /* gap: 10px; /* Adjust spacing between items */
-/* } */ 
-.option {
-    margin: 0 auto;
-    align-items: center;
-    text-align: center;
-}
-
-.option input[type="radio"] {
-    display: none; /* Hide default radio buttons */
-}
-
-.option label {
-    display: flex;
-    justify-content: center; /* Centers content horizontally */
-    align-items: center; /* Centers content vertically */
-    background-color: #f9f9f9;
-    color: #13274F;
-    border-radius: 10px;
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    width:  300px;
-    height: 50px;
-}
-
-.option label:hover {
-    background-color: #dce4f7;
-    transform: translateY(-5px);
-}
-
-.option input[type="radio"]:checked + label {
-    background-color: #13274F;
-    color: #fff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-10px);
-}
-
-
-
-
-.quizContent input[type="submit"] {
-    background-color: #13274F;
-    margin-top: 20px;
-    color: #fff;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100px;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.quizContent input[type="submit"]:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
-}
-
-.quizContent input[type="submit"]:active {
-    transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-#response {
-    font-family: monospace;
-    width: 100px;
-    font-weight: bold;
-    font-size: 35px;
-    padding-right: 10px;
-    margin-top: -20px;
-    position: absolute;
-    right: 20px;
-    text-shadow: 1px 1px 5px #fff;
-}
-
-@keyframes blinker {
-    50% {
-        opacity: 0;
-    }
-}
-
-.blink{
-    animation: blinker 1s ease-in-out infinite;
-}
-
-@keyframes pop {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-.pop {
-    animation: pop 0.5s ease-in-out;
-}
-
-#quizContent {
-    display: none;
-}
-
-#quizForm {
-    text-align: center;
-}
-#agreement {
-    text-align: center;
-    font-size: 16px;
-    background-color: #ffffff;
-    padding: 40px 30px;
-    width: 50%;
-    margin: 50px auto;
-    color: #13274F;
-    border-radius: 10px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 1s ease-in-out;
-}
-
-#agreement h2 {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.terms-content {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-#agreebut {
-    background-color: #13274F;
-    color: #fff;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-}
-
-#agreebut:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    transform: translateY(-2px);
-}
-
-#agreebut:active {
-    transform: scale(0.95);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 450px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    transform: scale(0);
-    transition: transform 0.5s ease;
-}
-
-.modal-content.show-modal {
-    transform: scale(1); 
-}
-
-#msg {
-    color: black;
-    font-weight: bold;
-    font-size: 20px;
-    padding: 10px;
-    padding-bottom: 25px;
-    text-align: center;
-    margin-top: 10px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px; 
-    margin-top: 10px;
-}
-
-.modal-content button {
-    padding: 8px 10px;
-    background-color: #13274F;
-    color: #ecf0f1;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 80px;
-    height: 30px;
-    transition: background-color 0.3s ease;
-}
-
-.modal-content button:hover {
-    background-color: #0d1b37;
-}
-
-#remtime {
-    font-size: 40px;
-    color: red;
-    font-weight: bold;
-    font-family: 'poppins' sans-serif;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-
-#remtime.show {
-    opacity: 1;
-}
-
-                
-.question-container {
-    width: 100%;
-    padding: 10px;
-}
-
-#questionText {
-    color: black;
-    text-align: left; 
-    font-size: 20px;
-    margin: 10px 0;
-} 
-
-            </style>
+    <link rel="stylesheet" type="text/css" href="css/question.css">
     <script src='DisableKeys.js'></script>
+    <script src='inspect.js'></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
@@ -405,9 +73,15 @@ h2.ques {
 <center>
         <div id="agreement">
             <h2>Terms of Quiz</h2>
-            <h4>You are not allowed to switch screens during the quiz. Once you agree and start the quiz, you cannot attempt it again.</h4><br>
+            <div class="terms-box">
+                <h3 style="color: red;text-align: justify;">You are not allowed to switch screens during the quiz. Once you agree to start the quiz, you cannot attempt it again.</h3>
+                <p style="text-align: justify;">Each question is allocated a specific amount of time. If the timer runs out before you submit your answer, the question will be skipped automatically.</p>
+                <p style="text-align: justify;">If you do not select an answer for a question and move to the next one, it is not validated.</p>
+                <p style="text-align: justify;">Once you move to the next question, you cannot go back to the previous question. Make sure to review your answer before proceeding.</p>
+            </div>
             <button onclick="agreeAndStart()" id="agreebut">I Agree</button>
         </div>
+
         </center>
         <div id="quizContent" class="quizContent">
         <br>
@@ -421,20 +95,28 @@ h2.ques {
                     <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); ?>
                     </h2>
                 </div>
-                
-
                 <br> 
-                <ul id="optionsList">
-                <?php foreach ($options as $option): ?>
-                   
-                    <div class="option">
-                        <li>
-                            <input type="radio" id="option_<?php echo htmlspecialchars($option); ?>" name="choice" value="<?php echo htmlspecialchars($option); ?>"  >
-                            <label for="option_<?php echo htmlspecialchars($option); ?>"><?php echo htmlspecialchars($option); ?></label>
-                        </li>
-                    </div>
-                <?php endforeach; ?>
-            </ul>
+
+                <?php if($_SESSION['QuizType'] ===0): ?>
+                <div class="option-container" style="display: block; ">
+                    <ul id="optionsList">
+                        <?php foreach ($options as $option): ?>
+                        
+                            <div class="option">
+                                <li>
+                                    <input type="radio" id="option_<?php echo htmlspecialchars($option); ?>" name="choice" value="<?php echo htmlspecialchars($option); ?>"  >
+                                    <label for="option_<?php echo htmlspecialchars($option); ?>"><?php echo htmlspecialchars($option); ?></label>
+                                </li>
+                            </div>
+                        <?php endforeach; ?>
+                    </ul>
+                <div>
+                <?php else: ?>
+                <div class="answer-container" id="answer" style="display: block;">
+                    <strong><label for="option">Your Answer: </label></strong>
+                    <input type="text" id="option" name="choice" placeholder="Type your answer here" required>
+                </div>
+                <?php endif; ?>
                 
                 <input type="hidden" name="questionNo" id="questionNo" value="<?php echo $currentQuestionNo; ?>">
                 <input type="hidden" name="question_start_time" id="question_start_time" value="<?php echo time()?>">
@@ -536,6 +218,14 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
 
         var formData = new FormData(this); 
+        console.log('Form Data:', formData);
+
+        var quizType = <?php echo $_SESSION['QuizType']; ?>;
+        if (quizType === 1) { // Check if it's a fill-up question and the user has entered a value
+            // Replace the "choice" field with the entered answer for fill-up questions
+            var userAnswer = document.getElementById('option').value;
+            formData.set('choice', userAnswer);
+        }
 
         formData.append('submit', 'Submit Answer');
         var xhr = new XMLHttpRequest();
@@ -588,35 +278,59 @@ function handleNextQuestion(questionData) {
 
     // Correctly display question number (1-based index)
     questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
+    
+    var quizType = <?php echo $_SESSION['QuizType']; ?>;
+    if (quizType === 0) {
+        // Clear existing options
+        var optionsList = document.getElementById('optionsList');
+        if (!optionsList) {
+            console.error('Options list element not found');
+            return;
+        }
+        optionsList.innerHTML = '';
 
-    // Clear existing options
-    var optionsList = document.getElementById('optionsList');
-    if (!optionsList) {
-        console.error('Options list element not found');
-        return;
-    }
-    optionsList.innerHTML = '';
+        // Add new options
+        questionData.options.forEach(function (option, index) {
+            var listItem = document.createElement('li');
+            var radioInput = document.createElement('input');
+            var label = document.createElement('label');
 
-    // Add new options
-    questionData.options.forEach(function (option, index) {
-        var listItem = document.createElement('li');
-        var radioInput = document.createElement('input');
+            radioInput.type = 'radio';
+            radioInput.name = 'choice';
+            radioInput.value = option;
+            radioInput.id = 'option_' + index;
+
+            label.htmlFor = radioInput.id;
+            label.textContent = option;
+
+            listItem.appendChild(radioInput);
+            listItem.appendChild(label);
+
+            listItem.classList.add('option');
+            optionsList.appendChild(listItem);
+        });
+    } else {
+        var answer = document.getElementById('answer');
+        if (!answer) {
+            console.error('Answer element not found');
+            return;
+        }
+        answer.textContent = '';
+
+        var inputBox = document.createElement('input');
         var label = document.createElement('label');
 
-        radioInput.type = 'radio';
-        radioInput.name = 'choice';
-        radioInput.value = option;
-        radioInput.id = 'option_' + index;
+        inputBox.type = 'text';
+        inputBox.name = 'choice';
+        inputBox.placeholder = 'Type your answer here';
+        inputBox.id = 'option';
 
-        label.htmlFor = radioInput.id;
-        label.textContent = option;
+        label.htmlFor = inputBox.id;
+        label.textContent = 'Your Answer: ';
 
-        listItem.appendChild(radioInput);
-        listItem.appendChild(label);
-
-        listItem.classList.add('option');
-        optionsList.appendChild(listItem);
-    });
+        answer.appendChild(label);
+        answer.appendChild(inputBox);
+    }
 
     // Update hidden fields
     document.getElementById('questionNo').value = questionData.questionNo;
@@ -679,7 +393,7 @@ function formatTime(ms) {
     var minutes = Math.floor((totalSeconds % 3600) / 60);
     var seconds = totalSeconds % 60;
 
-    return ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')};
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 </script>
 </body>

@@ -96,9 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $correct_choice = isset($_POST['correct_choice']) ? $_POST['correct_choice'] : '';
             $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
-            echo "Question No: $questionNo<br>";
-            echo "Current Index: $currentIndex<br>";
-            echo "Total Questions: " . count($questions) . "<br>";
+            // echo "Question No: $questionNo<br>";
+            // echo "Current Index: $currentIndex<br>";
+            // echo "Total Questions: " . count($questions) . "<br>";
 
             if(($currentIndex + 1 ) == count($questions)) {
                 $_SESSION['quiz_over'] = true;  

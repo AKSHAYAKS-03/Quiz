@@ -32,19 +32,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $timeTaken = gmdate("H:i:s", $timeTakenSeconds); // Format time in HH:MM:SS
 
-            $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
-            $stmt = $conn->prepare($answer_query);
-            $stmt->bind_param("ii", $quizid, $questionNo);
-            $stmt->execute();
-            $stmt->bind_result($correct_answer);
-            $stmt->fetch();
-            $stmt->close();
-
-            if ($selected_choice == $correct_answer) {
-                if (!isset($_SESSION['score'])) {
-                    $_SESSION['score'] = 0;
+            if($_SESSION['QuizType']===0){
+                $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
+                $stmt = $conn->prepare($answer_query);
+                $stmt->bind_param("ii", $quizid, $questionNo);
+                $stmt->execute();
+                $stmt->bind_result($correct_answer);
+                $stmt->fetch();
+                $stmt->close();
+                if ($selected_choice == $correct_answer) {
+                    if (!isset($_SESSION['score'])) {
+                        $_SESSION['score'] = 0;
+                    }
+                    $_SESSION['score'] += $_SESSION['question_marks'];
                 }
-                $_SESSION['score'] += $_SESSION['question_marks'];
+            }
+            else{
+                $answer_query = "SELECT answer FROM answer_fillUp WHERE QuizId = ? AND Q_ID = ?";
+                $stmt = $conn->prepare($answer_query);
+                $stmt->bind_param("ii", $quizid, $questionNo);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                $is_correct = false;
+                while ($row = $result->fetch_assoc()) {
+                    if (strcasecmp(trim($selected_choice), trim($row['answer'])) === 0) { // Case-insensitive comparison
+                        $is_correct = true;
+                        break;
+                    }
+                }
+                $stmt->close();
+
+                if ($is_correct) {
+                    if (!isset($_SESSION['score'])) {
+                        $_SESSION['score'] = 0;
+                    }
+                    $_SESSION['score'] += $_SESSION['question_marks'];
+                }
             }
 
             $answer_insert_query = "INSERT INTO stud (QuizId, regno, questionno, time, yanswer) VALUES (?,?,?,?,?)";
@@ -60,32 +84,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $nextIndex = $currentIndex + 1;
                 $nextQuestionNo = $_SESSION['shuffled_questions'][$nextIndex];
 
-                $query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?");
-                $query->bind_param("ii", $quizid, $nextQuestionNo);
-                $query->execute();
-                $result = $query->get_result()->fetch_assoc();
+                if($_SESSION['QuizType']===0){
+                    $query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?");
+                    $query->bind_param("ii", $quizid, $nextQuestionNo);
+                    $query->execute();
+                    $result = $query->get_result()->fetch_assoc();
 
-                $options = [
-                    $result['Choice1'],
-                    $result['Choice2'],
-                    $result['Choice3'],
-                    $result['Choice4']
-                ];
+                    $options = [
+                        $result['Choice1'],
+                        $result['Choice2'],
+                        $result['Choice3'],
+                        $result['Choice4']
+                    ];
 
-                if ($_SESSION['shuffle'] == 1) {
-                    shuffle($options);
+                    if ($_SESSION['shuffle'] == 1) {
+                        shuffle($options);
+                    }
                 }
-
+                else{
+                    $query = $conn->prepare("SELECT * FROM FillUp WHERE QuizId = ? AND QuestionNo = ?");
+                    $query->bind_param("ii", $quizid, $nextQuestionNo);
+                    $query->execute();
+                    $result = $query->get_result()->fetch_assoc();
+                }
                 $response = [
                     'status' => 'next_question',
                     'data' => [
                         'question' => $result['Question'],
-                        'options' => $options,
                         'questionNo' => $nextQuestionNo,
                         'currentIndex' => $nextIndex,
                         'question_start_time' => time()
                     ]
                 ];
+                if ($_SESSION['QuizType'] === 0) {
+                    $response['data']['options'] = $options;
+                }
+
             } else {
                 $response = ['status' => 'final'];
             }

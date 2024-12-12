@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎉 Congratulations! 🎉</h1>
+            <h1> Congratulations! 🎉</h1>
             <p>Your Quiz Results</p>
         </div>
         <div class="score-details">

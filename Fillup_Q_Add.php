@@ -2,89 +2,215 @@
 include_once 'core_db.php';
 session_start();
 
-if(!$_SESSION['logged'] || $_SESSION['logged']===''){
+if (!isset($_SESSION['logged']) || empty($_SESSION['logged'])) {
     header('Location: login.php');
     exit;
 }
 
-$ActiveQuizId = $_SESSION['quiz']==='' ? $_SESSION['active'] : $_SESSION['quiz'];
+$ActiveQuizId = empty($_SESSION['quiz']) ? $_SESSION['active'] : $_SESSION['quiz'];
 $activeQuiz = $_SESSION['activeQuiz'];
-$quizname = $_SESSION['quiz_name'];
 
-if($ActiveQuizId!==$_SESSION['active']){
-    $query = 'SELECT QuizName FROM quiz_details where quiz_id = '.$ActiveQuizId;
-    $result = $conn->query($query);
+if ($ActiveQuizId !== $_SESSION['active']) {
+    $query = 'SELECT QuizName FROM quiz_details WHERE quiz_id = ?';
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $ActiveQuizId);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $activeQuiz = $result->fetch_assoc()['QuizName'];
-}
-
-else if($_SESSION['active']==='None' && $_SESSION['activeQuiz']==='None'){
+} elseif ($_SESSION['active'] === 'None' && $_SESSION['activeQuiz'] === 'None') {
     header('Location: NoActiveQuiz.php');
-    exit;
+    exit;    
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get the raw POST data and decode the JSON into an array
-    $data = json_decode(file_get_contents('php://input'), true);
+// Debugging the Quiz ID
+if (empty($ActiveQuizId)) {
+    echo "ActiveQuizId is not set or is invalid.";
+}
 
-    // Check if the data is valid
-    if ($data) {
+$query = "SELECT MAX(QuestionNo) AS max_question_no FROM fillup WHERE QuizId = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $ActiveQuizId);
+$stmt->execute();
+$stmt->bind_result($maxQuestionNo);
+$stmt->fetch();
+$stmt->close();
 
-        foreach ($data as $question) {
-            $quizId = $question['quizId'];         
-            $questionNo = $question['questionNo']; 
-            $questionText = $question['question'];
-            $quesType = $question['quesType'];     
-            $options = $question['options'];       
-            $rangeStart = $question['rangeStart'];
-            $rangeEnd = $question['rangeEnd'];     
+// If there are no questions yet, start from 1
+$Q_NO = ($maxQuestionNo === null) ? 1 : $maxQuestionNo + 1;
 
-            // Insert the question into the database
-            $stmt = $conn->prepare("INSERT INTO fillup (QuizId, QuestionNo, Question, Ques_Type) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("iisi", $quizId, $questionNo, $questionText, $quesType);
-            if (!$stmt->execute()) {
-                echo json_encode(array("message" => "Error inserting question."));
-                exit;
-            }
+$query = "SELECT QuestionNo, Question, Ques_Type FROM fillup WHERE QuizId = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $ActiveQuizId);
+$stmt->execute();
+$questionsResult = $stmt->get_result();
 
-            foreach ($options as $index => $option) {
-                $ansId = uniqid(); 
+$stmt->free_result(); // Release result set
 
-                $stmt2 = $conn->prepare("INSERT INTO answers (QuizId, ans_Id, answer, Q_Id) VALUES (?, ?, ?, ?)");
-                $stmt2->bind_param("isis", $quizId, $ansId, $option, $questionNo);
-                if (!$stmt2->execute()) {
-                    echo json_encode(array("message" => "Error inserting answers."));
-                    exit;
+$json_data = file_get_contents('php://input');
+
+// Fetch the options for each question
+$questions = [];
+while ($question = $questionsResult->fetch_assoc()) {
+    $questionNo = $question['QuestionNo'];
+    $optionsQuery = "SELECT answer FROM answer_fillup WHERE QuizId = ? AND Q_Id = ?";
+    $stmtOptions = $conn->prepare($optionsQuery);
+    $stmtOptions->bind_param("ii", $ActiveQuizId, $questionNo);
+    $stmtOptions->execute();
+    $optionsResult = $stmtOptions->get_result();
+
+    $options = [];
+    while ($option = $optionsResult->fetch_assoc()) {
+        $options[] = $option['answer'];
+    }
+
+    $rangeStart = null;
+    $rangeEnd = null;
+    $stmtRange = $conn->prepare("SELECT answer FROM answer_fillup WHERE QuizId = ? AND Q_Id = ? ORDER BY answer");
+    $stmtRange->bind_param("ii", $ActiveQuizId, $questionNo);
+    $stmtRange->execute();
+    $result = $stmtRange->get_result();
+
+    $answers = [];
+    while ($row = $result->fetch_assoc()) {
+        $answers[] = $row['answer'];  
+    }
+    if (count($answers) > 0) {
+        $rangeStart = $answers[0]; 
+    }
+    if (count($answers) > 1) {
+        $rangeEnd = $answers[1]; 
+    }
+    $stmtRange->close();
+
+    $questions[] = [
+        'questionNo' => $questionNo,
+        'question' => $question['Question'],
+        'quesType' => $question['Ques_Type'],
+        'options' => $options, // Assuming you are handling options elsewhere
+        'range' => [
+            'start' => $rangeStart,
+            'end' => $rangeEnd
+        ]
+    ];
+
+    $stmtOptions->free_result(); 
+    $stmtOptions->close();  
+}
+
+$stmt->close();
+
+$json_data = file_get_contents('php://input');
+
+// If you're expecting POST requests to save new questions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+
+    $data = json_decode($json_data, true);  // 'true' converts to an associative array
+
+    if ($data === null) {
+        // Invalid JSON input
+        http_response_code(400);
+        echo json_encode(['message' => 'Invalid JSON input']);
+        exit;
+    }
+
+    // Delete existing answers and questions
+    $deleteAnswersQuery = "DELETE FROM answer_fillup WHERE QuizId = ?";
+    $stmtDeleteAnswers = $conn->prepare($deleteAnswersQuery);
+    $stmtDeleteAnswers->bind_param("i", $ActiveQuizId);
+    $stmtDeleteAnswers->execute();
+    $stmtDeleteAnswers->close();
+
+    $deleteQuestionsQuery = "DELETE FROM fillup WHERE QuizId = ?";
+    $stmtDeleteQuestions = $conn->prepare($deleteQuestionsQuery);
+    $stmtDeleteQuestions->bind_param("i", $ActiveQuizId);
+    $stmtDeleteQuestions->execute();
+    $stmtDeleteQuestions->close();
+
+    $newQuestionsAdded = 0;
+
+    foreach ($data as $question) {
+        $questionText = $question['question'];
+        $quesType = $question['quesType'];
+        $options = $question['options'] ?? [];
+        $range = $question['range'] ?? null;
+        $quizId = $ActiveQuizId;
+        $questionNo = $Q_NO;
+
+        $stmtInsert = $conn->prepare("INSERT INTO fillup (QuizId, QuestionNo, Question, Ques_Type) VALUES (?, ?, ?, ?)");
+        $stmtInsert->bind_param("iisi", $quizId, $questionNo, $questionText, $quesType);
+        if ($stmtInsert->execute()) {
+            $newQuestionsAdded++;
+
+            if ($quesType == 0 && !empty($options)) {
+                foreach ($options as $option) {
+                    if ($option != '') {
+                        $stmtOption = $conn->prepare("INSERT INTO answer_fillup (QuizId, answer, Q_Id) VALUES (?, ?, ?)");
+                        $stmtOption->bind_param("iss", $quizId, $option, $questionNo);
+                        $stmtOption->execute();
+                        $stmtOption->close();
+                    }
                 }
             }
-            // if ($rangeStart !== null && $rangeEnd !== null) {
-            //     // Range start
-            //     $ansIdRangeStart = uniqid(); // Generate unique ID for range start
-            //     $stmt3 = $conn->prepare("INSERT INTO answers (QuizId, ans_Id, answer, Q_Id) VALUES (?, ?, ?, ?)");
-            //     $stmt3->bind_param("isis", $quizId, $ansIdRangeStart, "Range Start: " . $rangeStart, $questionNo);
-            //     if (!$stmt3->execute()) {
-            //         echo json_encode(array("message" => "Error inserting range start answer."));
-            //         exit;
-            //     }
 
-            //     // Range end
-            //     $ansIdRangeEnd = uniqid(); // Generate unique ID for range end
-            //     $stmt4 = $conn->prepare("INSERT INTO answers (QuizId, ans_Id, answer, Q_Id) VALUES (?, ?, ?, ?)");
-            //     $stmt4->bind_param("isis", $quizId, $ansIdRangeEnd, "Range End: " . $rangeEnd, $questionNo);
-            //     if (!$stmt4->execute()) {
-            //         echo json_encode(array("message" => "Error inserting range end answer."));
-            //         exit;
-            //     }
-            // }        
+            // Insert range options if question type is range (quesType == 1)
+            if ($quesType == 1 && $range !== null) {
+                $rangeStart = $range['start'];
+                $rangeEnd = $range['end'];
+
+                $stmtRange1 = $conn->prepare("INSERT INTO answer_fillup (QuizId, Q_Id, answer) VALUES (?, ?, ?)");
+                $stmtRange1->bind_param("iis", $quizId, $questionNo, $rangeStart);
+                $stmtRange1->execute();
+                $stmtRange1->close();
+
+                $stmtRange2 = $conn->prepare("INSERT INTO answer_fillup (QuizId, Q_Id, answer) VALUES (?, ?, ?)");
+                $stmtRange2->bind_param("iis", $quizId, $questionNo, $rangeEnd);
+                $stmtRange2->execute();
+                $stmtRange2->close();
+            }
+
+            // Increment the question number for the next question
+            $Q_NO++;
+        } else {
+            // Error inserting new question
+            http_response_code(500);
+            echo json_encode(["message" => "Error inserting question."]);
+            exit;
         }
-
-        // Return success response after all questions are processed
-        echo json_encode(array("message" => "Questions and answers added successfully."));
-    } else {
-        // Return error if data is invalid
-        echo json_encode(array("message" => "Invalid data."));
     }
+
+    // After all new questions are inserted, update the number of questions in the quiz details
+    if ($newQuestionsAdded > 0) {
+        $stmtGetExisting = $conn->prepare("SELECT NumberOfQuestions FROM quiz_details WHERE Quiz_id = ?");
+        $stmtGetExisting->bind_param("i", $quizId);
+        $stmtGetExisting->execute();
+        $stmtGetExisting->bind_result($existingQuestions);
+        $stmtGetExisting->fetch();
+        $stmtGetExisting->close();
+
+        $stmtUpdateQuiz = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = ? WHERE Quiz_id = ?");
+        $stmtUpdateQuiz->bind_param("ii", $newQuestionsAdded, $quizId);
+        if ($stmtUpdateQuiz->execute()) {
+            http_response_code(200); // Success
+            echo json_encode(["message" => "Questions and answers added successfully."]);
+        } else {
+            http_response_code(500); // Internal server error
+            echo json_encode(["message" => "Error updating quiz details."]);
+        }
+        $stmtUpdateQuiz->close();
+    }
+
+    $stmtInsert->close();   
+    exit;
+
 }
 ?>
+<!-- 
+// else {
+//     $json_data = file_get_contents('php://input');
+// }
+// ?>
+ -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -92,337 +218,311 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fillup Add Questions</title>
-    <style>
-      body {
-    font-family: Arial, sans-serif;
-    background-color: #13274F;
-    margin: 0;
-    padding: 0;
-    color: #333;
-}
-
-.outer {
-    background-color: #ecf0f1;
-    width: 60%;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
-    border-radius: 10px;
-    color: #333;
-    padding: 30px;
-    text-align: center;
-    margin: 50px auto;
-}
-
-.question-container {
-    border: 1px solid #ccc;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 5px;
-    background-color: white;
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
-    color: black;
-    display: flex;
-    flex-direction: column;
-    gap: 15px; 
-}
-
-.question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-textarea {
-    width: 100%;
-    resize: vertical;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-
-.options > div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-input[type="text"], input[type="number"] {
-    flex: 1;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-
-.range-fields {
-    display: none;
-    margin-top: 10px;
-    gap: 10px; 
-}
-
-button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-delete {
-    background : transparent;
-    color: white;
-    padding: 8px 12px;
-}
-
-.btn-option {
-    background: transparent;
-    color: white;
-    padding: 8px 12px;
-}
-
-.btn-add {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    background-color: #13274F;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    color: #fff;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.btn-add:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
-}
-
-.btn-add:active {
-    transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-#back{
-    margin-top: 20px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    background-color: #13274F;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    color: #fff;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-#back:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
-}
-
-#back:active {
-    transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-#submit{
-    margin-top: 20px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    background-color: #13274F;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    color: #fff;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-#submit:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
-}
-
-#submit:active {
-    transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-    </style>
+    <link rel="stylesheet" href="css/fillup_q_add.css">
+    
 </head>
 <body>
-    <div class="outer">
+<div id="questions" data-questions='<?= json_encode($questions) ?>'></div>
+
+<div class="outer">
     <div id="form-container">
-        <h1 style="text-align: center;text-transform: uppercase;">Fillup Add Questions - <?php echo $quizname; ?></h1>       
+        <h1 style="text-align: center; text-transform: uppercase;">Fillup Add Questions</h1>
         <button class="btn btn-add" onclick="addQuestion()">Add Question</button>
-        <form id="quiz-form" method="post">
-        <div id="question-container"></div>
-        <button type="submit" id="submit">Submit Questions</button>
+        <form id="quiz-form">
+            <div id="questions-container">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+            <button type="submit" class="submit" id="submit">Submit</button>
         </form>
     </div>
-
     <button type="button" onclick="window.location.href = 'admin.php'" id="back">Back</button>
-    </div>
+</div>
+
+
     <script>
-        // Add a new question dynamically
-function addQuestion() {
-    const form = document.getElementById("quiz-form");
-    const questionCount = document.querySelectorAll(".question-container").length + 1;
+        var questionsData = document.getElementById('questions').getAttribute('data-questions');
 
-    // Create a new question container
-    const questionDiv = document.createElement("div");
-    questionDiv.className = "question-container";
+        try {
+            var questions = JSON.parse(questionsData);
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+        }
 
-    questionDiv.innerHTML = `
-        <div class="question-header">
-            <label>Question ${questionCount}:</label>
-            <button type="button" class="btn btn-delete" style="font-size: 20px;" onclick="deleteQuestion(this)">❌</button>
-        </div>
-        <textarea name="question-${questionCount}" rows="2" placeholder="Enter your question" required></textarea>
-        <div class="options" id="options-${questionCount}">
-            <div>
-                <input type="text" name="option-${questionCount}-1" placeholder="Option 1" required>
-                <button type="button" class="btn btn-option" style="color:black;font-size: 25px;" onclick="addOption(${questionCount})">+</button>
+
+            
+    function displayQuestions() {
+    const questionsContainer = document.getElementById('questions-container');
+
+    questions.forEach((question) => {
+        // Create the question div
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question-container');
+        questionDiv.dataset.id = question.questionNo;
+
+        let questionHTML = `
+            <div class="question-header">
+                <label>Question ${question.questionNo}:</label>
+                <button type="button" class="btn btn-delete" onclick="deleteQuestion(this, ${question.questionNo})">❌</button>
             </div>
-        </div>
-        <label>
-            <input type="checkbox" name="range-${questionCount}" onclick="toggleRange(this, ${questionCount})"> Enable range choice
-        </label>
-        <div class="range-fields" id="range-fields-${questionCount}">
-            <input type="number" name="range-start-${questionCount}" placeholder="Start range">
-            <input type="number" name="range-end-${questionCount}" placeholder="End range">
-        </div>
-    `;
+            <textarea name="question-${question.questionNo}" rows="2" placeholder="Enter your question" required>${question.question}</textarea>
+        `;
 
-    form.appendChild(questionDiv);
-    questionDiv.scrollIntoView({ behavior: "smooth", block: "end" }); 
-    updateQuestionNumbers();
+        // Handle the range-type question (quesType == 1)
+        if (question.quesType == 1) {  
+            questionHTML += `
+                <label>
+                    <input type="checkbox" id="checkbox-${question.questionNo}" onclick="toggleRange(this, ${question.questionNo})" checked> Enable range choice
+                </label>
+                <div class="range-fields" id="range-fields-${question.questionNo}" style="display: block;">
+                    <input type="number" name="range-start-${question.questionNo}" placeholder="Start range" value="${question.range['start'] || ''}">
+                    <input type="number" name="range-end-${question.questionNo}" placeholder="End range" value="${question.range['end'] || ''}">
+                </div>
+            `;
+        } else {
+            // Handle regular option-based questions (quesType == 0)
+            const optionsHTML = question.options.map((option, index) => {
+                return `
+                    <div>
+                        <input type="text" name="option-${question.questionNo}-${index + 1}" placeholder="Option ${index + 1}" value="${option}">
+                        <button type="button" class="btn btn-delete" style="font-size: 16px;color: #13274F;"onclick="removeOption(this, ${question.questionNo}, '${option}')">-</button>
+                    </div>
+                `;
+            }).join(''); 
+
+            questionHTML += `
+                <div class="options" id="options-${question.questionNo}">
+                    ${optionsHTML}
+                    <button type="button" class="btn btn-option" style="font-size: 16px;color: #13274F;" onclick="addOption(${question.questionNo})">+</button>
+                </div>
+            `;
+        }
+
+        // Append the question HTML to the container
+        questionDiv.innerHTML = questionHTML;
+        questionsContainer.appendChild(questionDiv);
+
+        // Ensure the checkbox state is set correctly (for range questions)
+        const checkbox = document.getElementById(`checkbox-${question.questionNo}`);
+        if (checkbox) {
+            checkbox.checked = question.quesType === 1; // Set checkbox based on quesType
+        }
+    });
 }
 
-// Delete a question and update the question numbers
-function deleteQuestion(button) {
-    const questionDiv = button.closest(".question-container");
-    questionDiv.remove();
-    updateQuestionNumbers();
-}
+// Call this function after loading the page to display the questions
+displayQuestions();
 
-// Add an option to a specific question
-function addOption(questionId) {
-    const optionsDiv = document.getElementById(`options-${questionId}`);
-    const optionCount = optionsDiv.children.length + 1;
 
-    const optionDiv = document.createElement("div");
-    optionDiv.innerHTML = `
-        <input type="text" name="option-${questionId}-${optionCount}" placeholder="Option ${optionCount}" required>
-        <button type="button" class="btn btn-delete" style="color:black;font-size: 25px;" onclick="this.parentElement.remove()">-</button>
-    `;
+        function addQuestion() {
+            const questionsContainer = document.getElementById("questions-container");
+            const questionCount = questionsContainer.children.length + 1;
 
-    optionsDiv.appendChild(optionDiv);
-}
+            const questionDiv = document.createElement("div");
+            questionDiv.classList.add("question-container");
+            questionDiv.dataset.id = questionCount;
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <label>Question ${questionCount}:</label>
+                    <button type="button" class="btn btn-delete" onclick="deleteQuestion(this, ${questionCount})">❌</button>
+                </div>
+                <textarea name="question-${questionCount}" rows="2" placeholder="Enter your question" required></textarea>
+                <label>
+                    <input type="checkbox" onclick="toggleRange(this, ${questionCount})"> Enable range choice
+                </label>
+                <div class="range-fields" id="range-fields-${questionCount}" style="display: none;">
+                    <input type="number" name="range-start-${questionCount}" placeholder="Start range">
+                    <input type="number" name="range-end-${questionCount}" placeholder="End range">
+                </div>
+                <div class="options" id="options-${questionCount}">
+                    <div>
+                        <input type="text" name="option-${questionCount}-1" placeholder="Option 1">
+                        <button type="button" style="font-size: 16px;color: #13274F;" textclass="btn btn-option" onclick="addOption(${questionCount})">+</button>
+                    </div>
+                </div>
+            `;
+            questionsContainer.appendChild(questionDiv);
 
-// Update question numbers dynamically
-function updateQuestionNumbers() {
-    const questionContainers = document.querySelectorAll(".question-container");
-    questionContainers.forEach((container, index) => {
-        const label = container.querySelector(".question-header label");
-        label.textContent = `Question ${index + 1}:`;
-        const textarea = container.querySelector("textarea");
-        textarea.name = `question-${index + 1}`;
-        const optionsDiv = container.querySelector(".options");
-        optionsDiv.id = `options-${index + 1}`;
-        const inputs = optionsDiv.querySelectorAll("input");
-        inputs.forEach((input, i) => {
-            input.name = `option-${index + 1}-${i + 1}`;
-        });
-        const rangeFields = container.querySelector(".range-fields");
-        if (rangeFields) {
-            rangeFields.id = `range-fields-${index + 1}`;
-            rangeFields.querySelectorAll("input").forEach((input, i) => {
-                input.name = i === 0
-                    ? `range-start-${index + 1}`
-                    : `range-end-${index + 1}`;
+            updateQuestionNumbers();
+        }
+
+
+        // Add an option dynamically to a specific question
+        function addOption(questionId) {
+            const optionsDiv = document.getElementById(`options-${questionId}`);
+            const optionCount = optionsDiv.children.length + 1;
+
+            const optionDiv = document.createElement("div");
+            optionDiv.innerHTML = `
+                <input type="text" name="option-${questionId}-${optionCount}" placeholder="Option ${optionCount}">
+                <button type="button" style="font-size: 16px;color: #13274F;" class="btn btn-delete" onclick="removeOption(this, ${questionId}, ${optionCount})">-</button>
+            `;
+            optionsDiv.appendChild(optionDiv);
+        }
+
+
+        // Toggle range fields visibility
+            function toggleRange(checkbox, questionId) {
+                const rangeFields = document.getElementById(`range-fields-${questionId}`);
+                rangeFields.style.display = checkbox.checked ? "block" : "none";
+
+                const optionsDiv = document.getElementById(`options-${questionId}`);
+                optionsDiv.style.display = checkbox.checked ? "none" : "block";
+            }
+
+            function updateQuestionNumbers() {
+            const questionContainers = document.querySelectorAll(".question-container");
+            questionContainers.forEach((container, index) => {
+                const label = container.querySelector(".question-header label");
+                label.textContent = `Question ${index + 1}:`;
+                const textarea = container.querySelector("textarea");
+                textarea.name = `question-${index + 1}`;
+                const optionsDiv = container.querySelector(".options");
+                optionsDiv.id = `options-${index + 1}`;
+                const inputs = optionsDiv.querySelectorAll("input");
+                inputs.forEach((input, i) => {
+                    input.name = `option-${index + 1}-${i + 1}`;
+                });
+                const rangeFields = container.querySelector(".range-fields");
+                if (rangeFields) {
+                    rangeFields.id = `range-fields-${index + 1}`;
+                    rangeFields.querySelectorAll("input").forEach((input, i) => {
+                        input.name = i === 0
+                            ? `range-start-${index + 1}`
+                            : `range-end-${index + 1}`;
+                    });
+                }
             });
         }
-    });
-}
 
-// Toggle range fields visibility
-function toggleRange(checkbox, questionId) {
-    const rangeFields = document.getElementById(`range-fields-${questionId}`);
-    rangeFields.style.display = checkbox.checked ? "block" : "none";
-}
 
-document.querySelector("#quiz-form").addEventListener("submit", function(event) {
-    event.preventDefault(); 
+            function deleteQuestion(button, questionId) {
+                const questionDiv = button.closest(".question-container");
 
-    let formData = new FormData(this);
-    let questionsData = [];
+                if (questionId) {
+                    fetch("Fillup_Q_Del.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            questionId: questionId // Send the QuestionNo directly
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        alert('Question and associated answers deleted successfully');
+                        console.log(data);
+                    })
+                    .then(responseText => {
+                        console.log(responseText); // Log server response (Success/Error)
+                        questionDiv.remove(); // Remove the question from the DOM
+                    })
+                    .catch(error => console.error("Error deleting question:", error));
+                } else {
+                    questionDiv.remove(); // If no questionId, just remove the DOM element
+                }
 
-    // Collect data for each question
-    document.querySelectorAll(".question-container").forEach((questionDiv, index) => {
-        let questionNo = index + 1;
-        let questionText = questionDiv.querySelector("textarea").value;
-        let quesType = questionDiv.querySelector("input[type=checkbox]").checked ? 1 : 0;
+                updateQuestionNumbers(); // Optionally update the question numbers after removal
+            }
+            function removeOption(button) {
 
-        // Collect options
-        let options = [];
-        questionDiv.querySelectorAll(".options input").forEach(optionInput => {
-            options.push(optionInput.value);
+                    const questionId = button.getAttribute('data-question-id');
+                    const optionValue = button.getAttribute('data-option');
+
+                    const optionDiv = button.parentElement; 
+                    optionDiv.remove(); 
+
+                    const removedOption = {
+                        questionId: questionId,
+                        optionValue: optionValue
+                    };
+
+                    fetch('Fillup_Option_Del.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(removedOption)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Handle the response from the server, e.g., show an 
+                        // alert for Option removed successfully
+                        alert('Option removed successfully');
+                        console.log(data);
+                        
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
+
+
+    document.getElementById("quiz-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const questionsData = [];
+        document.querySelectorAll(".question-container").forEach((questionDiv, index) => {
+            const questionNo = index + 1;
+            const questionText = questionDiv.querySelector("textarea").value;
+
+            // Check if the question contains a checkbox (only present for quesType 1)
+            const checkbox = questionDiv.querySelector("input[type=checkbox]");
+            const quesType = checkbox ? (checkbox.checked ? 1 : 0) : 0; // Default to 0 if no checkbox
+
+            if (quesType === 0) {
+                // Collect options if quesType is 0
+                const options = Array.from(questionDiv.querySelectorAll(".options input"))
+                    .map(optionInput => optionInput.value)
+                    .filter(option => option.trim() !== ""); // Remove empty options
+
+                questionsData.push({
+                    questionNo: questionNo,
+                    question: questionText,
+                    quesType: quesType,
+                    options: options, // For options
+                    range: null, // No range values for quesType 0
+                });
+            } else if (quesType === 1) {
+                // Collect range if quesType is 1
+                const rangeFields = questionDiv.querySelector(".range-fields");
+                const rangeStart = rangeFields.querySelector("input[name^='range-start']").value;
+                const rangeEnd = rangeFields.querySelector("input[name^='range-end']").value;
+
+                questionsData.push({
+                    questionNo: questionNo,
+                    question: questionText,
+                    quesType: quesType,
+                    options: null, // No options for quesType 1
+                    range: { start: rangeStart, end: rangeEnd }, // Range values
+                });
+            }
         });
 
-        let rangeStart = questionDiv.querySelector(`input[name="range-start-${questionNo}"]`)?.value;
-        let rangeEnd = questionDiv.querySelector(`input[name="range-end-${questionNo}"]`)?.value;
-
-        questionsData.push({
-            quizId: <?php echo $_SESSION['quizId']; ?>, // Get QuizId from session
-            questionNo: questionNo,
-            question: questionText,
-            quesType: quesType,
-            options: options,
-            rangeStart: rangeStart,
-            rangeEnd: rangeEnd
+        // Send data to the server
+        fetch("Fillup_Q_Add.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(questionsData),
+        })
+        
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
+        .then(data => {
+            // Handle the response from the server if needed
+            console.log(data);
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error("Error during fetch:", error);
         });
+        console.log(questions);  // Check if it's properly logged
+
     });
+    
 
-    // Send data to server (AJAX or form submission)
-    fetch('process_fillup.php', {
-        method: 'POST',
-        body: JSON.stringify(questionsData),
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message); // Display success message
-            // You can redirect to another page or perform further actions here
-        } else {
-            alert("Failed to add questions.");
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred while processing your request.");
-    });
-});
-
-
-</script>
+    </script>
 </body>
-</html>

@@ -42,7 +42,8 @@ if(isset($_POST['Questions'])){
         $quesCount = $_POST['ques'];
         $query = "UPDATE quiz_details SET Active_NoOfQuestions='$quesCount' WHERE Quiz_id = $activeQuizId";
         if ($conn->query($query) === true) {
-            $msg = "Active No of Questions was Updated successfully as $quesCount";
+            $msg = "Active No of Questions was Updated successfully as $quesCount <br> **Note: Recommended to delete the existing scoreTable for fair evaluation";
+            $activeNoOfQuestions = $quesCount;
         } else {
             $msg = "Failed to update Active Question Count for $activeQuiz Quiz";
         }
@@ -289,7 +290,7 @@ if (isset($_POST['Back'])) {
     function defaultTime() {
         var activeQuizId = <?= $activeQuizId ?>;
 
-        fetch(UpdateQuizTime.php?quizId=${activeQuizId})
+        fetch(`UpdateQuizTime.php?quizId=${activeQuizId}`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('startTime').value = data.startTime;

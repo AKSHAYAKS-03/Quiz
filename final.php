@@ -1,6 +1,5 @@
 <?php
 include 'core/db.php';
-session_start(); 
 date_default_timezone_set('Asia/Kolkata');
 
 //Redirect to login page if not logged in
@@ -24,9 +23,15 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch total number of questions for the quiz
 $quizId = $_SESSION['active'];
-$query_total = "SELECT * FROM multiple_choices WHERE QuizId = '$quizId'";
+if($_SESSION['QuizType']===0){
+    $table = 'multiple_choices';
+}else {
+    $table = 'fillup';
+} 
+
+// Fetch total number of questions for the quiz
+$query_total = "SELECT * FROM $table WHERE QuizId = '$quizId'";
 $result_total = $conn->query($query_total);
 $total = $result_total->num_rows;
 
@@ -78,6 +83,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='inspect.js'></script>
     <title>Final Scoresheet</title>
     <style>
         body {
@@ -212,10 +218,15 @@ $conn->close();
         document.addEventListener('DOMContentLoaded', function () {
             const props = document.querySelectorAll('.props');
             props.forEach(function (prop) {
-                prop.style.top = `${getRandom(-200, -50)}px`; 
-                prop.style.left = `calc(100vw * ${getRandom(0, 1)})`;
-                prop.style.setProperty('--animation-speed', `${getRandom(1,3)}s`); 
-                prop.style.setProperty('--size-delta', `${getRandom(-20, 20)}px`);
+                // Randomize position and animation speed
+                const randomX = getRandom(0, 1);
+                const randomSpeed = getRandom(1, 3);
+                const randomSize = getRandom(-20, 20);
+                
+                prop.style.top = `${getRandom(-200, -50)}px`; // Random top position
+                prop.style.left = `calc(100vw * ${randomX})`; // Random horizontal position
+                prop.style.setProperty('--animation-speed', `${randomSpeed}s`); // Set animation speed
+                prop.style.setProperty('--size-delta', `${randomSize}px`); // Random size variation
             });
             
         });
