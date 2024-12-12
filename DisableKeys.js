@@ -76,7 +76,7 @@ window.onload = function() {
     // Add an event listener to the button for the 'click' event
     yesButton.addEventListener('click', () => {
         closeModal();
-        window.location.href = 'final.php?exit=1'; 
+        window.location.href = 'final.php'; 
     });
 
 

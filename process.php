@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $bound2 = floatval(trim($row['answer']));
                         }
                     }
-                    if ($bound1 !== null && $bound2!== null) {
+                    if ($bound1 !== null && $bound2!== null && $selected_choice !== '') {
                         $selected_choice = floatval(trim($selected_choice)); // Ensure numeric input
                 
                         if(($selected_choice >= $bound1 && $selected_choice <= $bound2) || ($selected_choice <= $bound1 && $selected_choice >= $bound2) ){
