@@ -89,23 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['quiz_over'] = false;
                 
     } else {
-        // If "Next" button is clicked, insert current question into DB
         if (isset($_POST['next'])) {
             $questions = $_SESSION['questions'];
             $currentIndex = $_SESSION['current_question'];
             $correct_choice = isset($_POST['correct_choice']) ? $_POST['correct_choice'] : '';
             $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
-            // echo "Question No: $questionNo<br>";
-            // echo "Current Index: $currentIndex<br>";
-            // echo "Total Questions: " . count($questions) . "<br>";
-
-            if(($currentIndex + 1 ) == count($questions)) {
-                $_SESSION['quiz_over'] = true;  
-                header('Location: Q_Add.php');
-                exit;                
-            }
-            
             if ($currentIndex < count($questions)) {
                 $data = $questions[$currentIndex];
                 $question = $data[0];
@@ -117,35 +106,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $query = "INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation)
                           VALUES ('$quizId', '$questionNo', '$question', '$choice1', '$choice2', '$choice3', '$choice4', '$correct_choice', '$explanation')";
 
-                          
-
                 if (mysqli_query($conn, $query)) {
-                    // Increment question number and move to the next question
-                    $_SESSION['question_no'] = $questionNo + 1;
-                    $_SESSION['current_question'] = $currentIndex + 1;
-                    $questionNo++;
-                    
+                    // Increment the question number and move to the next question
+                    $_SESSION['question_no'] = ++$questionNo;
+                    $_SESSION['current_question'] = ++$currentIndex;
+
+                    // Update the number of questions in the quiz
                     $stmt2 = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = NumberOfQuestions + 1 WHERE Quiz_Id = ?");
                     $stmt2->bind_param("i", $quizId);
-                    if (!$stmt2->execute()) {
-                        echo "Error updating quiz details: " . $stmt2->error;
-                    }
-                    } else {
-                        echo "Error inserting question: " . mysqli_error($conn);
-                    }
+                    $stmt2->execute();
+                } else {
+                    echo "Error inserting question: " . mysqli_error($conn);
+                    exit;
+                }
             }
-            else {
-                $_SESSION['quiz_over'] = true;
-                
-            }
-                      
-        }   
 
+            // If all questions are processed, set quiz_over and redirect
+            if ($_SESSION['current_question'] >= count($questions)) {
+                $_SESSION['quiz_over'] = true;
+                header('Location: Q_Add.php');
+                exit;
+            }
+        }
+
+        // "Previous" button logic
         if (isset($_POST['previous'])) {
-            // Decrease the current question index if "Previous" button is clicked
             $currentIndex = $_SESSION['current_question'];
             if ($currentIndex > 0) {
-                $_SESSION['current_question'] = $currentIndex - 1;
+                $_SESSION['current_question'] = --$currentIndex;
             }
         }
     }

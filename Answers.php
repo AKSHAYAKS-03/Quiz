@@ -19,32 +19,40 @@ if ($conn->connect_error) {
 }
 
 // Fetch the Quiz Name
-$query_QuizName = $conn->prepare("SELECT QuizName,QuizType FROM quiz_details WHERE Quiz_Id = ?");
+$query_QuizName = $conn->prepare("SELECT QuizName,QuizType,active_NoOfQuestions FROM quiz_details WHERE Quiz_Id = ?");
 $query_QuizName->bind_param("i", $_SESSION['active']);
 $query_QuizName->execute();
 $result_QuizName = $query_QuizName->get_result();
 $quizDetails = $result_QuizName->fetch_assoc();
 $QuizName = $quizDetails['QuizName'];
 $QuizType = $quizDetails['QuizType'];
+$activeQuestions = $quizDetails['active_NoOfQuestions'];
 $query_QuizName->close();
 
-// Fetch Multiple Choice Questions and Answers
-$mcq = $conn->prepare("SELECT QuestionNo, Question, Answer, Choice1, Choice2, Choice3, Choice4 FROM multiple_choices WHERE QuizId = ?");
-$mcq->bind_param("i", $_SESSION['active']);
+
+$mcq = $conn->prepare("
+    SELECT QuestionNo, Question, Answer, Choice1, Choice2, Choice3, Choice4 
+    FROM multiple_choices 
+    WHERE QuizId = ? 
+    ORDER BY QuestionNo ASC 
+    LIMIT ?
+");
+$mcq->bind_param("ii", $_SESSION['active'], $activeQuestions);
 $mcq->execute();
 $mcq_result = $mcq->get_result();
 $questions_mcq = $mcq_result->fetch_all(MYSQLI_ASSOC);
 $total_mcq = $mcq_result->num_rows;
 $mcq->close();
 
-// Fetch Fill-up Questions and Answers
 $query_fillup = $conn->prepare("
     SELECT f.QuestionNo, f.Question, a.answer 
     FROM fillup f
     LEFT JOIN answer_fillup a ON f.QuestionNo = a.Q_Id
-    WHERE f.QuizId = ?
+    WHERE f.QuizId = ? 
+    ORDER BY f.QuestionNo ASC 
+    LIMIT ?
 ");
-$query_fillup->bind_param("i", $_SESSION['active']);
+$query_fillup->bind_param("ii", $_SESSION['active'], $activeQuestions);
 $query_fillup->execute();
 $fillup_result = $query_fillup->get_result();
 $questions_fillup = [];
@@ -56,6 +64,7 @@ while ($row = $fillup_result->fetch_assoc()) {
 
 $total_fillup = count($questions_fillup);
 $query_fillup->close();
+
 
 // echo $total_fillup." ".$total_mcq;
 
