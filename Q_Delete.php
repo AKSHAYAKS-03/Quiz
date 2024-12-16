@@ -30,6 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt3->execute();
         $stmt3->close();
 
+        $stmtUpdateActive = $conn->prepare("UPDATE quiz_details SET Active_NoOfQuestions = LEAST(Active_NoOfQuestions, NumberOfQuestions) WHERE Quiz_id = ?");
+        $stmtUpdateActive->bind_param("i", $quizId);
+        $stmtUpdateActive->execute();
+        $stmtUpdateActive->close();
+
         $conn->commit();
 
         $stmt4 = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? ORDER BY QuestionNo");

@@ -40,8 +40,7 @@ if ($conn->connect_error) {
 }
 
 $quiz_query = "SELECT QuizName, TimeDuration, NumberOfQuestions, QuizType, active_NoOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime, EndTime
-               FROM quiz_details 
-               WHERE Quiz_ID = ?";
+               FROM quiz_details WHERE Quiz_ID = ?";
 $stmt = $conn->prepare($quiz_query);
 $stmt->bind_param("i", $activeQuizId);
 $stmt->execute();
@@ -54,13 +53,14 @@ if ($quiz_result->num_rows > 0) {
     $_SESSION["duration"] = $row["TimeDuration"];
     $_SESSION['QuizType'] = $row['QuizType'];
     $_SESSION['numberofquestions'] = $row["NumberOfQuestions"];
-    $_SESSION['active_NoOfQuestions'] = $row["active_NoOfQuestions"]===0? $row["NumberOfQuestions"]: $row["active_NoOfQuestions"];
+    $_SESSION['active_NoOfQuestions'] = $row["active_NoOfQuestions"]===0? $row["NumberOfQuestions"]:  min($row["active_NoOfQuestions"], $row["NumberOfQuestions"]);
     $_SESSION['question_duration'] = $row["QuestionDuration"];
     $_SESSION['question_marks'] = $row["QuestionMark"];
     $_SESSION['shuffle'] = $row["IsShuffle"];
     $_SESSION['startingtime'] = $row["startingtime"];
     $_SESSION['endingtime'] = $row["EndTime"];
 }
+echo $_SESSION['active_NoOfQuestions'];
 $_SESSION['Marks'] = $_SESSION['active_NoOfQuestions'] * $_SESSION['question_marks'];
 
 $isshuffle = $_SESSION['shuffle'];

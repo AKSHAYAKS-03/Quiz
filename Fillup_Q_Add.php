@@ -215,10 +215,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fillup Add Questions</title>
     <link rel="stylesheet" href="css/fillup_q_add.css">
+    <script src="inspect.js"></script>
     
 </head>
 <body>
-<div id="questions" data-questions='<?= json_encode($questions) ?>'></div>
+<div id="questions" data-questions='<?= htmlspecialchars(json_encode($questions), ENT_QUOTES, 'UTF-8') ?>'></div>
 
 <div class="outer">
 
@@ -232,10 +233,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <strong><p style="color: #ff0000;">*Kindly submit the form after doing minor changes to see the results.</p></strong>
 
-            <button type="submit" class="submit" id="submit">Submit</button>
+            <div style="display: flex; justify-content: center; gap: 30px">
+                <button type="button" onclick="window.location.href = 'admin.php'" id="back">Back</button>
+                <button type="submit" class="submit" id="submit">Submit</button>
+            </div>
         </form>
     </div>
-    <button type="button" onclick="window.location.href = 'admin.php'" id="back">Back</button>
 </div>
 
 
@@ -274,8 +277,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="checkbox" id="checkbox-${question.questionNo}" onclick="toggleRange(this, ${question.questionNo})" checked> Enable range choice
                 </label>
                 <div class="range-fields" id="range-fields-${question.questionNo}" style="display: block;">
-                    <input type="number" step="0.01" name="range-start-${question.questionNo}" placeholder="Start range" value="${question.range['start'] || ''}">
-                    <input type="number" step="0.01" name="range-end-${question.questionNo}" placeholder="End range" value="${question.range['end'] || ''}">
+                    <input type="number" step="0.00001" name="range-start-${question.questionNo}" placeholder="Start range" value="${question.range['start'] || ''}">
+                    <input type="number" step="0.00001" name="range-end-${question.questionNo}" placeholder="End range" value="${question.range['end'] || ''}">
                 </div>
             `;
         } else {
@@ -342,6 +345,7 @@ displayQuestions();
             `;
             questionsContainer.appendChild(questionDiv);
 
+            questionDiv.scrollIntoView({ behavior: 'smooth' });
             updateQuestionNumbers();
         }
 

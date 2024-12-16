@@ -29,10 +29,17 @@ if (isset($_POST['questionId'])) {
         $stmtDeleteQuestion->execute();
 
         // Step 3: Update the number of questions
-        $stmt2 = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = NumberOfQuestions - 1 WHERE Quiz_Id = ?");
-        $stmt2->bind_param("i", $quizId);
-        $stmt2->execute();
-        $stmt2->close();
+        if ($stmtDeleteQuestion->affected_rows > 0) {
+            $stmt2 = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = NumberOfQuestions - 1 WHERE Quiz_Id = ?");
+            $stmt2->bind_param("i", $quizId);
+            $stmt2->execute();
+            $stmt2->close();
+            
+            $stmtUpdateActive = $conn->prepare("UPDATE quiz_details SET Active_NoOfQuestions = Least(Active_NoOfQuestions, NumberOfQuestions) WHERE Quiz_id = ?");
+            $stmtUpdateActive->bind_param("i", $quizId);
+            $stmtUpdateActive->execute();
+            $stmtUpdateActive->close();
+        }
 
         // Commit the transaction
         $conn->commit();

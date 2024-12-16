@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['activeQuiz'])) {
     $_SESSION['activeQuiz'] = $activeQuiz;
 }
 
-$query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details";
+$query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions,Active_NoOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details";
 $result = $conn->query($query);
  
 $endTime='';
@@ -52,7 +52,6 @@ $quizDuration='';
     <title>Admin</title>
     <link href="css/admin.css" rel="stylesheet">
     <script src="inspect.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
    
 </head>
 <body>
@@ -97,6 +96,7 @@ $quizDuration='';
                         <th>Quiz Name</th>
                         <th>Quiz Type</th>
                         <th>Number of Questions</th>
+                        <th>Active No.of Questions</th>
                         <th>Time Duration</th>
                         <th>Total Marks</th>
                         <th>Active</th>
@@ -110,6 +110,7 @@ $quizDuration='';
                     echo "<td>" . $row['QuizName'] . "</td>";
                     echo "<td>" . ($row['QuizType']==0?"Multiple Choice":"Fill Up"). "</td>";
                     echo "<td>" . $row['NumberOfQuestions'] . "</td>";
+                    echo "<td>" . ($row['Active_NoOfQuestions']==0? $row['NumberOfQuestions']:$row['Active_NoOfQuestions']) . "</td>";
                     echo "<td>" . $row['TimeDuration'] . "</td>";
                     echo "<td>" . $row['TotalMarks'] . "</td>";
                     echo "<td><input type='radio' name='activeQuiz' value='" . $row['Quiz_Id'] . "' $checked></td>";
