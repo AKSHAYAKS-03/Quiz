@@ -3,7 +3,7 @@ include_once 'core_db.php';
 session_start();
 
 if(!$_SESSION['logged'] || $_SESSION['logged']===''){
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(array("message" => "New question added successfully."));
     } else {
         http_response_code(500);
-        echo json_encode(array("message" => "Sorry, failed to insert."));
+        echo json_encode(array("message" => "Sorry,."));
     }
     
     $stmt->close();
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <title>Quizze</title>
 
-    <script src="inspect.js"></script>
+    <!-- <script src="inspect.js"></script> -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
  
 </head>
 <body oncontextmenu="return false;">
-    <script type="text/javascript" src="inspect.js"></script>
+    <!-- <script type="text/javascript" src="inspect.js"></script> -->
     <script type="text/javascript" src="validate.js"></script>
     <div class="cont" id="add-container">
         <div class="contain">
@@ -257,8 +257,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => response.text())  // Get the response as text to debug
+
             .then(data => {
+                console.log('Server Response:');
+                console.log(data);
+                console.log(data.message);
+
                 if (data.message) {
                     alert(data.message);
 

@@ -4,7 +4,7 @@ date_default_timezone_set('Asia/Kolkata');
 
 //Redirect to login page if not logged in
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
-    header('location: login.php');
+    header('location: index.php');
     exit;
 }
 

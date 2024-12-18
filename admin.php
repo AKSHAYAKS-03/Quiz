@@ -4,7 +4,7 @@ include_once 'core_db.php';
 session_start();
 
 if (!$_SESSION['logged'] || $_SESSION['logged'] === '') {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -51,7 +51,7 @@ $quizDuration='';
 <head>
     <title>Admin</title>
     <link href="css/admin.css" rel="stylesheet">
-    <script src="inspect.js"></script>
+    <!-- <script src="inspect.js"></script> -->
    
 </head>
 <body>

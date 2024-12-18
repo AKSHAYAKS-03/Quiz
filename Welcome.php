@@ -4,7 +4,7 @@ session_start();
 date_default_timezone_set('Asia/Kolkata');
 
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -13,7 +13,7 @@ if ($_SESSION['active'] === 'None') {
     $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ? AND QuizId = ?");
     $stmt->bind_param("si", $rollno, $activeQuizId);
     if ($stmt->execute()) {
-        header("Location: login.php");
+        header("Location: index.php");
         exit;
     } else {
         echo "Error deleting record: " . $stmt->error;
@@ -60,7 +60,7 @@ if ($quiz_result->num_rows > 0) {
     $_SESSION['startingtime'] = $row["startingtime"];
     $_SESSION['endingtime'] = $row["EndTime"];
 }
-echo $_SESSION['active_NoOfQuestions'];
+// echo $_SESSION['active_NoOfQuestions'];
 $_SESSION['Marks'] = $_SESSION['active_NoOfQuestions'] * $_SESSION['question_marks'];
 
 $isshuffle = $_SESSION['shuffle'];
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['login'] = FALSE;
             $_SESSION['logi'] = FALSE;
             $_SESSION['log'] = FALSE;
-            header('Refresh: 0.5; url=login.php'); 
+            header('Refresh: 0.5; url=index.php'); 
             exit;
         }
         $_SESSION['score'] = 0;
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ? AND QuizId = ?");
         $stmt->bind_param("si", $rollno, $activeQuizId);
         if ($stmt->execute()) {
-            header("Location: login.php");
+            header("Location: index.php");
             $_SESSION['login'] = FALSE;
             $_SESSION['logi'] = FALSE;
             $_SESSION['log'] = FALSE;
@@ -179,7 +179,7 @@ $conn->close();
 
                 if (currentTime >= endingTime) {
                     alert("QUIZ OVER");
-                    window.location.href = 'login.php';
+                    window.location.href = 'index.php';
                 }
             }
 

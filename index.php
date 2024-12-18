@@ -76,7 +76,7 @@ if (isset($_POST['Login_btn'])) {
             exit();
         } else {
         // Quiz is over, redirect the user back to the login page
-        echo '<script>alert("Quiz is over"); window.location.href = "login.php";</script>';
+        echo '<script>alert("Quiz is over"); window.location.href = "index.php";</script>';
         exit();
         }
     }
@@ -146,7 +146,7 @@ $conn->close();
                 <br>
                 <center><h1>Student Login</h1> </center>
                 <br>
-                <form name="lg" method="post" action="login.php" onsubmit="return validateStudentLogin();">
+                <form name="lg" method="post" action="index.php" onsubmit="return validateStudentLogin();">
                     <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
                         <label for="username">Name </label>
                         <input type="text" id="username" name="name">
@@ -189,7 +189,7 @@ $conn->close();
             <div class="form-box register">
                 <center> <h1>Admin Login</h1></center>
                 <br>
-                <form name="lg_admin" method="post" action="login.php" onsubmit="return validateAdminLogin();">
+                <form name="lg_admin" method="post" action="index.php" onsubmit="return validateAdminLogin();">
                     <div class="form-group" style="display:flex;flex-direction:row; justify-content:space-between">
                         <label for="username_admin">Username</label>
                         <input type="text" id="username_admin" name="username">

@@ -6,8 +6,9 @@ include 'core/db.php';
 if (!isset($_SESSION['login']) || empty($_SESSION['login']) || 
     !isset($_SESSION['logi']) || empty($_SESSION['logi']) || 
     !isset($_SESSION['RollNo']) || empty($_SESSION['RollNo']) || 
+    
     !isset($_SESSION['Name']) || empty($_SESSION['Name'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -220,7 +221,7 @@ $conn->close();
         <?php endforeach; ?>
 </div>
 <br>
-<form method="post" action="login.php">
+<form method="post" action="index.php">
     <input type="submit" name="Logout" class="Logout" value="Logout">
 </form>
 

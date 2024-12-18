@@ -9,7 +9,7 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     !isset($_SESSION['RollNo']) || empty($_SESSION['RollNo']) ||
     !isset($_SESSION['Name']) || empty($_SESSION['Name']) ||
     !isset($_SESSION['dept']) || empty($_SESSION['dept'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -49,7 +49,7 @@ $total = $_SESSION['Marks'];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
     session_unset(); 
     session_destroy(); 
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 ?>

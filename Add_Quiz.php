@@ -3,7 +3,7 @@ include_once 'core_db.php';
 session_start();
 
 if (!$_SESSION['logged'] || $_SESSION['logged'] === '') {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
