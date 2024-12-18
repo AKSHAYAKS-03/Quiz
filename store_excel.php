@@ -60,18 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 fclose($handle);
             }
         } elseif ($fileExt === 'xls' || $fileExt === 'xlsx') {
-            // Convert Excel to CSV using PhpSpreadsheet
             require 'vendor/autoload.php';
 
             $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($fileTmpName);
             $spreadsheet = $reader->load($fileTmpName);
 
-            // Create a temporary CSV file
             $tempCsvFile = tempnam(sys_get_temp_dir(), 'questions_') . '.csv';
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Csv');
             $writer->save($tempCsvFile);
 
-            // Now, read the CSV content
             if (($handle = fopen($tempCsvFile, 'r')) !== FALSE) {
                 while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
                     $questions[] = $data;
@@ -79,11 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 fclose($handle);
             }
 
-            // Delete the temporary CSV file after reading
             unlink($tempCsvFile);
         }
 
-        // Store questions in session
         $_SESSION['questions'] = $questions;
         $_SESSION['current_question'] = 0;
         $_SESSION['quiz_over'] = false;
@@ -92,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['next'])) {
             $questions = $_SESSION['questions'];
             $currentIndex = $_SESSION['current_question'];
-            $correct_choice = isset($_POST['correct_choice']) ? $_POST['correct_choice'] : '';
             $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
             if ($currentIndex < count($questions)) {
@@ -102,26 +96,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $choice2 = $data[2];
                 $choice3 = $data[3];
                 $choice4 = $data[4];
-
-                $query = "INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation)
-                          VALUES ('$quizId', '$questionNo', '$question', '$choice1', '$choice2', '$choice3', '$choice4', '$correct_choice', '$explanation')";
-
-                if (mysqli_query($conn, $query)) {
-                    // Increment the question number and move to the next question
+                $correct_choice = $data[5];
+            
+            $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            if ($stmt) {
+                $stmt->bind_param("iisssssss", $quizId, $questionNo, $question, $choice1, $choice2, $choice3, $choice4, $correct_choice, $explanation);
+                
+                if ($stmt->execute()) {
                     $_SESSION['question_no'] = ++$questionNo;
                     $_SESSION['current_question'] = ++$currentIndex;
 
-                    // Update the number of questions in the quiz
                     $stmt2 = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = NumberOfQuestions + 1 WHERE Quiz_Id = ?");
-                    $stmt2->bind_param("i", $quizId);
-                    $stmt2->execute();
+                    if ($stmt2) {
+                        $stmt2->bind_param("i", $quizId);
+                        $stmt2->execute();
+                        $stmt2->close();
+                    }
                 } else {
-                    echo "Error inserting question: " . mysqli_error($conn);
+                    echo "Error inserting question: " . $stmt->error;
                     exit;
                 }
-            }
 
-            // If all questions are processed, set quiz_over and redirect
+                $stmt->close();
+            } else {
+                echo "Error preparing statement: " . $conn->error;
+                exit;
+            }
             if ($_SESSION['current_question'] >= count($questions)) {
                 $_SESSION['quiz_over'] = true;
                 header('Location: Q_Add.php');
@@ -129,7 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // "Previous" button logic
         if (isset($_POST['previous'])) {
             $currentIndex = $_SESSION['current_question'];
             if ($currentIndex > 0) {
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
-
+}
 ?>
 
 <!DOCTYPE html>
@@ -147,220 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Question - Upload CSV/Excel</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #13274F;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .cont {
-            background-color: #ecf0f1;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 60%;
-            margin-top:350px;
-        }
-
-        .cont h1, h3 {
-            color: #13274F;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .cont p {
-            margin: 15px 0;
-            text-transform: capitalize;
-        }
-
-        .Curr_Q {
-            margin: 30px;
-            padding: 20px;
-        }
-
-        label {
-            display: inline-block;
-            width: 140px;
-            text-align: left;
-            padding-left: 70px;
-        }
-
-        input[type='text'], textarea, input[type='number'] {
-            width: calc(100% - 280px);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-
-        input[type='submit'], button {
-            background: #13274F;
-            color: #fff;
-            padding: 10px 20px;
-            border: 0;
-            border-radius: 5px;
-            margin-top: 20px;
-            width: 100px;
-            cursor: pointer;
-            margin-right: 20px;
-        }
-
-        input[type='submit']:hover, button:hover {
-            cursor: pointer;
-            font-weight: bolder;
-            background-color: #0d1b37;
-        }
-
-        a {
-            text-decoration: none;
-            border: 2px solid #333;
-            padding: 2px 12px;
-            color: white;
-            border-radius: 6px;
-            background: #333;
-            display: inline-block;
-            margin-top: 20px;
-        }
-
-        a:hover {
-            font-weight: bolder;
-            color: #000;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-        }
-        button[type="submit"]:nth-of-type(2) {
-            background-color: #e74c3c; 
-        }
-
-        button[type="submit"]:nth-of-type(1) {
-            background-color: #2ecc71; 
-        }
-
-        .button-container {
-            display: flex;
-            align-items: center;
-        }
-        .contain{
-            background-color: #ecf0f1;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 60%;
-            margin-top: 230px;
-
-        }
-        h3 {
-    color: #13274F;
-    text-align: center;
-    margin-top: 20px;
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
-.contain {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    padding: 40px;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 600px;
-    text-align: center;
-}
-
-.contain h2 {
-    font-size: 24px;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #13274F;
-    padding-bottom: 10px;
-}
-
-.form-group input[type="file"] {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
-}
-
-.form-group input[type="file"]:focus {
-    border-color: #3498db;
-    outline: none;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-#upload{
-    background-color: #13274F;
-    margin-top: 0px;
-    color: #fff;
-    width: auto;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-#upload:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
-}
-
-#upload:active {
-    transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-#back{
-    background-color: #13274F;
-    margin-top: 0px;
-    color: #fff;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-#back:hover {
-    background-color: #fff;
-    color: #13274F;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
-}
-
-#back:active {
-    transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-    </style>
+    <link rel="stylesheet" href="css/store_excel.css">
 </head>
 <body>   
     <body oncontextmenu="return false;">
@@ -417,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="text" id="choice4" name="choice4" value="<?php echo htmlspecialchars($currentQuestion[4]); ?>" required><br><br>
 
                     <label for="correct_choice">Correct Answer:</label>
-                    <input type="text" id="correct_choice" name="correct_choice" required><br><br>
+                    <input type="text" id="correct_choice" name="correct_choice" value="<?php echo htmlspecialchars($currentQuestion[5]); ?>"><br><br>
 
                     <label for="explanation">Explanation:</label>
                     <textarea id="explanation" name="explanation">NO EXPLANATION</textarea><br><br>

@@ -97,7 +97,6 @@ list($minutes, $seconds) = explode(':', $_SESSION['question_duration']);
 $question_duration_seconds =((int)$minutes * 60) + (int)$seconds;
 $total_duration_seconds = $_SESSION['active_NoOfQuestions'] * $question_duration_seconds;
 
-// Format the total duration into minutes and seconds
 $total_minutes = floor($total_duration_seconds / 60);
 $total_seconds = $total_duration_seconds % 60;
 $total_duration = sprintf('%02d:%02d', $total_minutes, $total_seconds);

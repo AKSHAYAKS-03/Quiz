@@ -2,7 +2,6 @@
 include 'core/db.php';
 date_default_timezone_set('Asia/Kolkata');
 
-//Redirect to login page if not logged in
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
     header('location: index.php');
     exit;
@@ -14,11 +13,9 @@ if (isset($_GET['exit']) && $_GET['exit'] == 1) {
     $flag = false;
 }
 
-// Initialize session variables
 $_SESSION['log'] = "";
 $_SESSION['lo'] = "";
 
-// Check database connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -30,12 +27,10 @@ if($_SESSION['QuizType']===0){
     $table = 'fillup';
 } 
 
-// Fetch total number of questions for the quiz
 $query_total = "SELECT * FROM $table WHERE QuizId = '$quizId'";
 $result_total = $conn->query($query_total);
 $total = $result_total->num_rows;
 
-// Initialize variables for time calculation
 $rollno = $_SESSION['RollNo'];
 $total_time_seconds = 0;
 
@@ -59,19 +54,18 @@ for ($i = 1; $i <= $total; $i++) {
         $total_minutes = floor(($total_time_seconds % 3600) / 60);
         $total_seconds = $total_time_seconds % 60;
 
-        // Format the time as HH:MM:SS
         $total_time_formatted = sprintf('%02d:%02d:%02d', $total_hours, $total_minutes, $total_seconds);
 
 
 
-$sql = "UPDATE student SET Score = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sssi", $_SESSION['score'], $total_time_formatted, $rollno, $quizId);
-$stmt->execute();
-$stmt->close();
+    $sql = "UPDATE student SET Score = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssi", $_SESSION['score'], $total_time_formatted, $rollno, $quizId);
+    $stmt->execute();
+    $stmt->close();
 
-$_SESSION['Score'] = "";
-$_SESSION['total_time'] = $total_time_formatted;
+    $_SESSION['Score'] = "";
+    $_SESSION['total_time'] = $total_time_formatted;
 
 
 
@@ -125,7 +119,6 @@ $conn->close();
         var timer = 5; 
         document.getElementById('timer').textContent = timer;
 
-        // Function to start countdown timer
         function startTimer() {
             timer--;
             if (timer <= 0) {
@@ -146,20 +139,17 @@ $conn->close();
         function getRandom(min, max) {
             return Math.random() * (max - min) + min;
         }
-
-        // Set random positions and animation durations for each prop
         document.addEventListener('DOMContentLoaded', function () {
             const props = document.querySelectorAll('.props');
             props.forEach(function (prop) {
-                // Randomize position and animation speed
                 const randomX = getRandom(0, 1);
                 const randomSpeed = getRandom(1, 3);
                 const randomSize = getRandom(-20, 20);
                 
-                prop.style.top = `${getRandom(-200, -50)}px`; // Random top position
-                prop.style.left = `calc(100vw * ${randomX})`; // Random horizontal position
-                prop.style.setProperty('--animation-speed', `${randomSpeed}s`); // Set animation speed
-                prop.style.setProperty('--size-delta', `${randomSize}px`); // Random size variation
+                prop.style.top = `${getRandom(-200, -50)}px`; 
+                prop.style.left = `calc(100vw * ${randomX})`; 
+                prop.style.setProperty('--animation-speed', `${randomSpeed}s`); 
+                prop.style.setProperty('--size-delta', `${randomSize}px`); 
             });
             
         });

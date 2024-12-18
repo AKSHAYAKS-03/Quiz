@@ -3,7 +3,6 @@
 include 'core_db.php';
 date_default_timezone_set('Asia/Kolkata');
 
-// Redirect to login if session variables are not set
 if (!isset($_SESSION['RollNo']) || empty($_SESSION['RollNo'])) {
     header('Location: login.php');
     exit;
@@ -14,10 +13,9 @@ $quizid = $_SESSION['active'];
 $currentIndex = isset($_SESSION['currentIndex']) ? $_SESSION['currentIndex'] : 0;
 $question_duration = $_SESSION['question_duration'];
 $duration = $_SESSION['duration'];
-$questions = $_SESSION['shuffled_questions']; // Get shuffled questions
+$questions = $_SESSION['shuffled_questions']; 
 
 $activeQuestions = $_SESSION['active_NoOfQuestions'];
-// Redirect to final page if all questions are answered
 if ($currentIndex >= $activeQuestions) {
     header('Location: final.php');
     exit;
@@ -26,12 +24,10 @@ if ($currentIndex >= $activeQuestions) {
 $currentQuestionNo = $questions[$currentIndex];
 
 if($_SESSION['QuizType'] ===0){
-    // Fetch the specific question from the database
     $query = $conn->prepare("SELECT * FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?");
     $query->bind_param("ii", $quizid, $currentQuestionNo);
     $query->execute();
     $result = $query->get_result()->fetch_assoc();
-    // Fetch options for the current question
     $options = [
         $result['Choice1'],
         $result['Choice2'],
@@ -39,13 +35,11 @@ if($_SESSION['QuizType'] ===0){
         $result['Choice4']
     ];
 
-    // Shuffle options if required
     if ($_SESSION['shuffle'] == 1) {
         shuffle($options);
     }
 }
 else{
-    // Fetch the specific question from the database
     $query = $conn->prepare("SELECT * FROM FillUp WHERE QuizId = ? AND QuestionNo = ?");
     $query->bind_param("ii", $quizid, $currentQuestionNo);
     $query->execute();
@@ -158,7 +152,7 @@ function agreeAndStart() {
 
     document.getElementById('agreement').style.display = 'none';
     document.getElementById('quizContent').style.display = 'block';
-    startQuiz(); // Call startQuiz function here
+    startQuiz();
     checkTime();
 }
 var interval;
@@ -180,7 +174,6 @@ function startQuiz() {
     var timer = duration;
     var halfway = Math.floor(duration / 2);
 
-    // Immediately update the display
     updateDisplay();
 
     interval = setInterval(function () {
@@ -221,8 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Form Data:', formData);
 
         var quizType = <?php echo $_SESSION['QuizType']; ?>;
-        if (quizType === 1) { // Check if it's a fill-up question and the user has entered a value
-            // Replace the "choice" field with the entered answer for fill-up questions
+        if (quizType === 1) { 
             var userAnswer = document.getElementById('option').value;
             formData.set('choice', userAnswer);
         }
@@ -264,24 +256,20 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function handleNextQuestion(questionData) {
-    // Clear the interval for the previous question
     if (interval) {
         clearInterval(interval);
     }
 
-    // Update question text and number
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
         console.error('Question text element not found');
         return;
     }
 
-    // Correctly display question number (1-based index)
     questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
     
     var quizType = <?php echo $_SESSION['QuizType']; ?>;
     if (quizType === 0) {
-        // Clear existing options
         var optionsList = document.getElementById('optionsList');
         if (!optionsList) {
             console.error('Options list element not found');
@@ -289,7 +277,6 @@ function handleNextQuestion(questionData) {
         }
         optionsList.innerHTML = '';
 
-        // Add new options
         questionData.options.forEach(function (option, index) {
             var listItem = document.createElement('li');
             var radioInput = document.createElement('input');
@@ -332,18 +319,15 @@ function handleNextQuestion(questionData) {
         answer.appendChild(inputBox);
     }
 
-    // Update hidden fields
     document.getElementById('questionNo').value = questionData.questionNo;
     document.getElementById('question_start_time').value = questionData.question_start_time;
     document.getElementById('currentIndex').value = questionData.currentIndex;
 
-    // Restart the quiz timer for the new question
     startQuiz();
     checkTime();    
 }
 
 function handleFinalPage() {
-    // Handle redirection or show final results
     window.location.href = 'final.php';
 }
 
@@ -352,7 +336,7 @@ function checkTime() {
     var currentTime = new Date().getTime();
     var remainingTime = endingTime - currentTime;
 
-    var quesduration = "<?php echo $duration; ?>"; // Ensure this matches your variable name for question duration
+    var quesduration = "<?php echo $duration; ?>"; 
     var quesDurationParts = quesduration.split(":");
     var quesDurationMillis = (parseInt(quesDurationParts[0]) * 60 + parseInt(quesDurationParts[1])) * 1000;
 
@@ -376,7 +360,7 @@ function checkTime() {
     }
     setTimeout(function() {
             remTimeElem.classList.remove('show');
-        }, 3000); // Show the message for 5 seconds
+        }, 3000);
 
     var interval = setInterval(function() {
         var currentTime = new Date().getTime();

@@ -3,16 +3,12 @@ session_start();
 include 'core_db.php';
 date_default_timezone_set('Asia/Kolkata');
 
-
-// Enable error reporting for debugging (remove or disable in production)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Set the content type to JSON
 header('Content-Type: application/json');
 
-// Start output buffering to capture any unintended output
 ob_start();
 
 $response = [];
@@ -30,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $timeTakenSeconds = time() - $_POST['question_start_time'];
         
             
-            $timeTaken = gmdate("H:i:s", $timeTakenSeconds); // Format time in HH:MM:SS
+            $timeTaken = gmdate("H:i:s", $timeTakenSeconds);
 
             if($_SESSION['QuizType']===0){
                 $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
@@ -64,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $is_correct = false;
                 if($Q_type['Ques_Type'] == 0){
                     while ($row = $result->fetch_assoc()) {
-                        if (strcasecmp(trim($selected_choice), trim($row['answer'])) === 0) { // Case-insensitive comparison
+                        if (strcasecmp(trim($selected_choice), trim($row['answer'])) === 0) { 
                             $is_correct = true;
                             break;
                         }
@@ -74,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $bound1 = null;
                     $bound2 = null;
                     while ($row = $result->fetch_assoc()) {
-                        if ($bound1 == null) { // Assuming a column to distinguish bounds
+                        if ($bound1 == null) { 
                             $bound1 = floatval(trim($row['answer']));
                         } 
                         else{
@@ -82,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                     if ($bound1 !== null && $bound2!== null && $selected_choice !== '') {
-                        $selected_choice = floatval(trim($selected_choice)); // Ensure numeric input
+                        $selected_choice = floatval(trim($selected_choice)); 
                 
                         if(($selected_choice >= $bound1 && $selected_choice <= $bound2) || ($selected_choice <= $bound1 && $selected_choice >= $bound2) ){
                             $is_correct = true;
@@ -161,14 +157,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ['status' => 'error', 'message' => 'Invalid request method'];
 }
 
-// Get the buffer contents and clean the buffer
 $output = ob_get_clean();
 
-// If there is any unintended output, include it in the response for debugging
 if (!empty($output)) {
     $response['output'] = $output;
 }
-
-// Output the JSON response
 echo json_encode($response);
 ?>

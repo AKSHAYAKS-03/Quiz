@@ -10,7 +10,6 @@ if(!$_SESSION['logged'] || $_SESSION['logged']===''){
 $ActiveQuizId = $_SESSION['quiz']==='' ? $_SESSION['active'] : $_SESSION['quiz'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
-echo '<script>console.log("Active Quiz type: ' . $_SESSION['QuizType'] . '");</script>';
 if($_SESSION['QuizType']==1){  
     header('Location: NoActiveQuiz.php');
     exit;
@@ -45,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     $stmt->bind_param("iisssssss", $quizId, $questionNo, $question, $c1, $c2, $c3, $c4, $correct_choice, $exp);
     
+    ob_clean();
     if ($stmt->execute()) {
         $stmt2 = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = NumberOfQuestions + 1 WHERE Quiz_Id = ?");
         $stmt2->bind_param("i", $quizId);
@@ -52,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt2->close();
 
         http_response_code(200);
-        echo json_encode(array("message" => "New question added successfully."));
+        echo json_encode(['message' => 'New question added successfully.']);
     } else {
         http_response_code(500);
-        echo json_encode(array("message" => "Sorry,."));
+        echo json_encode(array("message" => "Sorry, Failed to insert question."));
     }
     
     $stmt->close();
@@ -257,11 +257,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())  // Get the response as text to debug
+            .then(response => response.json())  // Get the response as text to debug
 
             .then(data => {
-                console.log('Server Response:');
-                console.log(data);
                 console.log(data.message);
 
                 if (data.message) {

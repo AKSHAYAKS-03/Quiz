@@ -28,7 +28,6 @@ $total_time = $_SESSION['total_time'];
 
 list($hours, $minutes, $seconds) = explode(':', $total_time);
 
-// Determine the appropriate time format to display
 if ($hours == 0 && $minutes == 0) {
     $display_time = intval($seconds) . ' sec';
 } elseif ($hours == 0) {
@@ -37,15 +36,12 @@ if ($hours == 0 && $minutes == 0) {
     $display_time = intval($hours) . ' hr ' . intval($minutes) . ' min';
 }
 
-// Check database connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch total number of questions for the quiz
 $total = $_SESSION['Marks'];
 
-// Handle logout
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
     session_unset(); 
     session_destroy(); 
@@ -185,6 +181,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
 
 
 <?php
-// Close MySQLi connection
 $conn->close();
 ?>

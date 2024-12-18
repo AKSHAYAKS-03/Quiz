@@ -3,15 +3,13 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3306";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
 
-// Create connection
 $conn = new mysqli($host, $user, $password, $db);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -58,14 +56,11 @@ if (isset($_POST['Login_btn'])) {
     $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
     $result = $conn->query($sql);
 
-    // Check if the current time is past the end time of the quiz (duration-based)
     if ($currentUnixTime > $endTime) {
-        // Check if the student has already attended the quiz
         $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND QuizId='$activeQuizId'";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
-            // User attended, redirect to Answers page
             $_SESSION['login'] = TRUE;
             $_SESSION['logi'] = TRUE;
             $_SESSION['log'] = TRUE;
@@ -75,7 +70,6 @@ if (isset($_POST['Login_btn'])) {
             header("Location: Answers.php");
             exit();
         } else {
-        // Quiz is over, redirect the user back to the login page
         echo '<script>alert("Quiz is over"); window.location.href = "index.php";</script>';
         exit();
         }
@@ -128,7 +122,7 @@ $conn->close();
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Quiz Login</title>
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/index.css">
     <script type="text/javascript" src="inspect.js"></script>
   
 </head>
@@ -220,7 +214,6 @@ $conn->close();
 </footer>
 </div>
 <script>
-    // Add event listener for login button
     const container = document.querySelector('.container');
     const loginLink = document.querySelector('.login-link');
     const registerLink = document.querySelector('.register-link');
@@ -236,24 +229,20 @@ $conn->close();
     function validateStudentLogin() {
         var valid = true;
 
-        // Retrieve form inputs
         var name = document.forms['lg']['name'].value.trim();
         var rollno = document.forms['lg']['rollno'].value.trim();
         var dept = document.forms['lg']['dept'].value;
 
-        // Validate Name
         if (name === '' || !/^[a-zA-Z\s.]*$/.test(name)) {
             alert('Please enter a valid name.');
             valid = false;
         }
 
-        // Validate Roll Number
         if (rollno === '' || !/^\d+$/.test(rollno) || rollno.length !== 8) {
             alert('Please enter a valid roll number.');
             valid = false;
         }
 
-        // Validate Department
         if (dept === 'select') {
             alert('Please select a department.');
             valid = false;
@@ -265,17 +254,14 @@ $conn->close();
     function validateAdminLogin() {
         var valid = true;
 
-        // Retrieve form inputs
         var username = document.forms['lg_admin']['username'].value.trim();
         var password = document.forms['lg_admin']['password'].value.trim();
 
-        // Validate Username
         if (username === '') {
             alert('Please enter a username.');
             valid = false;
         }
 
-        // Validate Password
         if (password === '') {
             alert('Please enter a password.');
             valid = false;

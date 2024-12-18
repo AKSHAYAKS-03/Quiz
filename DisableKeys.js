@@ -5,7 +5,6 @@ window.onload = function() {
         e.preventDefault();
     }, false);
 
-    // Function to disable event
     function disabledEvent(e) {
         if (e.stopPropagation) {
             e.stopPropagation();
@@ -16,7 +15,6 @@ window.onload = function() {
         return false;
     }
 
-    // Function to request full-screen mode
     function enterFullscreen() {
         var elem = document.documentElement;
         if (elem.requestFullscreen) {
@@ -30,7 +28,6 @@ window.onload = function() {
         }
     }
 
-    // Monitor for full-screen exit and re-enter full-screen mode
     function handleFullscreenChange() {
         enterFullscreen();
         if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
@@ -47,25 +44,20 @@ window.onload = function() {
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
     document.addEventListener("msfullscreenchange", handleFullscreenChange);
 
-    // Disable all keys except for certain cases like Esc
     document.addEventListener("keydown", function(e) {
         if (e.keyCode === 27) { // Esc key
-            // Prevent default Esc key behavior
             e.preventDefault();
             disabledEvent(e);
             enterFullscreen();
             handleFullscreenChange();
         } else {
-            // Prevent default behavior for all other keys
             disabledEvent(e);
         }
     }, false);
 
 
 
-    // Get the button element by its ID
     const noButton = document.getElementById('no');
-    // Add an event listener to the button for the 'click' event
     noButton.addEventListener('click', () => {
         closeModal();
         enterFullscreen();
@@ -73,7 +65,6 @@ window.onload = function() {
 
 
     const yesButton = document.getElementById('yes');
-    // Add an event listener to the button for the 'click' event
     yesButton.addEventListener('click', () => {
         closeModal();
         window.location.href = 'final.php'; 
