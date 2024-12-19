@@ -97,10 +97,12 @@ list($minutes, $seconds) = explode(':', $_SESSION['question_duration']);
 $question_duration_seconds =((int)$minutes * 60) + (int)$seconds;
 $total_duration_seconds = $_SESSION['active_NoOfQuestions'] * $question_duration_seconds;
 
-$total_minutes = floor($total_duration_seconds / 60);
+$total_hours = floor($total_duration_seconds / 3600);
+$total_minutes = floor($total_hours / 60);
 $total_seconds = $total_duration_seconds % 60;
-$total_duration = sprintf('%02d:%02d', $total_minutes, $total_seconds);
+$total_duration = sprintf('%02d:%02d:%02d', $total_hours,$total_minutes, $total_seconds);
 
+// echo $total_duration;
 $_SESSION["duration"] = $total_duration;
 
 list($start_minutes, $start_seconds) = explode(':', $start_time);

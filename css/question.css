@@ -222,25 +222,32 @@ h2.ques {
     text-align: justify; /* Aligns paragraphs to justify */
 }
 
-#agreebut {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background-color:#13274F;
-    color: white;
+#agreebut{
+    background-color: #13274F;
+    margin-top: 0px;
+    color: #fff;
+    padding: 10px 15px;
     border: none;
-    border-radius: 5px;
-    font-size: 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    text-align: center;
-    font-family: Arial, sans-serif;
-}
-
-#agreebut:hover {
-    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    #agreebut:hover {
+    background-color: #fff;
     color: #13274F;
-}
-
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+    }
+    
+    #agreebut:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+    
 @keyframes fadeIn {
     0% {
         opacity: 0;

@@ -58,12 +58,11 @@ $conn->close();
     <script src='DisableKeys.js'></script>
 </head>
 <body oncontextmenu="return false;">
-<div class="head">
+<div class="head" id="head">
     <div class="container">
         <h1><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h1>
     </div>
 </div>
-<center><div id="remtime"></div></center>
 <center>
         <div id="agreement">
             <h2>Terms of Quiz</h2>
@@ -77,6 +76,8 @@ $conn->close();
         </div>
 
         </center>
+<center><div id="remtime"></div></center>
+
         <div id="quizContent" class="quizContent">
         <br>
         <div id="response"></div>

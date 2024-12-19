@@ -76,21 +76,38 @@ if (isset($_POST['Login_btn'])) {
     }
 
 
-    if ($result->num_rows > 0) {
-        echo '<script>alert("You already attended the quiz");</script>';
-    } else {
-        $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', '$activeQuizId')";
-        if ($conn->query($sql)) {
-            $_SESSION['login'] = TRUE;
-            $_SESSION['logi'] = TRUE;
-            $_SESSION['log'] = TRUE;
-            $_SESSION['message'] = "You are logged in";
-            $_SESSION['Name'] = $Name;
-            $_SESSION['RollNo'] = $RollNo;
-            header("Location: Welcome.php");
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
+    // if ($result->num_rows > 0) {
+    //     echo '<script>alert("You already attended the quiz");</script>';
+    // } else {
+    //     $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', '$activeQuizId')";
+    //     if ($conn->query($sql)) {
+    //         $_SESSION['login'] = TRUE;
+    //         $_SESSION['logi'] = TRUE;
+    //         $_SESSION['log'] = TRUE;
+    //         $_SESSION['message'] = "You are logged in";
+    //         $_SESSION['Name'] = $Name;
+    //         $_SESSION['RollNo'] = $RollNo;
+    //         header("Location: Welcome.php");
+    //     } else {
+    //         echo "Error: " . $sql . "<br>" . $conn->error;
+    //     }
+    // }
+
+    if($result->num_rows <= 0 || $result2->num_rows<=0){
+        if($result->num_rows<=0){
+            $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', '$activeQuizId')";
+            $conn->query($sql);
         }
+        $_SESSION['login'] = TRUE;
+        $_SESSION['logi'] = TRUE;
+        $_SESSION['log'] = TRUE;
+        $_SESSION['message'] = "You are logged in";
+        $_SESSION['Name'] = $Name;
+        $_SESSION['RollNo'] = $RollNo;
+        header("Location: Welcome.php");
+    }
+    else{
+        echo '<script>alert("You already attended the quiz");</script>'; 
     }
 }
 
@@ -159,7 +176,7 @@ $conn->close();
                         <select name="dept" 
                                 style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
                                     color: #13274F; padding: 5px;margin-left:-70px">
-                            <option style="color: black;">Select</option>
+                            <option style="color: black;" disabled selected>Select</option>
                             <option value="CSE" style="color: black;">CSE</option>
                             <option value="IT" style="color: black;">IT</option>
                             <option value="EEE" style="color: black;">EEE</option>

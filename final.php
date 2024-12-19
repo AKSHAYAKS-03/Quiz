@@ -123,11 +123,11 @@ $conn->close();
             timer--;
             if (timer <= 0) {
                 <?php $_SESSION['logi'] = true; ?>
-                if (<?php echo $flag ? 'true' : 'false'; ?>) {
+                // if (<?php echo $flag ? 'true' : 'false'; ?>) {
                     window.location.href = "scoresheet.php";
                 // } else {
                 //     window.location.href = "scoresheet.php?exitscore=1";
-                }
+                // }
             } else {
                 document.getElementById('timer').textContent = timer;
                 setTimeout(startTimer, 1000);
