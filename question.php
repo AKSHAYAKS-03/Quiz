@@ -55,6 +55,7 @@ $conn->close();
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
     <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head" id="head">
@@ -92,7 +93,7 @@ $conn->close();
                 <br> 
 
                 <?php if($_SESSION['QuizType'] ===0): ?>
-                    <script src='DisableKeys.js'></script>
+                    
                 <div class="option-container" style="display: block; ">
                     <ul id="optionsList">
                         <?php foreach ($options as $option): ?>
@@ -107,7 +108,7 @@ $conn->close();
                     </ul>
                 <div>
                 <?php else: ?>
-                    <script src='DisableKeys_Fillup.js'></script>
+                    
                     <div class="answer-container" id="answer" style="display: block;">
                     <strong><label for="option">Your Answer: </label></strong>
                     <input type="text" id="option" name="choice" placeholder="Type your answer here">

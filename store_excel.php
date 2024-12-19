@@ -91,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($currentIndex < count($questions)) {
                 $data = $questions[$currentIndex];
-                $question = $data[0];
-                $choice1 = $data[1];
-                $choice2 = $data[2];
-                $choice3 = $data[3];
-                $choice4 = $data[4];
-                $correct_choice = $data[5];
+                $question = $_POST['question'] ?? $data[0];
+                $choice1 = $_POST['choice1'] ?? $data[1];
+                $choice2 = $_POST['choice2'] ?? $data[2];
+                $choice3 = $_POST['choice3'] ?? $data[3];
+                $choice4 = $_POST['choice4'] ?? $data[4];
+                $correct_choice = $_POST['correct_choice'] ?? $data[5];
             
             $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>   
     <body oncontextmenu="return false;">
-    <script type="text/javascript" src="inspect.js"></script>
+    <!-- <script type="text/javascript" src="inspect.js"></script> -->
     <div class="cont" id="add-container">
         <h2 style="text-align: center;text-transform: uppercase"><?php echo htmlspecialchars($QuizName); ?></h2>        
         <div class="contain">
@@ -209,11 +209,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="explanation">Explanation:</label>
                     <textarea id="explanation" name="explanation">NO EXPLANATION</textarea><br><br>
                     
-                    <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
                     <button type="submit" name="previous" value="Previous">Previous</button>
                     <input type="submit" name="next" value="Next">
-
-
+                    <button type="button" onclick="window.location.href = 'admin.php'" style="margin-left:500px">Submit</button>
                 </form>
             <?php else: ?>
                 <p>No questions uploaded yet.</p>

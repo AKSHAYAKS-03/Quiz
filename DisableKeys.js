@@ -5,15 +5,15 @@ window.onload = function() {
         e.preventDefault();
     }, false);
 
-    function disabledEvent(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        } else if (window.event) {
-            window.event.cancelBubble = true;
-        }
-        e.preventDefault();
-        return false;
-    }
+    // function disabledEvent(e) {
+    //     if (e.stopPropagation) {
+    //         e.stopPropagation();
+    //     } else if (window.event) {
+    //         window.event.cancelBubble = true;
+    //     }
+    //     e.preventDefault();
+    //     return false;
+    // }
 
     function enterFullscreen() {
         var elem = document.documentElement;
@@ -47,11 +47,8 @@ window.onload = function() {
     document.addEventListener("keydown", function(e) {
         if (e.keyCode === 27) { // Esc key
             e.preventDefault();
-            disabledEvent(e);
             enterFullscreen();
-            handleFullscreenChange();
-        } else {
-            disabledEvent(e);
+            handleFullscreenChange();        
         }
     }, false);
 
