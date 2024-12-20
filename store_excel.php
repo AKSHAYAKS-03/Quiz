@@ -84,11 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['quiz_over'] = false;
                 
     } else {
-        if (isset($_POST['next'])) {
-            $questions = $_SESSION['questions'];
-            $currentIndex = $_SESSION['current_question'];
-            $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
+        $questions = $_SESSION['questions'];
+        $currentIndex = $_SESSION['current_question'];
+        $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
+        if (isset($_POST['next']) || isset($_POST['submit'])) {
             if ($currentIndex < count($questions)) {
                 $data = $questions[$currentIndex];
                 $question = $_POST['question'] ?? $data[0];
@@ -123,21 +123,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 echo "Error preparing statement: " . $conn->error;
                 exit;
             }
+            
+            if(isset($_POST['submit'])){
+                $_SESSION['quiz_over'] = true;
+                header('Location: admin.php');
+                exit;
+            }
             if ($_SESSION['current_question'] >= count($questions)) {
                 $_SESSION['quiz_over'] = true;
                 header('Location: Q_Add.php');
                 exit;
             }
         }
+        }
 
         if (isset($_POST['previous'])) {
             $currentIndex = $_SESSION['current_question'];
             if ($currentIndex > 0) {
                 $_SESSION['current_question'] = --$currentIndex;
+                $questionNo = $_SESSION['question_no']-1;
+            
+                $stmt = $conn->prepare("DELETE FROM  multiple_choices WHERE QuestionNo=? && QuizId = ?"); 
+                $stmt->bind_param("ii", $questionNo, $quizId);
+
+                $stmt->execute();
             }
         }
     }
-}
 }
 ?>
 
@@ -151,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>   
     <body oncontextmenu="return false;">
-    <!-- <script type="text/javascript" src="inspect.js"></script> -->
+    <script type="text/javascript" src="inspect.js"></script>
     <div class="cont" id="add-container">
         <h2 style="text-align: center;text-transform: uppercase"><?php echo htmlspecialchars($QuizName); ?></h2>        
         <div class="contain">
@@ -211,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     <button type="submit" name="previous" value="Previous">Previous</button>
                     <input type="submit" name="next" value="Next">
-                    <button type="button" onclick="window.location.href = 'admin.php'" style="margin-left:500px">Submit</button>
+                    <button type="submit" style="margin-left:500px" name="submit">Submit</button>
                 </form>
             <?php else: ?>
                 <p>No questions uploaded yet.</p>
