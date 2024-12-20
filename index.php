@@ -56,6 +56,7 @@ if (isset($_POST['Login_btn'])) {
     $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
     $result = $conn->query($sql);
 
+    $Name = strtoupper($Name);
     if ($currentUnixTime > $endTime) {
         $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND QuizId='$activeQuizId'";
         $result = $conn->query($sql);
