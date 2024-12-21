@@ -1,3 +1,5 @@
+
+
 <?php
  session_start();
 include 'core_db.php';
@@ -13,6 +15,13 @@ $quizid = $_SESSION['active'];
 $currentIndex = isset($_SESSION['currentIndex']) ? $_SESSION['currentIndex'] : 0;
 $question_duration = $_SESSION['question_duration'];
 $duration = $_SESSION['duration'];
+$timertype = $_SESSION['TimerType'];
+
+
+
+// echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
+
+echo $question_duration." ". $duration;
 $questions = $_SESSION['shuffled_questions']; 
 
 $activeQuestions = $_SESSION['active_NoOfQuestions'];
@@ -54,8 +63,8 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
-    <script src='inspect.js'></script>
-    <script src='DisableKeys.js'></script>
+    <!-- <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script> -->
 </head>
 <body oncontextmenu="return false;">
 <div class="head" id="head">
@@ -64,6 +73,9 @@ $conn->close();
     </div>
 </div>
 <center>
+    <!-- <?php echo $_SESSION['duration']; ?>
+    <?php echo $_SESSION['question_duration']; ?> -->
+
         <div id="agreement">
             <h2>Terms of Quiz</h2>
             <div class="terms-box">
@@ -80,7 +92,9 @@ $conn->close();
 
         <div id="quizContent" class="quizContent">
         <br>
-        <div id="response"></div>
+        <div id="response"></div> 
+        <div id="fullTimerDisplay"></div> 
+
         <center>
             <form id="quizForm">
                 <br>
@@ -136,8 +150,9 @@ $conn->close();
     </div>
 </div>
 <script>
-var timer;
-var interval;
+
+var fullInterval; 
+var timerType;
 
 function agreeAndStart() {
     <?php $_SESSION['agreed'] = 1; ?>
@@ -145,19 +160,31 @@ function agreeAndStart() {
     var elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { // Firefox
+    } else if (elem.mozRequestFullScreen) {
         elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+    } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { // IE/Edge
+    } else if (elem.msRequestFullscreen) {
         elem.msRequestFullscreen();
     }
 
     document.getElementById('agreement').style.display = 'none';
     document.getElementById('quizContent').style.display = 'block';
-    startQuiz();
+
+    timerType = "<?php echo $_SESSION['TimerType']; ?>";
+    
+    if (timerType === "1") {
+        // Start the full quiz timer
+        startFullTimer(); 
+    } else if (timerType === "0") {
+        // Start the question timer
+        startQuiz();
+    }
+
+    // Always check the total remaining quiz time
     checkTime();
 }
+
 var interval;
 
 function startQuiz() {
@@ -207,6 +234,74 @@ function startQuiz() {
             display.classList.remove('blink');
         }
     }
+}
+
+function startFullTimer() {
+   
+    if (interval) {
+        clearInterval(interval);
+    }
+    if (fullInterval) {
+        clearInterval(fullInterval);
+    }
+
+    var fullDurationStr = "<?php echo $duration; ?>"; // Example Full quiz time (HH:MM)
+    var durationParts = fullDurationStr.split(":");
+
+    var hours = 0, minutes = 0, seconds = 0;
+    if (durationParts.length === 3) {
+        hours = parseInt(durationParts[0], 10);
+        minutes = parseInt(durationParts[1], 10);
+        seconds = parseInt(durationParts[2], 10);
+    } else if (durationParts.length === 2) {
+        minutes = parseInt(durationParts[0], 10);
+        seconds = parseInt(durationParts[1], 10);
+    }
+
+    var fullTimer = (hours * 3600) + (minutes * 60) + seconds;
+    var display = document.getElementById("response");
+    var halfway = Math.floor(fullTimer / 2);
+
+    if (!display) return;
+  
+    updateFullDisplay();
+
+    fullInterval = setInterval(function () {
+        if (--fullTimer < 0) {
+            clearInterval(fullInterval);
+            console.log('Full quiz timeout reached, submitting form.');
+            document.getElementById('submit').click();
+            document.getElementById('quizForm').submit();
+        } else {
+            updateFullDisplay();
+        }
+    }, 1000);
+
+    function updateFullDisplay() {
+        if(interval){
+        clearInterval(interval);
+    }
+        var displayHours = Math.floor(fullTimer / 3600);
+        var displayMinutes = Math.floor((fullTimer % 3600) / 60);
+        var displaySeconds = fullTimer % 60;
+
+        displayHours = displayHours < 10 ? "0" + displayHours : displayHours;
+        displayMinutes = displayMinutes < 10 ? "0" + displayMinutes : displayMinutes;
+        displaySeconds = displaySeconds < 10 ? "0" + displaySeconds : displaySeconds;
+
+        display.textContent = displayHours + ":" + displayMinutes + ":" + displaySeconds;
+
+        if (fullTimer <= halfway) {
+            display.style.color = '#c94c4c';
+            display.classList.add('blink');
+        } else {
+            display.style.color = '#82b74b';
+            display.classList.remove('blink');
+        }
+    
+    }
+    checkTime();
+
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -259,10 +354,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function handleNextQuestion(questionData) {
-    if (interval) {
-        clearInterval(interval);
-    }
 
+ 
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
         console.error('Question text element not found');
@@ -270,7 +363,7 @@ function handleNextQuestion(questionData) {
     }
 
     questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
-    
+
     var quizType = <?php echo $_SESSION['QuizType']; ?>;
     if (quizType === 0) {
         var optionsList = document.getElementById('optionsList');
@@ -326,8 +419,12 @@ function handleNextQuestion(questionData) {
     document.getElementById('question_start_time').value = questionData.question_start_time;
     document.getElementById('currentIndex').value = questionData.currentIndex;
 
-    startQuiz();
-    checkTime();    
+    if (timerType === "0") {
+        startQuiz();
+    }
+
+    checkTime(); 
+
 }
 
 function handleFinalPage() {

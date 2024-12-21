@@ -1,3 +1,4 @@
+
 <?php
 include_once 'core_db.php';
 session_start();
@@ -15,21 +16,34 @@ if (isset($_POST['submit'])) {
     $isActive = $_POST['isActive'];
     $createdBy = $_POST['createdBy'];
     $quizMarks = $_POST['quizMarks'];
-    $quizTime = $_POST['quizTime'];
+    $TimerType = $_POST['quizTime'];
+    $eachquestime = $_POST['eachQuestionTime'];
+    $fulltime = $_POST['fullQuizOption'];
     $shuffle = $_POST['shuffle'];
     $startTime = $_POST['startTime'];
     $endTime = $_POST['endTime'];
 
     $sql = "SELECT * FROM quiz_details WHERE QuizName = '$quizName'";
     $result = mysqli_query($conn, $sql);
+    
     if (mysqli_num_rows($result) > 0) {
         $error = "Quiz already exists with the same name.";
     } else {
-        $sql = "INSERT INTO quiz_details (QuizName, QuizType, QuestionDuration, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) VALUES ('$quizName', '$QuizType', '$quizTime', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
-        $result = mysqli_query($conn, $sql);
+        if ($TimerType === "0") {
+            $sql = "INSERT INTO quiz_details (QuizName, QuizType, QuestionDuration, TimerType, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssssissss", $quizName, $QuizType, $eachquestime, $TimerType, $quizMarks, $isActive, $shuffle, $createdBy, $startTime, $endTime);
+        } else if($TimerType === "1"){
+            $sql = "INSERT INTO quiz_details (QuizName, QuizType, TimeDuration, TimerType, QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssssissss", $quizName, $QuizType, $fulltime, $TimerType, $quizMarks, $isActive, $shuffle, $createdBy, $startTime, $endTime);
+        }
+        
 
-        if ($result) {
-            $quizId = mysqli_insert_id($conn);
+        if ($stmt->execute()) {
+            $quizId = $conn->insert_id;
             $_SESSION['quiz'] = $quizId;
             if ($isActive === "1") {
                 $conn->query("UPDATE quiz_details SET IsActive = 0");
@@ -100,17 +114,34 @@ if (isset($_POST['submit'])) {
                 <label for="endTime">Quiz End Time:</label>
                 <input type="datetime-local" id="endTime" name="endTime" required>
             </div>
-
             <div class="input-field">
                 <label for="quizMarks">Quiz Marks (per Question):</label>
                 <input type="text" id="quizMarks" name="quizMarks" value="1" required>
             </div>
 
-            <div class="input-field">
-                <label for="quizTime">Quiz Time  (per Question):</label>
-                <input type="time" id="quizTime" name="quizTime" required value="00:30">
+            <div class="input-field" style="margin-left: 50px; margin-bottom: 20px;">
+                <label for="quizTime" style="margin-right: 20px;">Quiz Time :</label>
+                <div class="radio-group" style="display: flex; align-items: center; gap: 20px;">
+                    <div style="display: flex; align-items: center;">
+                        <input type="radio" name="quizTime" id="eachQuestionOption" value="0" required style="margin-right: 5px;">
+                        <label for="eachQuestionOption" style="cursor: pointer;">Each Question</label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <input type="radio" name="quizTime" id="fullQuizOption" value="1" required style="margin-right: 5px;">
+                        <label for="fullQuizOption" style="cursor: pointer;">For Full Quiz</label>
+                    </div>
+                </div>
             </div>
 
+            <div id="eachQuestionTimeInput" class="hidden" style="display: none; margin-left: 50px; margin-bottom: 10px;">
+                <label for="eachQuestionTime" style="margin-right: 10px;">Time for Each Question:</label>
+                <input type="time" id="eachQuestionTime" name="eachQuestionTime" step="1" value="00:02" style="width: 120px; padding: 5px;">
+            </div>
+
+            <div id="fullQuizTimeInput" class="hidden" style="display: none; margin-left: 50px; margin-bottom: 10px;">
+                <label for="fullQuizTime" style="margin-right: 10px;">Total Quiz Time:</label>
+                <input type="time" id="fullQuizTime" name="fullQuizTime" step="1" value="00:30" style="width: 120px; padding: 5px;">
+            </div>
             <div class="input-field">
                 <label for="shuffle" id="rad2">Want to shuffle the Questions & options during the Quiz:</label> 
                 <input type="radio" name="shuffle" value="1" required checked>Yes <span class="space"></span>
@@ -125,6 +156,27 @@ if (isset($_POST['submit'])) {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+                const eachQuestionOption = document.getElementById('eachQuestionOption');
+                const fullQuizOption = document.getElementById('fullQuizOption');
+                const eachQuestionTimeInput = document.getElementById('eachQuestionTimeInput');
+                const fullQuizTimeInput = document.getElementById('fullQuizTimeInput');
+
+                eachQuestionOption.addEventListener('change', function () {
+                    if (this.checked) {
+                        eachQuestionTimeInput.style.display = 'block';
+                        fullQuizTimeInput.style.display = 'none';
+                    }
+                });
+
+                fullQuizOption.addEventListener('change', function () {
+                    if (this.checked) {
+                        fullQuizTimeInput.style.display = 'block';
+                        eachQuestionTimeInput.style.display = 'none';
+                    }
+                });
+
+
             const inputs = document.querySelectorAll('input');
             const errorMessage = document.querySelector('.error');
 
@@ -139,7 +191,9 @@ if (isset($_POST['submit'])) {
             if (errorMessage) {
                 scroll();
             }
+
         });
+ 
 
         function scroll() {
             const quizFormContainer = document.getElementById('quizFormContainer');
@@ -175,3 +229,4 @@ if (isset($_POST['submit'])) {
     </script>
 </body>
 </html>
+

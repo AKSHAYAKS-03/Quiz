@@ -39,7 +39,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$quiz_query = "SELECT QuizName, TimeDuration, NumberOfQuestions, QuizType, active_NoOfQuestions, QuestionMark, QuestionDuration, IsShuffle, startingtime, EndTime
+$quiz_query = "SELECT QuizName, TimeDuration, NumberOfQuestions, QuizType, active_NoOfQuestions, QuestionMark, QuestionDuration,TimerType,IsShuffle, startingtime, EndTime
                FROM quiz_details WHERE Quiz_ID = ?";
 $stmt = $conn->prepare($quiz_query);
 $stmt->bind_param("i", $activeQuizId);
@@ -50,15 +50,18 @@ $stmt->close();
 if ($quiz_result->num_rows > 0) {
     $row = $quiz_result->fetch_assoc();
     $_SESSION['quiz_name'] = $row["QuizName"];
-    $_SESSION["duration"] = $row["TimeDuration"];
+    $_SESSION['duration'] = $row["TimeDuration"];
     $_SESSION['QuizType'] = $row['QuizType'];
     $_SESSION['numberofquestions'] = $row["NumberOfQuestions"];
     $_SESSION['active_NoOfQuestions'] = $row["active_NoOfQuestions"]===0? $row["NumberOfQuestions"]:  min($row["active_NoOfQuestions"], $row["NumberOfQuestions"]);
     $_SESSION['question_duration'] = $row["QuestionDuration"];
     $_SESSION['question_marks'] = $row["QuestionMark"];
     $_SESSION['shuffle'] = $row["IsShuffle"];
+    $_SESSION['TimerType'] = $row["TimerType"];
     $_SESSION['startingtime'] = $row["startingtime"];
     $_SESSION['endingtime'] = $row["EndTime"];
+
+    echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
 }
 // echo $_SESSION['active_NoOfQuestions'];
 $_SESSION['Marks'] = $_SESSION['active_NoOfQuestions'] * $_SESSION['question_marks'];
@@ -101,9 +104,6 @@ $total_hours = floor($total_duration_seconds / 3600);
 $total_minutes = floor($total_hours / 60);
 $total_seconds = $total_duration_seconds % 60;
 $total_duration = sprintf('%02d:%02d:%02d', $total_hours,$total_minutes, $total_seconds);
-
-// echo $total_duration;
-$_SESSION["duration"] = $total_duration;
 
 list($start_minutes, $start_seconds) = explode(':', $start_time);
 $start_time_seconds = ((int)$start_minutes * 60) + $start_seconds;
@@ -159,8 +159,8 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz - Welcome</title>
     <link rel="stylesheet" type="text/css" href="css/welcome.css">
-    <script src='DisableKeys.js'></script>
-    <script src='inspect.js'></script>
+    <!-- <script src='DisableKeys.js'></script>
+    <script src='inspect.js'></script> -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
     <script>
@@ -187,6 +187,7 @@ $conn->close();
             checkTime();
             setInterval(checkTime, 1000);
         });
+        
     </script>
 </head>
 <body>
@@ -198,6 +199,7 @@ $conn->close();
 <div class="container">
     <h2>Welcome, <?php echo htmlspecialchars($name); ?>!</h2>
     <ul>
+
         <li><strong>Number of Questions</strong><span><?php echo htmlspecialchars($_SESSION["active_NoOfQuestions"]); ?></span></li>
         <li><strong>Type</strong><span> <?php echo $_SESSION["QuizType"]===0? "Multiple Choices": 'Fill Up'?></span></li>
         <li><strong>Total Marks</strong><span><?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</span></li>
@@ -216,3 +218,4 @@ $conn->close();
 
 </body>
 </html>
+
