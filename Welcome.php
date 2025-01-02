@@ -61,7 +61,7 @@ if ($quiz_result->num_rows > 0) {
     $_SESSION['startingtime'] = $row["startingtime"];
     $_SESSION['endingtime'] = $row["EndTime"];
 
-    echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
+    // echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
 }
 // echo $_SESSION['active_NoOfQuestions'];
 $_SESSION['Marks'] = $_SESSION['active_NoOfQuestions'] * $_SESSION['question_marks'];

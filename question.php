@@ -21,7 +21,7 @@ $timertype = $_SESSION['TimerType'];
 
 // echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
 
-echo $question_duration." ". $duration;
+// echo $question_duration." ". $duration;
 $questions = $_SESSION['shuffled_questions']; 
 
 $activeQuestions = $_SESSION['active_NoOfQuestions'];
@@ -190,10 +190,18 @@ var interval;
 function startQuiz() {
     var durationStr = "<?php echo $question_duration; ?>"; 
     var durationParts = durationStr.split(":");
-    var minutes = parseInt(durationParts[0], 10);
-    var seconds = parseInt(durationParts[1], 10);
-    var duration = (minutes * 60) + seconds; 
+  
+    var hours = 0, minutes = 0, seconds = 0;
+    if (durationParts.length === 3) {
+        hours = parseInt(durationParts[0], 10);
+        minutes = parseInt(durationParts[1], 10);
+        seconds = parseInt(durationParts[2], 10);
+    } else if (durationParts.length === 2) {
+        minutes = parseInt(durationParts[0], 10);
+        seconds = parseInt(durationParts[1], 10);
+    }
 
+    var duration = (hours * 3600) + (minutes * 60) + seconds;
     var display = document.getElementById("response");
     if (!display) return; 
 
@@ -218,13 +226,15 @@ function startQuiz() {
     }, 1000);
 
     function updateDisplay() {
-        var minutes = parseInt(timer / 60, 10);
-        var seconds = parseInt(timer % 60, 10);
+        var displayHours = Math.floor(timer / 3600);
+        var displayMinutes = parseInt(timer / 60, 10);
+        var displaySeconds = parseInt(timer % 60, 10);
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+        displayHours = displayHours < 10 ? "0" + displayHours : displayHours;
+        displayMinutes = displayMinutes < 10 ? "0" + displayMinutes : displayMinutes;
+        displaySeconds = displaySeconds < 10 ? "0" + displaySeconds : displaySeconds;
 
-        display.textContent = minutes + ":" + seconds;
+        display.textContent = displayHours + ":" + displayMinutes + ":" + displaySeconds;
 
         if (timer <= halfway) {
             display.style.color = '#c94c4c';
@@ -245,7 +255,7 @@ function startFullTimer() {
         clearInterval(fullInterval);
     }
 
-    var fullDurationStr = "<?php echo $duration; ?>"; // Example Full quiz time (HH:MM)
+    var fullDurationStr = "<?php echo $duration; ?>"; 
     var durationParts = fullDurationStr.split(":");
 
     var hours = 0, minutes = 0, seconds = 0;

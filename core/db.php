@@ -3,7 +3,7 @@ session_start();
 
 date_default_timezone_set('Asia/Kolkata');
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $username = "root";
 $password = "";
 $dbname = "quizz";
