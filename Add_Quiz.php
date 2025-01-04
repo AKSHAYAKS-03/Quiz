@@ -36,6 +36,11 @@ if (isset($_POST['submit'])) {
                 $conn->query("UPDATE quiz_details SET IsActive = 0");
                 $conn->query("UPDATE quiz_details SET IsActive = 1 WHERE Quiz_Id = $quizId");
             }
+            
+            if($_SESSION['QuizType']=='1'){
+                header('Location: Fillup_Q_Add.php');
+                exit;
+            }
 
             header('Location: Q_Add.php');
             exit;

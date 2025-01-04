@@ -51,10 +51,10 @@ $quizDuration='';
 <head>
     <title>Admin</title>
     <link href="css/admin.css" rel="stylesheet">
-    <!-- <script src="inspect.js"></script> -->
+    <script src="inspect.js"></script>
    
 </head>
-<body>
+<body style="overflow: auto; height: auto;">
     <nav class='admin-nav'>
         <h2>Admin</h2>
         <ul>
@@ -92,7 +92,6 @@ $quizDuration='';
             <table class="quiz-details">
                 <thead>
                     <tr>
-                        <th>Quiz No.</th>
                         <th>Quiz Name</th>
                         <th>Quiz Type</th>
                         <th>Number of Questions</th>
@@ -106,7 +105,6 @@ $quizDuration='';
                 <?php while ($row = $result->fetch_assoc()) {
                     $checked = $row['IsActive'] ? 'checked' : '';
                     echo "<tr>";
-                    echo "<td>" . $row['Quiz_Id'] . "</td>";
                     echo "<td>" . $row['QuizName'] . "</td>";
                     echo "<td>" . ($row['QuizType']==0?"Multiple Choice":"Fill Up"). "</td>";
                     echo "<td>" . $row['NumberOfQuestions'] . "</td>";

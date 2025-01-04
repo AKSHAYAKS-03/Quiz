@@ -135,7 +135,7 @@ if (isset($_POST['Back'])) {
           <th>REGISTER NO</th>
           <th>DEPARTMENT</th>
           <th>SCORE</th>
-          <th>TIME (in MIN)</th>
+          <th>TIME TAKEN</th>
         </tr>
 
         <?php

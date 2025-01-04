@@ -27,7 +27,7 @@ else if ($ActiveQuizId !== $_SESSION['active']) {
 }
 
 if (empty($ActiveQuizId)) {
-    echo "ActiveQuizId is not set or is invalid.";
+    // echo "ActiveQuizId is not set or is invalid.";
 }
 
 $query = "SELECT MAX(QuestionNo) AS max_question_no FROM fillup WHERE QuizId = ?";
@@ -100,11 +100,10 @@ while ($question = $questionsResult->fetch_assoc()) {
 
 $stmt->close();
 
-$json_data = file_get_contents('php://input');
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    ob_clean();
+    
     header('Content-Type: application/json');
-
     $data = json_decode($json_data, true);  
 
     if ($data === null) {

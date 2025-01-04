@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3307";
+$host = "localhost:3390";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -76,23 +76,6 @@ if (isset($_POST['Login_btn'])) {
         }
     }
 
-
-    // if ($result->num_rows > 0) {
-    //     echo '<script>alert("You already attended the quiz");</script>';
-    // } else {
-    //     $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', '$activeQuizId')";
-    //     if ($conn->query($sql)) {
-    //         $_SESSION['login'] = TRUE;
-    //         $_SESSION['logi'] = TRUE;
-    //         $_SESSION['log'] = TRUE;
-    //         $_SESSION['message'] = "You are logged in";
-    //         $_SESSION['Name'] = $Name;
-    //         $_SESSION['RollNo'] = $RollNo;
-    //         header("Location: Welcome.php");
-    //     } else {
-    //         echo "Error: " . $sql . "<br>" . $conn->error;
-    //     }
-    // }
 
     if($result->num_rows <= 0 || $result2->num_rows<=0){
         if($result->num_rows<=0){
@@ -173,11 +156,24 @@ $conn->close();
                     </div>
                     <br>
                     <div class="form-group" style="display: flex; flex-direction: row;">
+                        <label for="year">Year</label>
+                        <select name="year" 
+                                style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
+                                    color: #13274F; padding: 5px;margin-left:-70px" required>
+                            <option style="color: black;" disabled selected>Select</option>
+                            <option value="I" style="color: black;">I</option>
+                            <option value="II" style="color: black;">II</option>
+                            <option value="III" style="color: black;">III</option>
+                            <option value="IV" style="color: black;">IV</option>
+                        </select>
+                    </div> 
+
+                    <div class="form-group" style="display: flex; flex-direction: row;">
                         <label for="dept">Department</label>
                         <select name="dept" 
                                 style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
                                     color: #13274F; padding: 5px;margin-left:-70px">
-                            <option style="color: black;" disabled selected>Select</option>
+                            <option value="" style="color: black;" disabled selected>Select</option>
                             <option value="CSE" style="color: black;">CSE</option>
                             <option value="IT" style="color: black;">IT</option>
                             <option value="EEE" style="color: black;">EEE</option>
@@ -185,8 +181,7 @@ $conn->close();
                             <option value="MECH" style="color: black;">MECH</option>
                             <option value="CIV" style="color: black;">CIV</option>
                         </select>
-                    </div>
-                        
+                    </div> 
                     <br>
                     <div class="form-group" style="display:flex;flex-direction:row">
                         <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
@@ -261,7 +256,7 @@ $conn->close();
             valid = false;
         }
 
-        if (dept === 'select') {
+        if (dept === '') {
             alert('Please select a department.');
             valid = false;
         }

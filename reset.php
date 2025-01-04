@@ -13,6 +13,27 @@ $activeQuiz = $_SESSION['activeQuiz'];
 
 $activeNoOfQuestions = $conn->query("Select NumberOfQuestions from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['NumberOfQuestions'];
 
+if(isset($_POST['name'])){
+    if(empty($_POST['quizName']))
+        $msg = "Enter Quiz Name & Try Again";
+    else{
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $quizName = $_POST['quizName'];
+        $query = "UPDATE quiz_details SET QuizName='$quizName' WHERE Quiz_id = $activeQuizId";
+        if ($conn->query($query) === true) {
+            $msg = "Quiz Name Updated successfully";
+            $_SESSION['activeQuiz'] = $quizName;
+            $activeQuiz = $quizName;
+            header("Refresh:0"); 
+        } else {
+            $msg = "Error updating record: " . $conn->error;
+        }
+    }
+}
+
 if (isset($_POST['Reset'])) {
     if (empty($_POST['RollNo'])) {
         $msg = 'RollNo is required';
@@ -115,8 +136,13 @@ if (isset($_POST['Back'])) {
 </head>
 <body>
 <div class="content">
+    <div class="header-right">
+        <a href="logout.php" id="logout" title="Log Out">
+            <img src="icons/exit.svg" alt="exit">
+        </a>
+    </div>
   <div class="container">
-    <h2>Reset Settings</h2>
+    <h1 style="color: #13274F; margin-bottom: 30px; text-align: center;">Reset Settings</h1>
     <form method="post" action="reset.php">
 
       <div class="form-group">
@@ -128,11 +154,17 @@ if (isset($_POST['Back'])) {
       <?php 
         if ($activeQuiz !== 'None'){
       ?>
-      <h3>For Quiz <?php echo $activeQuiz; ?>,</h3>
+      <h3 style="font-weight: bold;">For Quiz <?php echo $activeQuiz; ?>,</h3>
       <div class="form-group">
         <label for="RollNo">RollNo:</label>
         <input type="text" id="RollNo" name="RollNo" placeholder="Enter RollNo" />
         <input type="submit" name="Reset" value="Reset" />
+      </div>
+
+      <div class="form-group">
+        <label for="quizName">New Name for the Quiz <?php echo $activeQuiz; ?>:</label>
+        <input type="text" id="quizName" name="quizName" placeholder="Enter new Quiz Name" />
+        <input type="submit" name="name" value="Update" />
       </div>
 
       <div class="form-group">

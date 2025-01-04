@@ -17,8 +17,6 @@ $question_duration = $_SESSION['question_duration'];
 $duration = $_SESSION['duration'];
 $timertype = $_SESSION['TimerType'];
 
-
-
 // echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
 
 // echo $question_duration." ". $duration;
@@ -63,8 +61,8 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
-    <!-- <script src='inspect.js'></script>
-    <script src='DisableKeys.js'></script> -->
+    <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script>
 </head>
 <body oncontextmenu="return false;">
 <div class="head" id="head">
@@ -79,7 +77,8 @@ $conn->close();
         <div id="agreement">
             <h2>Terms of Quiz</h2>
             <div class="terms-box">
-                <h3 style="color: red;text-align: justify;">You are not allowed to switch screens during the quiz. Once you agree to start the quiz, you cannot attempt it again.</h3>
+                <!-- <h3 style="color: red;text-align: justify;">You are not allowed to switch screens during the quiz. Once you agree to start the quiz, you cannot attempt it again.</h3> -->
+                <h3 style="color: red;text-align: justify;">Attempting to exit fullscreen mode is considered as a violation. If this occurs, your quiz will be automatically terminated. Once you agree to start the quiz, you cannot attempt it again.</h3>
                 <p style="text-align: justify;">Each question is allocated a specific amount of time. If the timer runs out before you submit your answer, the question will be skipped automatically.</p>
                 <p style="text-align: justify;">If you do not select an answer for a question and move to the next one, it is not validated.</p>
                 <p style="text-align: justify;">Once you move to the next question, you cannot go back to the previous question. Make sure to review your answer before proceeding.</p>
@@ -140,14 +139,22 @@ $conn->close();
                 </center>
         </div>
     
-        <div class="modal" id="QuizModal">
-    <div class="modal-content">
+    <!--    <div class="modal" id="QuizModal">
+     <div class="modal-content">
         <div id="msg">Are you sure you want to exit the quiz? You are not allowed to re-take the quiz again.</div>
         <div class="button-container">
             <button type="button" class="btn" id="yes">Yes</button>
             <button type="button" class="btn" id="no">No</button>
         </div>
+    </div> -->
+
+    <!-- Modal for warning -->
+    <div id="QuizModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p id="msg">Attempting to exit fullscreen mode is considered as a violation of the quiz rules. The quiz will now be terminated.</p>
+        </div>
     </div>
+
 </div>
 <script>
 
