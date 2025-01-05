@@ -53,14 +53,6 @@ if (isset($_POST['display'])) {
     $records = $conn->query($sql);
 } 
 
-if (isset($_POST['export'])) {
-    if (isset($_POST['quizId'])) {
-      $activeQuizId = $_POST['quizId'];
-    }
-    header("Location: export.php?quizId=$activeQuizId");
-    exit;
-}
-
 if (isset($_POST['Back'])) {
     header("Location: admin.php");
     exit; 
@@ -103,37 +95,37 @@ if (isset($_POST['Back'])) {
 
       Limit:
       <select id="limit" style="width: 100px">
+        <option value="all" selected>All</option>
         <option value="10">Top 10</option>
-        <option value="20" selected>Top 20</option>
+        <option value="20">Top 20</option>
         <option value="50">Top 50</option>
         <option value="100">Top 100</option>
-        <option value="all">All</option>
       </select>
 
       Department:
       <select id="department" style="width: 150px">
-        <option value="all">All Departments</option>
+        <option value="all" selected>All Departments</option>
         <option value="CSE">CSE</option>
         <option value="IT">IT</option>
         <option value="ECE">ECE</option>
         <option value="EEE">EEE</option>
         <option value="MECH">MECH</option>
-        <option value="CIVIL">CIV</option>
+        <option value="CIV">CIV</option>
       </select>
       Section:
       <select id="section" style="width: 150px">
-        <option value="all">All Sections</option>
+        <option value="all" selected>All Sections</option>
         <option value="A">A</option>
         <option value="B">B</option>
         <option value="C">C</option>
         </select>
-        Year:
+      Year:
         <select id="year" style="width: 100px">
-          <option value="all">All Years</option>
-          <option value="I">I</option>
-          <option value="II">II</option>
-          <option value="III">III</option>
-          <option value="IV">IV</option>
+          <option value="all" selected>All Years</option>
+          <option value="1">I</option>
+          <option value="2">II</option>
+          <option value="3">III</option>
+          <option value="4">IV</option>
         </select>
   </div>
 </div>
@@ -157,14 +149,14 @@ if (isset($_POST['Back'])) {
         <?php
         $_SESSION['Sno'] = 0;
         while ($student = $records->fetch_assoc()) {
-          $_SESSION['Sno']++;
+          $_SESSION['Sno']++;         
           echo "<tr>";
           echo "<td>" . $_SESSION['Sno'] . "</td>";
           echo "<td>" . $student['Name'] . "</td>";
           echo "<td>" . $student['RollNo'] . "</td>";
           echo "<td>" . $student['Department'] . "</td>";
           echo "<td>" . $student['Section'] . "</td>";
-          echo "<td>" . $student['Year'] . "</td>";
+          echo "<td>" . strtoupper($student['Year']) . "</td>";
           echo "<td>" . $student['Score'] . "</td>";
           echo "<td>" . $student['Time'] . "</td>";
           echo "</tr>";
@@ -182,35 +174,65 @@ if (isset($_POST['Back'])) {
       <form method="post" action="ViewResult.php">
         <input type="hidden" id="selectedQuizId" name="quizId" value="<?php echo $activeQuizId; ?>">
         <input type="hidden" id="selectedQuizName" value="<?php echo $activeQuiz; ?>">
+        <input type="hidden" id="selectedDepartment" name="department">
+        <input type="hidden" id="selectedSection" name="section">
+        <input type="hidden" id="selectedYear" name="year">
+        <input type="hidden" id="selectedLimit" name="limit">
+
         <input type="submit" name="Back" value="Back" />
         <input type="submit" name="display" value="Display All" />
         <input type="submit" name="Delete" value="Delete scoresheet" onclick ='return deleteConfirm()' />
         <input type="submit" name="DeleteAll" value="Delete All" onclick ='confirm("Are you sure you want to delete all scoresheets?")'/>
-        <input type="submit" name="export" value="Export" />
+        <input type="button" value="Export" onclick="exportData()" />
       </form>
     </div>
 
 <script>
-  function fetchScores() {
-    const quizId = document.getElementById("quiz").value;
-    const limit = document.getElementById("limit").value;
-    const department = document.getElementById("department").value;
-    const section = document.getElementById("section").value;
-    const year = document.getElementById("year").value;
-    
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "FetchScores.php", true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            document.getElementById("score").innerHTML = xhr.responseText;
-        }
-    };
-    xhr.send("quizId=" + quizId + "&limit=" + limit + "&department=" + department + "&section=" + section + "&year=" + year); 
+  function setHiddenValues() {
+    document.getElementById("selectedDepartment").value = document.getElementById("department").value;
+    document.getElementById("selectedSection").value = document.getElementById("section").value;
+    document.getElementById("selectedYear").value = document.getElementById("year").value;
+  }
 
-    document.getElementById("selectedQuizName").value = document.getElementById("quiz").options[document.getElementById("quiz").selectedIndex].text;
-    document.getElementById("selectedQuizId").value = quizId;
-}
+  // Call the function when the user submits the form or changes the selection
+  document.querySelector('form').addEventListener('submit', setHiddenValues);
+
+  document.getElementById("department").addEventListener('change', setHiddenValues);
+  document.getElementById("section").addEventListener('change', setHiddenValues);
+  document.getElementById("year").addEventListener('change', setHiddenValues);
+  document.getElementById("limit").addEventListener('change', setHiddenValues);
+  
+  function exportData() {
+    const quizId = document.getElementById("selectedQuizId").value;
+    const department = document.getElementById("selectedDepartment").value;
+    const section = document.getElementById("selectedSection").value;
+    const year = document.getElementById("selectedYear").value;
+    const limit = document.getElementById("selectedLimit").value;
+
+    const url = `export.php?quizId=${quizId}&department=${department}&section=${section}&year=${year}`;
+    window.location.href = url;
+  }
+  
+  function fetchScores() {
+      const quizId = document.getElementById("quiz").value;
+      const limit = document.getElementById("limit").value;
+      const department = document.getElementById("department").value;
+      const section = document.getElementById("section").value;
+      const year = document.getElementById("year").value;
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "FetchScores.php", true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              document.getElementById("score").innerHTML = xhr.responseText;
+          }
+      };
+      xhr.send("quizId=" + quizId + "&limit=" + limit + "&department=" + department + "&section=" + section + "&year=" + year); 
+
+      document.getElementById("selectedQuizName").value = document.getElementById("quiz").options[document.getElementById("quiz").selectedIndex].text;
+      document.getElementById("selectedQuizId").value = quizId;
+  }
 
     document.getElementById("quiz").addEventListener('change', fetchScores);
     document.getElementById("limit").addEventListener('change', fetchScores);
