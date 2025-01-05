@@ -41,8 +41,9 @@ if (isset($_POST['submit'])) {
                 header('Location: Fillup_Q_Add.php');
                 exit;
             }
-
-            header('Location: Q_Add.php');
+            else{
+                header('Location: Q_Add.php');
+            }
             exit;
         } else {
             $error = "Error: " . $sql . "<br>" . mysqli_error($conn);

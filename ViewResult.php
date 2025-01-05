@@ -53,7 +53,6 @@ if (isset($_POST['display'])) {
     $records = $conn->query($sql);
 } 
 
-
 if (isset($_POST['export'])) {
     if (isset($_POST['quizId'])) {
       $activeQuizId = $_POST['quizId'];
@@ -84,44 +83,59 @@ if (isset($_POST['Back'])) {
     <h1>Score table</h1>
   </div>
 </div>
-
-<div class="select">
-    Quiz Name:
-    <select id="quiz">
-      <option value="all">All</option>
-      <?php
-        $sql = "SELECT Quiz_Id, QuizName FROM quiz_details";
-        $options = $conn->query($sql);
-        if ($options->num_rows > 0) {
-          while ($row = $options->fetch_assoc()) {
-            $id = $row['Quiz_Id'];
-            $selected = $id == $activeQuizId ? "selected" : "";
-            echo "<option value='$id' $selected>" . $row['QuizName'] . "</option>";
+<div class="row"  style="padding:5px">
+  <div class="select">
+      Quiz Name:
+      <select id="quiz" style="width: 200px">
+        <option value="all">All</option>
+        <?php
+          $sql = "SELECT Quiz_Id, QuizName FROM quiz_details";
+          $options = $conn->query($sql);
+          if ($options->num_rows > 0) {
+            while ($row = $options->fetch_assoc()) {
+              $id = $row['Quiz_Id'];
+              $selected = $id == $activeQuizId ? "selected" : "";
+              echo "<option value='$id' $selected>" . $row['QuizName'] . "</option>";
+            }
           }
-        }
-      ?>
-    </select>
+        ?>
+      </select>
 
-    Limit:
-    <select id="limit">
-      <option value="10">Top 10</option>
-      <option value="20" selected>Top 20</option>
-      <option value="50">Top 50</option>
-      <option value="100">Top 100</option>
-      <option value="all">All</option>
-    </select>
+      Limit:
+      <select id="limit" style="width: 100px">
+        <option value="10">Top 10</option>
+        <option value="20" selected>Top 20</option>
+        <option value="50">Top 50</option>
+        <option value="100">Top 100</option>
+        <option value="all">All</option>
+      </select>
 
-    Department:
-    <select id="department">
-      <option value="all">All Departments</option>
-      <option value="CSE">CSE</option>
-      <option value="IT">IT</option>
-      <option value="ECE">ECE</option>
-      <option value="EEE">EEE</option>
-      <option value="MECH">MECH</option>
-      <option value="CIVIL">CIV</option>
-      <!-- Add other departments here -->
-    </select>
+      Department:
+      <select id="department" style="width: 150px">
+        <option value="all">All Departments</option>
+        <option value="CSE">CSE</option>
+        <option value="IT">IT</option>
+        <option value="ECE">ECE</option>
+        <option value="EEE">EEE</option>
+        <option value="MECH">MECH</option>
+        <option value="CIVIL">CIV</option>
+      </select>
+      Section:
+      <select id="section" style="width: 150px">
+        <option value="all">All Sections</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        </select>
+        Year:
+        <select id="year" style="width: 100px">
+          <option value="all">All Years</option>
+          <option value="1">I</option>
+          <option value="2">II</option>
+          <option value="3">III</option>
+          <option value="4">IV</option>
+        </select>
+  </div>
 </div>
 <br>
 
@@ -134,6 +148,8 @@ if (isset($_POST['Back'])) {
           <th>NAME</th>
           <th>REGISTER NO</th>
           <th>DEPARTMENT</th>
+          <th>SECTION</th>
+          <th>YEAR</th>
           <th>SCORE</th>
           <th>TIME TAKEN</th>
         </tr>
@@ -141,12 +157,14 @@ if (isset($_POST['Back'])) {
         <?php
         $_SESSION['Sno'] = 0;
         while ($student = $records->fetch_assoc()) {
-          $_SESSION['Sno']++;
+          $_SESSION['Sno']++;         
           echo "<tr>";
           echo "<td>" . $_SESSION['Sno'] . "</td>";
           echo "<td>" . $student['Name'] . "</td>";
           echo "<td>" . $student['RollNo'] . "</td>";
           echo "<td>" . $student['Department'] . "</td>";
+          echo "<td>" . $student['Section'] . "</td>";
+          echo "<td>" . strtoupper($student['Year']) . "</td>";
           echo "<td>" . $student['Score'] . "</td>";
           echo "<td>" . $student['Time'] . "</td>";
           echo "</tr>";
@@ -176,8 +194,12 @@ if (isset($_POST['Back'])) {
   function fetchScores() {
     const quizId = document.getElementById("quiz").value;
     const limit = document.getElementById("limit").value;
-    const department = document.getElementById("department").value;  // Correctly get the selected department value
+    const department = document.getElementById("department").value;
+    const section = document.getElementById("section").value;
+    const year = document.getElementById("year").value;
+
     
+
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "FetchScores.php", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -186,15 +208,17 @@ if (isset($_POST['Back'])) {
             document.getElementById("score").innerHTML = xhr.responseText;
         }
     };
-    xhr.send("quizId=" + quizId + "&limit=" + limit + "&department=" + department);  // Send the department value correctly
+    xhr.send("quizId=" + quizId + "&limit=" + limit + "&department=" + department + "&section=" + section + "&year=" + year); 
 
     document.getElementById("selectedQuizName").value = document.getElementById("quiz").options[document.getElementById("quiz").selectedIndex].text;
     document.getElementById("selectedQuizId").value = quizId;
 }
 
-document.getElementById("quiz").addEventListener('change', fetchScores);
-document.getElementById("limit").addEventListener('change', fetchScores);
-document.getElementById("department").addEventListener('change', fetchScores);
+    document.getElementById("quiz").addEventListener('change', fetchScores);
+    document.getElementById("limit").addEventListener('change', fetchScores);
+    document.getElementById("department").addEventListener('change', fetchScores);
+    document.getElementById("section").addEventListener('change', fetchScores);
+    document.getElementById("year").addEventListener('change', fetchScores);
 
   function deleteConfirm() {
     const activeQuiz = document.getElementById("selectedQuizName").value;

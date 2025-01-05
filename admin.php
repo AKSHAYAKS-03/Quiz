@@ -51,7 +51,7 @@ $quizDuration='';
 <head>
     <title>Admin</title>
     <link href="css/admin.css" rel="stylesheet">
-    <script src="inspect.js"></script>
+    <!-- <script src="inspect.js"></script> -->
    
 </head>
 <body style="overflow: auto; height: auto;">

@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -49,16 +49,21 @@ if($activeQuizId === 'None'){
 // echo $totalduration;
 if (isset($_POST['Login_btn'])) {
     $Name = $conn->real_escape_string($_POST['name']);
+    $Name = strtoupper($Name);
     $RollNo = 9131 . $_POST['rollno'];
     $dept = $conn->real_escape_string($_POST['dept']);
     $_SESSION['dept'] = $dept;
+    $sec = $conn->real_escape_string($_POST['sec']);
+    $_SESSION['sec'] = $sec;
+    $year = $conn->real_escape_string($_POST['year']);
+    $_SESSION['year'] = $year;
 
     $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
     $result = $conn->query($sql);
 
     $Name = strtoupper($Name);
     if ($currentUnixTime > $endTime) {
-        $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND QuizId='$activeQuizId'";
+        $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND Section='$sec' AND Year='$year' AND QuizId='$activeQuizId'";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -79,7 +84,7 @@ if (isset($_POST['Login_btn'])) {
 
     if($result->num_rows <= 0 || $result2->num_rows<=0){
         if($result->num_rows<=0){
-            $sql = "INSERT INTO student (Name, RollNo, Department, QuizId) VALUES ('$Name', '$RollNo', '$dept', '$activeQuizId')";
+            $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
             $conn->query($sql);
         }
         $_SESSION['login'] = TRUE;
@@ -125,7 +130,7 @@ $conn->close();
     <title>Quiz Login</title>
     <link rel="stylesheet" href="css/index.css">
     <script type="text/javascript" src="inspect.js"></script>
-  
+
 </head>
 <body oncontextmenu="return false;">
 <div class="full-container">    
@@ -137,51 +142,62 @@ $conn->close();
 
         <div class="container">
             
-            <div class="form-box login">
+            <div class="form-box login" style="width: 400px; height: 450px;">
                 <br>
                 <center><h1>Student Login</h1> </center>
                 <br>
                 <form name="lg" method="post" action="index.php" onsubmit="return validateStudentLogin();">
                     <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
-                        <label for="username">Name </label>
-                        <input type="text" id="username" name="name">
+                        <label for="username" >Name </label>
+                        <input type="text" id="username" name="name" placeholder="eg: John D">
                     </div>
-                    <br>
                     <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
-                        <label for="rollno">Register number </label><br>
+                        <label for="rollno" style="white-space: nowrap;">Register number </label><br>
                         <div class="fixed-input">
                             <span class="fixed-text">9131</span>
-                            <input type="text" id="rollno" name="rollno" placeholder="22104001">            
+                            <input type="text" id="rollno" name="rollno" placeholder="22104001" style="width: 200px;">            
                         </div>           
                     </div>
-                    <br>
-                    <div class="form-group" style="display: flex; flex-direction: row;">
-                        <label for="year">Year</label>
-                        <select name="year" 
-                                style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
-                                    color: #13274F; padding: 5px;margin-left:-70px" required>
-                            <option style="color: black;" disabled selected>Select</option>
-                            <option value="I" style="color: black;">I</option>
-                            <option value="II" style="color: black;">II</option>
-                            <option value="III" style="color: black;">III</option>
-                            <option value="IV" style="color: black;">IV</option>
-                        </select>
-                    </div> 
+                <div class="form-group">
+                <label for="year" style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #13274F;">Year</label>
+                <select name="year" required 
+                        style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
+                                 color: #13274F; outline: none; transition: border-color 0.3s;">
+                    <option style="color: black;" disabled selected>Select</option>
+                    <option value="I">I</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                </select>
+                </div>
+                <div class="form-group">
+                <label for="sec" style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #13274F;">Section</label>
+                <select name="sec" required 
+                        style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
+                                color: #13274F; outline: none; transition: border-color 0.3s;">
+                    <option style="color: black;" disabled selected>Select</option>
+                    <option value="A" style="color: black;">A</option>
+                    <option value="B" style="color: black;">B</option>
+                    <option value="C" style="color: black;">C</option>
 
-                    <div class="form-group" style="display: flex; flex-direction: row;">
-                        <label for="dept">Department</label>
-                        <select name="dept" 
-                                style="width: 150px; text-decoration: none; border-radius: 5px; background-color: transparent; 
-                                    color: #13274F; padding: 5px;margin-left:-70px">
-                            <option value="" style="color: black;" disabled selected>Select</option>
-                            <option value="CSE" style="color: black;">CSE</option>
-                            <option value="IT" style="color: black;">IT</option>
-                            <option value="EEE" style="color: black;">EEE</option>
-                            <option value="ECE" style="color: black;">ECE</option>
-                            <option value="MECH" style="color: black;">MECH</option>
-                            <option value="CIV" style="color: black;">CIV</option>
-                        </select>
-                    </div> 
+                </select>
+                </div>
+
+                <div class="form-group">
+                <label for="dept" style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #13274F;">Department</label>
+                <select name="dept" required 
+                        style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
+                                color: #13274F; outline: none; transition: border-color 0.3s;">
+                    <option value="" style="color: black;" disabled selected>Select</option>
+                    <option value="CSE" style="color: black;">CSE</option>
+                    <option value="IT" style="color: black;">IT</option>
+                    <option value="EEE" style="color: black;">EEE</option>
+                    <option value="ECE" style="color: black;">ECE</option>
+                    <option value="MECH" style="color: black;">MECH</option>
+                    <option value="CIV" style="color: black;">CIV</option>
+                </select>
+                </div>
+
                     <br>
                     <div class="form-group" style="display:flex;flex-direction:row">
                         <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
@@ -244,7 +260,9 @@ $conn->close();
 
         var name = document.forms['lg']['name'].value.trim();
         var rollno = document.forms['lg']['rollno'].value.trim();
-        var dept = document.forms['lg']['dept'].value;
+        var year = document.forms['lg']['year'];
+        var dept = document.forms['lg']['dept'];
+        var sec = document.forms['lg']['sec'];
 
         if (name === '' || !/^[a-zA-Z\s.]*$/.test(name)) {
             alert('Please enter a valid name.');
@@ -261,6 +279,14 @@ $conn->close();
             valid = false;
         }
 
+        if (year === '') {
+            alert('Please select a year.');
+            valid = false;
+        }
+        if(sec === '') {
+            alert('Please select a section.');
+            valid = false;
+        }
         return valid;
     }
 

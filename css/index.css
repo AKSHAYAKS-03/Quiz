@@ -78,7 +78,7 @@ h1{
 .container {
   position: relative;
   height: 450px;
-  width: 400px;
+  width: 500px;  /*//change in inline*/
   color: #13274F;
   padding: 20px;
   border-radius: 8px;
@@ -138,23 +138,59 @@ h1{
   transform: translateX(0);
 }
 
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-
+.form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
-.form-group input {
-  width: 200px;
-  background: transparent;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  color: #13274F;
+.form-group label {
+  width: 30%; /* Adjust width as needed */
+  font-weight: bold;
+}
 
+.form-group input,
+.form-group select {
+  width: 200px;
+  padding: 5px; 
+  font-size: 14px; 
+  border: 1px solid #ccc;
+  border-radius: 5px; 
+  background-color: #f9f9f9; 
+  color: #13274F; 
+  outline: none; 
+  transition: border-color 0.3s; 
+}
+.form-group select:focus {
+  border-color: #5a9bd5; 
+}
+
+.fixed-input {
+  display: flex;
+  align-items: center;
+}
+
+.fixed-text {
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  font-weight: bold;
+}
+
+.fixed-input input {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-left: none;
+  border-radius: 0 5px 5px 0;
+  padding: 5px;
+}
+
+form {
+  max-width: 500px;
+  margin: 0 auto; /* Center the form on the page */
 }
 
 .form-group button {
@@ -174,13 +210,6 @@ h1{
   background-color: #13274F;
   color: #fff;
 }
-.form-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 5px;
-      margin-top: 10px;
-  }
 
   button, input[type="reset"] {
       flex: 1;
@@ -280,25 +309,7 @@ transform: scale(0.98);
 box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
-.fixed-input {
-position: relative;
-display: inline-block;
-}
-.fixed-text {
-position: absolute;
-left: 20px;
-top:8.9px;
-width: 20px; 
-text-align: center; 
-pointer-events: none; 
-color: #13274F;
-font-size: 13.5px; 
-}
-.fixed-input input {
-width: calc(100% - 50px); 
-padding-left: 50px; 
-box-sizing: border-box; 
-}
+
 /* .close-button{
 width: 20px;
 border-radius: 50px;

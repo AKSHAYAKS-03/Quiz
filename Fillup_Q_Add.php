@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fillup Add Questions</title>
     <link rel="stylesheet" href="css/fillup_q_add.css">
-    <script src="inspect.js"></script>
+    <!-- <script src="inspect.js"></script> -->
     
 </head>
 <body>
