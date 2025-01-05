@@ -117,21 +117,18 @@ $conn->close();
     <div class="container">
     <div class="cot">
     <div class="score-container">
-    <?php
-    if ($QuizType == 0) {
-        $percentage = ($score / $total_mcq) * 100;
-    } else if ($QuizType == 1) {
-        $percentage = ($score / $total_fillup) * 100;
-    }
-    ?>
-    <div class="score-ring" id="scoreRing" style="--percentage: 0%;"></div>
-    <div class="inner-circle">
-        <div class="score-final" id="scoreText">0</div>
-    </div>
-</div>
-
-
-
+        <?php
+        if ($QuizType == 0) {
+            $percentage = $total_mcq==0?0:($score / $total_mcq)*100;
+        } else if ($QuizType == 1) {
+            $percentage = $total_fillup==0?0: ($score / $total_fillup) * 100;
+        }
+        ?>
+        <div class="score-ring" id="scoreRing" style="--percentage: 0%;"></div>
+            <div class="inner-circle">
+                <div class="score-final" id="scoreText">0</div>
+            </div>
+        </div>
         <div class="parentdiv">
             <ul>
                 <li><strong style="margin-right: 127px;">Name</strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></li>
