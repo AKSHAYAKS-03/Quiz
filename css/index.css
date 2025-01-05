@@ -78,7 +78,7 @@ h1{
 .container {
   position: relative;
   height: 450px;
-  width: 500px;  /*//change in inline*/
+  width: 420px;  /*//change in inline*/
   color: #13274F;
   padding: 20px;
   border-radius: 8px;
@@ -172,9 +172,10 @@ h1{
 }
 
 .fixed-text {
-  padding: 5px 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
+  padding: 4px 10px;
+  padding-right: 0px;
+  background-color: #f5f5f5;
+  border: 1px solid #c1bcbc;
   border-right: none;
   border-radius: 5px 0 0 5px;
   font-weight: bold;

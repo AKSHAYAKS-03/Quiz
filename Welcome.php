@@ -106,6 +106,9 @@ $total_minutes = floor($total_duration_seconds / 60);
 $total_seconds = $total_duration_seconds % 60;
 $total_duration = sprintf('%02d:%02d:%02d', $total_hours,$total_minutes, $total_seconds);
 
+// echo $total_duration;
+$_SESSION["duration"] = $total_duration;
+
 list($start_minutes, $start_seconds) = explode(':', $start_time);
 $start_time_seconds = ((int)$start_minutes * 60) + $start_seconds;
 
@@ -160,7 +163,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz - Welcome</title>
     <link rel="stylesheet" type="text/css" href="css/welcome.css">
-    <!-- <script src='DisableKeys.js'></script>
+    <!-- <script src='DisableKeys.jsF'></script>
     <script src='inspect.js'></script> -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 

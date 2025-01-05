@@ -18,16 +18,16 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
     $selectedDept = $_POST['department']; 
     $selectedSec = $_POST['section'];
     $selectedYear = $_POST['year'];
-    $romanMapping = [
-        "1" => "I",
-        "2" => "II",
-        "3" => "III",
-        "4" => "IV"
-    ];
+    // $romanMapping = [
+    //     "1" => "I",
+    //     "2" => "II",
+    //     "3" => "III",
+    //     "4" => "IV"
+    // ];
 
-    $romanYear = isset($romanMapping[$selectedYear]) ? $romanMapping[$selectedYear] : $selectedYear;
+    // $romanYear = isset($romanMapping[$selectedYear]) ? $romanMapping[$selectedYear] : $selectedYear;
 
-    // echo $selectedYear . " " . $romanYear;
+    // // echo $selectedYear . " " . $romanYear;
 
     if ($quizId === 'all') {
         $sql = "SELECT * FROM student";  
@@ -49,11 +49,11 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
             $sql .= " WHERE Section = '$selectedSec'";
         }
     }
-    if($romanYear !== 'all'){
+    if($selectedYear !== 'all'){
         if (strpos($sql, 'WHERE') !== false) {
-            $sql .= " AND Year = '$romanYear'";
+            $sql .= " AND Year = '$selectedYear'";
         } else {
-            $sql .= " WHERE Year = '$romanYear'";
+            $sql .= " WHERE Year = '$selectedYear'";
         }   
     }
 
@@ -86,7 +86,7 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
             echo "<td>" . $student['RollNo'] . "</td>";
             echo "<td>" . $student['Department'] . "</td>";
             echo "<td>" . $student['Section'] . "</td>";
-            echo "<td>" . $romanYear . "</td>";
+            echo "<td>" . $student['Year'] . "</td>";
             echo "<td>" . $student['Score'] . "</td>";
             echo "<td>" . $student['Time'] . "</td>";
             echo "</tr>";

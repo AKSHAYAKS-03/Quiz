@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -61,12 +61,14 @@ if (isset($_POST['Login_btn'])) {
     $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
     $result = $conn->query($sql);
 
-    $Name = strtoupper($Name);
-    if ($currentUnixTime > $endTime) {
-        $sql = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND Section='$sec' AND Year='$year' AND QuizId='$activeQuizId'";
-        $result = $conn->query($sql);
+    $sql2 = "SELECT * FROM stud WHERE regno='$RollNo' AND QuizId='$activeQuizId'";
+    $result2 = $conn->query($sql2);
 
-        if ($result->num_rows > 0) {
+    if ($currentUnixTime > $endTime) {
+        $sql1 = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND Section='$sec' AND Year='$year' AND QuizId='$activeQuizId'";
+        $result1 = $conn->query($sql1);
+
+        if ($result1->num_rows > 0) {
             $_SESSION['login'] = TRUE;
             $_SESSION['logi'] = TRUE;
             $_SESSION['log'] = TRUE;
@@ -87,6 +89,15 @@ if (isset($_POST['Login_btn'])) {
             $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
             $conn->query($sql);
         }
+        else{
+            $row = $result->fetch_assoc();
+           // echo '<script>alert("'.$row['Name'].' '.$Name.' '.(trim($row['Name']) !== trim($Name)?1:0).''.'")</script>'; 
+
+            if(trim($row['Name']) !== trim($Name) || $row['RollNo']!=$RollNo || $row['Department']!=$dept || $row['Section']!=$sec || $row['Year']!=$year || $row['Time'] !== NULL ){
+                echo '<script>alert("You already attended the quiz!"); window.location.href = "index.php";;</script>'; 
+                exit(); 
+            }
+        }
         $_SESSION['login'] = TRUE;
         $_SESSION['logi'] = TRUE;
         $_SESSION['log'] = TRUE;
@@ -96,7 +107,8 @@ if (isset($_POST['Login_btn'])) {
         header("Location: Welcome.php");
     }
     else{
-        echo '<script>alert("You already attended the quiz");</script>'; 
+        echo '<script>alert("You already attended the quiz");window.location.href = "index.php";</script>';
+        exit();
     }
 }
 
@@ -155,11 +167,11 @@ $conn->close();
                         <label for="rollno" style="white-space: nowrap;">Register number </label><br>
                         <div class="fixed-input">
                             <span class="fixed-text">9131</span>
-                            <input type="text" id="rollno" name="rollno" placeholder="22104001" style="width: 200px;">            
+                            <input type="text" id="rollno" name="rollno" placeholder="22104001" style="width: 150px;">            
                         </div>           
                     </div>
                 <div class="form-group">
-                <label for="year" style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #13274F;">Year</label>
+                <label for="year" style="font-weight: bold; margin-bottom: 5px; color: #13274F;">Year</label>
                 <select name="year" required 
                         style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
                                  color: #13274F; outline: none; transition: border-color 0.3s;">
@@ -171,7 +183,7 @@ $conn->close();
                 </select>
                 </div>
                 <div class="form-group">
-                <label for="sec" style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #13274F;">Section</label>
+                <label for="sec" style="font-weight: bold; margin-bottom: 5px; color: #13274F;">Section</label>
                 <select name="sec" required 
                         style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
                                 color: #13274F; outline: none; transition: border-color 0.3s;">
@@ -184,7 +196,7 @@ $conn->close();
                 </div>
 
                 <div class="form-group">
-                <label for="dept" style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #13274F;">Department</label>
+                <label for="dept" style="font-weight: bold; margin-bottom: 5px; color: #13274F;">Department</label>
                 <select name="dept" required 
                         style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
                                 color: #13274F; outline: none; transition: border-color 0.3s;">

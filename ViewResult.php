@@ -130,10 +130,10 @@ if (isset($_POST['Back'])) {
         Year:
         <select id="year" style="width: 100px">
           <option value="all">All Years</option>
-          <option value="1">I</option>
-          <option value="2">II</option>
-          <option value="3">III</option>
-          <option value="4">IV</option>
+          <option value="I">I</option>
+          <option value="II">II</option>
+          <option value="III">III</option>
+          <option value="IV">IV</option>
         </select>
   </div>
 </div>
@@ -157,14 +157,14 @@ if (isset($_POST['Back'])) {
         <?php
         $_SESSION['Sno'] = 0;
         while ($student = $records->fetch_assoc()) {
-          $_SESSION['Sno']++;         
+          $_SESSION['Sno']++;
           echo "<tr>";
           echo "<td>" . $_SESSION['Sno'] . "</td>";
           echo "<td>" . $student['Name'] . "</td>";
           echo "<td>" . $student['RollNo'] . "</td>";
           echo "<td>" . $student['Department'] . "</td>";
           echo "<td>" . $student['Section'] . "</td>";
-          echo "<td>" . strtoupper($student['Year']) . "</td>";
+          echo "<td>" . $student['Year'] . "</td>";
           echo "<td>" . $student['Score'] . "</td>";
           echo "<td>" . $student['Time'] . "</td>";
           echo "</tr>";
@@ -197,9 +197,7 @@ if (isset($_POST['Back'])) {
     const department = document.getElementById("department").value;
     const section = document.getElementById("section").value;
     const year = document.getElementById("year").value;
-
     
-
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "FetchScores.php", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

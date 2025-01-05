@@ -27,15 +27,23 @@ $QuizType = $quizDetails['QuizType'];
 $activeQuestions = $quizDetails['active_NoOfQuestions'];
 $query_QuizName->close();
 
-
 $mcq = $conn->prepare("
-    SELECT QuestionNo, Question, Answer, Choice1, Choice2, Choice3, Choice4 
-    FROM multiple_choices 
-    WHERE QuizId = ? 
-    ORDER BY QuestionNo ASC 
-    LIMIT ?
+    SELECT 
+        mc.QuestionNo, 
+        mc.Question, 
+        mc.Answer, 
+        mc.Choice1, 
+        mc.Choice2, 
+        mc.Choice3, 
+        mc.Choice4, 
+        s.yanswer AS student_answer
+    FROM multiple_choices mc
+    JOIN stud s ON s.QuizId = mc.QuizId AND s.QuestionNo = mc.QuestionNo
+    WHERE s.regno = ? AND mc.QuizId = ?
+    ORDER BY mc.QuestionNo ASC
 ");
-$mcq->bind_param("ii", $_SESSION['active'], $activeQuestions);
+
+$mcq->bind_param("si", $_SESSION['RollNo'], $_SESSION['active']);
 $mcq->execute();
 $mcq_result = $mcq->get_result();
 $questions_mcq = $mcq_result->fetch_all(MYSQLI_ASSOC);
@@ -43,26 +51,44 @@ $total_mcq = $mcq_result->num_rows;
 $mcq->close();
 
 $query_fillup = $conn->prepare("
-    SELECT f.QuestionNo, f.Question, a.answer 
-    FROM fillup f
-    LEFT JOIN answer_fillup a ON f.QuestionNo = a.Q_Id
-    WHERE f.QuizId = ? 
-    ORDER BY f.QuestionNo ASC 
-    LIMIT ?
+SELECT 
+    f.QuestionNo AS QuestionNo, 
+    f.Question AS Question, 
+    af.answer AS answer,
+    f.Ques_Type AS questype
+FROM 
+    stud s
+JOIN 
+    fillup f 
+ON 
+    s.QuizId = f.QuizId AND s.questionno = f.QuestionNo
+JOIN 
+    answer_fillup af 
+ON 
+    f.QuizId = af.QuizId AND f.QuestionNo = af.Q_Id
+WHERE 
+    s.regno = ? 
 ");
-$query_fillup->bind_param("ii", $_SESSION['active'], $activeQuestions);
+
+$query_fillup->bind_param("s", $_SESSION['RollNo']); // Bind the RollNo parameter
 $query_fillup->execute();
 $fillup_result = $query_fillup->get_result();
-$questions_fillup = [];
 
+$questions_fillup = [];
 while ($row = $fillup_result->fetch_assoc()) {
     $questions_fillup[$row['QuestionNo']]['Question'] = $row['Question'];
-    $questions_fillup[$row['QuestionNo']]['Answers'][] = $row['answer'];
+    $questions_fillup[$row['QuestionNo']]['Answer'][] = $row['answer'];
+    $questions_fillup[$row['QuestionNo']]['questype'] = $row['questype'];
 }
-
-$total_fillup = count($questions_fillup);
+$total_fillup = count($questions_fillup); // Get the total number of unique questions
 $query_fillup->close();
 
+// // Example Output for Debugging
+// foreach ($questions_fillup as $questionNo => $data) {
+//     echo "QuestionNo: " . $questionNo . "<br>";
+//     echo "Question: " . $data['Question'] . "<br>";
+//     echo "Answers: " . implode(", ", $data['Answer']) . "<br><br>";
+// }
 
 // echo $total_fillup." ".$total_mcq;
 
@@ -176,36 +202,72 @@ $conn->close();
         <?php endforeach; ?>
     <?php endif; ?>
         
-
     <?php foreach ($questions_fillup as $questionNo => $question): ?>
-        <div class="answer-container">
-            <h2 class="ques"><?php echo $index ?>. <?php echo htmlspecialchars($question['Question']); ?></h2>
+    <div class="answer-container">
+        <h2 class="ques"><?php echo $index; ?>. <?php echo htmlspecialchars($question['Question']); ?></h2>
 
-            <?php 
-                $user_answer = isset($user_answers[$questionNo]) ? $user_answers[$questionNo] : 'No answer';
-                $correct_answers = $question['Answers']; 
-            ?>
-            <p><strong style="margin-left:20px;">Your Answer:</strong>
+        <?php 
+            $questype = $question['questype'];
+            $is_correct = false; // Initialize correctness flag
+            $user_answer = isset($user_answers[$questionNo]) ? $user_answers[$questionNo] : 'No answer';
+            $correct_answers = $question['Answer']; 
+
+            if ($questype == 1) {    
+                // Handle type 1 question logic (bounds check)
+                $bound1 = null;
+                $bound2 = null;
+
+                // Fetch bounds from the correct answers
+                foreach ($correct_answers as $answer) {
+                    if ($bound1 === null) { 
+                        $bound1 = floatval(trim($answer));
+                    } else {
+                        $bound2 = floatval(trim($answer));
+                    }
+                }
+
+                // Validate user's answer
+                if ($bound1 !== null && $bound2 !== null && $user_answer !== 'No answer') {
+                    $user_answer_numeric = floatval(trim($user_answer));
+                    if (($user_answer_numeric >= $bound1 && $user_answer_numeric <= $bound2) || 
+                        ($user_answer_numeric <= $bound1 && $user_answer_numeric >= $bound2)) {
+                        $is_correct = true;
+                    }
+                }
+            } elseif ($questype == 0) {
+                // Handle type 0 question logic (direct match)
+                if (in_array($user_answer, $correct_answers)) {
+                    $is_correct = true;
+                }
+            }
+        ?>
+
+        <p><strong style="margin-left:20px;">Your Answer:</strong>
             <?php if ($user_answer === 'No answer'): ?>
                 <span class="no-answer">No answer</span>
             <?php else: ?>
-                <span class="<?php echo in_array($user_answer, $correct_answers) ? 'correct-answer' : 'incorrect-answer'; ?>">
+                <span class="<?php echo $is_correct ? 'correct-answer' : 'incorrect-answer'; ?>">
                     <?php echo htmlspecialchars($user_answer); ?>
                 </span>
             <?php endif; ?>
         </p>
-            <ul>
-                <div class="possible-answers" style="display: flex; flex-direction: row;"><strong>Possible Answers:</strong>
+
+        <div class="possible-answers" style="margin-left: 20px; display: flex; flex-direction: row; align-items: center;">
+            <strong style="margin-top : -20px">Possible Answers:</strong>
+            <ul style="display: flex; list-style-type: none; padding: 0; margin: 0; flex-direction: row; ">
                 <?php foreach ($correct_answers as $answer): ?>
-                    <li class="answer"><?php echo htmlspecialchars($answer); ?></li>
+                    <li class="answer" style="margin-right: 10px;"><?php echo htmlspecialchars($answer); ?></li>
                 <?php endforeach; ?>
-                </div>
             </ul>
-            <br>
-            </div>
-            <div class="divider"></div>
-            <?php $index++; ?>
-        <?php endforeach; ?>
+        </div>
+
+        <br>
+    </div>
+    <div class="divider"></div>
+    <?php $index++; ?>
+<?php endforeach; ?>
+
+       
 </div>
 <br>
 <form method="post" action="index.php">
