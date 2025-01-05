@@ -122,10 +122,10 @@ if (isset($_POST['Back'])) {
       Year:
         <select id="year" style="width: 100px">
           <option value="all" selected>All Years</option>
-          <option value="1">I</option>
-          <option value="2">II</option>
-          <option value="3">III</option>
-          <option value="4">IV</option>
+          <option value="I">I</option>
+          <option value="II">II</option>
+          <option value="III">III</option>
+          <option value="IV">IV</option>
         </select>
   </div>
 </div>
