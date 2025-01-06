@@ -38,11 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $c3 = $_POST['choice3'];
     $c4 = $_POST['choice4'];
     $correct_choice = $_POST['correct_choice'];
-    $exp = $_POST['exp'];
 
-    $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     
-    $stmt->bind_param("iisssssss", $quizId, $questionNo, $question, $c1, $c2, $c3, $c4, $correct_choice, $exp);
+    $stmt->bind_param("iissssss", $quizId, $questionNo, $question, $c1, $c2, $c3, $c4, $correct_choice);
     
     ob_clean();
     if ($stmt->execute()) {
@@ -222,10 +221,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label><b>Correct Answer:</b></label>
                     <input type="text" name="correct_choice" required/>
                 </p>
-                <p class="form-group">
-                    <label>Explanation</label>
-                    <textarea cols="80" rows="10" name="exp" id="exp-textarea">NO EXPLANATION</textarea>
-                </p>
                 <p>
                     <input type="submit" name="submit" value="Next" />
                     <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
@@ -236,17 +231,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script>
-        document.getElementById('exp-textarea').addEventListener('focus', function() {
-            if (this.value === 'NO EXPLANATION') {
-                this.value = '';
-            }
-        });
-
-        document.getElementById('exp-textarea').addEventListener('blur', function() {
-            if (this.value.trim() === '') {
-                this.value = 'NO EXPLANATION';
-            }
-        });
 
         document.getElementById('question-form').addEventListener('submit', function(event) {
             event.preventDefault(); 
@@ -270,7 +254,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     document.getElementById('current-question-no').textContent = questionNo + 1;
                     
                     this.reset();
-                    document.getElementById('exp-textarea').value = 'NO EXPLANATION';
                     scroll();
                 } else {
                     alert('Failed to insert.');

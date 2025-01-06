@@ -86,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $questions = $_SESSION['questions'];
         $currentIndex = $_SESSION['current_question'];
-        $explanation = isset($_POST['explanation']) ? $_POST['explanation'] : '';
 
         if (isset($_POST['next']) || isset($_POST['submit'])) {
             if ($currentIndex < count($questions)) {
@@ -98,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $choice4 = $_POST['choice4'] ?? $data[4];
                 $correct_choice = $_POST['correct_choice'] ?? $data[5];
             
-            $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, Explanation)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             if ($stmt) {
-                $stmt->bind_param("iisssssss", $quizId, $questionNo, $question, $choice1, $choice2, $choice3, $choice4, $correct_choice, $explanation);
+                $stmt->bind_param("iissssss", $quizId, $questionNo, $question, $choice1, $choice2, $choice3, $choice4, $correct_choice);
                 
                 if ($stmt->execute()) {
                     $_SESSION['question_no'] = ++$questionNo;
@@ -217,9 +216,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <label for="correct_choice">Correct Answer:</label>
                     <input type="text" id="correct_choice" name="correct_choice" value="<?php echo htmlspecialchars($currentQuestion[5]); ?>"><br><br>
-
-                    <label for="explanation">Explanation:</label>
-                    <textarea id="explanation" name="explanation">NO EXPLANATION</textarea><br><br>
                     
                     <button type="submit" name="previous" value="Previous">Previous</button>
                     <input type="submit" name="next" value="Next">
@@ -230,20 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
     </div>
     <?php endif; ?>
-
-    <script>
-    document.getElementById('explanation').addEventListener('focus', function() {
-        if (this.value === 'NO EXPLANATION') {
-            this.value = '';
-        }
-    });
-
-    document.getElementById('explanation').addEventListener('blur', function() {
-        if (this.value.trim() === '') {
-            this.value = 'NO EXPLANATION';
-        }
-    });
-</script>
 
 </body>
 </html>

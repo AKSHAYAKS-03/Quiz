@@ -28,10 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $c3 = $_POST['choice3'];
     $c4 = $_POST['choice4'];
     $correct_choice = $_POST['correct_choice'];
-    $exp = $_POST['exp_textarea'];
 
-    $stmt = $conn->prepare("UPDATE multiple_choices SET Question=?, Choice1=?, Choice2=?, Choice3=?, Choice4=?, Answer=?, Explanation=? WHERE QuestionNo=? && QuizId = $quizId");
-    $stmt->bind_param("sssssssi", $question, $c1, $c2, $c3, $c4, $correct_choice, $exp, $questionNo);
+    $stmt = $conn->prepare("UPDATE multiple_choices SET Question=?, Choice1=?, Choice2=?, Choice3=?, Choice4=?, Answer=?WHERE QuestionNo=? && QuizId = $quizId");
+    $stmt->bind_param("ssssssi", $question, $c1, $c2, $c3, $c4, $correct_choice, $questionNo);
 
     if ($stmt->execute()) {
         http_response_code(200);
@@ -49,8 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             "choice2" => $row['Choice2'],
             "choice3" => $row['Choice3'],
             "choice4" => $row['Choice4'],
-            "correct_choice" => $row['Answer'],
-            "explanation" => $row['Explanation']
+            "correct_choice" => $row['Answer']
         ));
         exit;
     }
@@ -154,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <th>Choice 3</th>
                                     <th>Choice 4</th>
                                     <th>Correct Choice</th>
-                                    <th>Explanation</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -168,7 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     echo "<td data-field='choice3'>" . $row['Choice3'] . "</td>";
                     echo "<td data-field='choice4'>" . $row['Choice4'] . "</td>";
                     echo "<td data-field='correct_choice'>" . $row['Answer'] . "</td>";
-                    echo "<td data-field='exp_textarea'>" . $row['Explanation'] . "</td>";
                     echo "<td class='action-buttons'>
                             <button type='button' id='edit' onclick='makeEditable(this.parentNode.parentNode)'>Edit</button>
                             <button type='button' id='delete' onclick='deleteRow(this)'>Delete</button>
@@ -201,8 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 choice2: row.cells[3].innerHTML,
                 choice3: row.cells[4].innerHTML,
                 choice4: row.cells[5].innerHTML,
-                correctChoice: row.cells[6].innerHTML,
-                explanation: row.cells[7].innerHTML
+                correctChoice: row.cells[6].innerHTML
             };
 
             for (let i = 1; i < row.cells.length - 1; i++) {
@@ -222,7 +217,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             row.cells[4].innerHTML = originalContent.choice3;
             row.cells[5].innerHTML = originalContent.choice4;
             row.cells[6].innerHTML = originalContent.correctChoice;
-            row.cells[7].innerHTML = originalContent.explanation;
 
             for (let i = 1; i < row.cells.length - 1; i++) {
                 row.cells[i].contentEditable = 'false';
@@ -245,9 +239,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             let choice3 = row.cells[4].innerText;
             let choice4 = row.cells[5].innerText;
             let correctChoice = row.cells[6].innerText;
-            let explanation = row.cells[7].innerText;
 
-            if (question == "" || choice1 == "" || choice2 == "" || choice3 == "" || choice4 == "" || correctChoice == "" || explanation == "") {
+            if (question == "" || choice1 == "" || choice2 == "" || choice3 == "" || choice4 == "" || correctChoice == "" ) {
                 alert("All fields are required.");
                 return;
             }
@@ -271,7 +264,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         row.cells[4].innerText = responseData.choice3;
                         row.cells[5].innerText = responseData.choice4;
                         row.cells[6].innerText = responseData.correct_choice;
-                        row.cells[7].innerText = responseData.explanation;
 
                         alert('Question updated successfully.');
 
@@ -298,8 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 + "&choice2=" + encodeURIComponent(choice2)
                 + "&choice3=" + encodeURIComponent(choice3)
                 + "&choice4=" + encodeURIComponent(choice4)
-                + "&correct_choice=" + encodeURIComponent(correctChoice)
-                + "&exp_textarea=" + encodeURIComponent(explanation);
+                + "&correct_choice=" + encodeURIComponent(correctChoice);
             xhr.send(params);
         }
 
