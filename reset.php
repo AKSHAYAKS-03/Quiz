@@ -162,8 +162,8 @@ if (isset($_POST['Back'])) {
       </div>
 
       <div class="form-group">
-        <label for="quizName">New Name for the Quiz <?php echo $activeQuiz; ?>:</label>
-        <input type="text" id="quizName" name="quizName" placeholder="Enter new Quiz Name" />
+        <label for="quizName">New Name:</label>
+        <input type="text" id="quizName" name="quizName" placeholder="<?php echo $activeQuiz; ?>" />
         <input type="submit" name="name" value="Update" />
       </div>
 

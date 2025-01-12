@@ -17,7 +17,7 @@ $activeQuiz = $_SESSION['activeQuiz'];
 $noRecords = false; 
 
 if($activeQuizId !== 'None'){
-    $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY Score DESC, `Time` LIMIT 20";
+    $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY Score DESC, `Time`";
     $records = $conn->query($sql);
 }
 else {
