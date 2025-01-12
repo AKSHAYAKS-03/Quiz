@@ -84,11 +84,7 @@ if (isset($_POST['Login_btn'])) {
     }
 
     if($result->num_rows <= 0 || $result2->num_rows<=0){
-        if($result->num_rows<=0){
-            $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
-            $conn->query($sql);
-        }
-        else{
+        if($result->num_rows>0){
             $row = $result->fetch_assoc();
            // echo '<script>alert("'.$row['Name'].' '.$Name.' '.(trim($row['Name']) !== trim($Name)?1:0).''.'")</script>'; 
 
@@ -96,6 +92,10 @@ if (isset($_POST['Login_btn'])) {
                 echo '<script>alert("You already attended the quiz!"); window.location.href = "index.php";;</script>'; 
                 exit(); 
             }
+        }
+        else{
+            $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
+            $conn->query($sql);
         }
         $_SESSION['login'] = TRUE;
         $_SESSION['logi'] = TRUE;
@@ -250,7 +250,7 @@ $conn->close();
 
 <div>
 <footer>
-        <a href="about.html" style="text-decoration:none;color:white"><p>&copy; 2024 BrainBite Quiz Application | Developed by Akshaya K S  &  Suriya Lakshmi M (CSE 2022-26)</p></a>
+        <a href="about.html" style="text-decoration:none;color:white"><p>&copy; 2024 BrainBite Quiz Application | CSE 2022-26</p></a>
 </footer>
 </div>
 <script>

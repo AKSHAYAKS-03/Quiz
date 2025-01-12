@@ -28,6 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $timeTaken = gmdate("H:i:s", $timeTakenSeconds);
 
+            $resetCheck = "SELECT * FROM student WHERE RollNo = ? AND QuizId = ?";
+            $stmt = $conn->prepare($resetCheck);
+            $stmt->bind_param("si", $rollno, $quizid);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $reset = $result->fetch_assoc();
+            if ($result->num_rows === 0) {
+                $response = [
+                    'status' => 'reset',
+                    'data' => [ 'false']];
+                echo json_encode($response);
+                exit; 
+            }
+
             if($_SESSION['QuizType']===0){
                 $answer_query = "SELECT Answer FROM multiple_choices WHERE QuizId = ? AND QuestionNo = ?";
                 $stmt = $conn->prepare($answer_query);

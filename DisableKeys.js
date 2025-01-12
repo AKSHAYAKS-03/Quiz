@@ -85,7 +85,7 @@ window.onload = function() {
             // After 5 seconds, redirect to final.php
             setTimeout(() => {
                 window.location.href = 'final.php'; 
-            }, 5000);  // 5 seconds delay
+            }, 3000);  // 5 seconds delay
         }
     }
     

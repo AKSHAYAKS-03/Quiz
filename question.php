@@ -344,8 +344,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     try {
                         var response = JSON.parse(xhr.responseText);
                         console.log('Response:', response);
-
-                        if (response.status === 'next_question') {
+                        if(response.status === 'reset') {
+                            console.log('Reset Data:', response.data);
+                            handleReset();
+                        }
+                        else if (response.status === 'next_question') {
                             console.log('Next Question Data:', response.data);
                             handleNextQuestion(response.data);
                         } else if (response.status === 'final') {
@@ -370,9 +373,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function handleNextQuestion(questionData) {
+function handleReset(){
+    var modal = document.getElementById('QuizModal');
+    modal.style.display = 'block';
+    setTimeout(() => {
+        modal.querySelector('.modal-content').classList.add('show-modal'); 
+    }, 10);
+    var message = document.getElementById('msg');
+    message.innerHTML = `
+        Your Quiz has been reset by admin. You cannot further continue this attempt. 
+        Please <a href="resetErrorPage.php">click here</a> to try again.
+    `;
+    document.getElementById('quizForm').style.pointerEvents = 'none';
+}
 
- 
+function handleNextQuestion(questionData) {
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
         console.error('Question text element not found');

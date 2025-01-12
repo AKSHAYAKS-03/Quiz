@@ -39,17 +39,66 @@ if (isset($_POST['Reset'])) {
         $msg = 'RollNo is required';
     } else {
         $roll = $_POST['RollNo'];
-        $msg = 'Reset successfully';
 
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
+        $check = "SELECT * FROM student where RollNo = '$roll'";
+        $result = $conn->query($check)->fetch_assoc();
+
+        // Fetch student data to display in the modal
+        $studentQuery = "SELECT * FROM student WHERE RollNo = '$roll' and QuizId = $activeQuizId";
+        $studentData = $conn->query($studentQuery)->fetch_assoc();
+
+        $studQuery = "SELECT count(*) as QuestionsAttended FROM stud WHERE regno = '$roll' and QuizId = $activeQuizId";
+        $studData = $conn->query($studQuery)->fetch_assoc();
+
+        if ($studentData) {
+            echo "
+                <div id='confirmationModal' class='modal'>
+                    <div class='modal-content'>
+                        <span class='close-btn' onclick='closeModal()'>&times;</span>
+                        <h3>Student Information</h3>
+                        <p><strong>Register Number:</strong> $roll</p>
+                        <p><strong>Name:</strong> {$studentData['Name']}</p>
+                        <p><strong>Class:</strong>  {$studentData['Year']} {$studentData['Department']} {$studentData['Section']}</p>
+                        <p><strong>Questions Attended:</strong> {$studData['QuestionsAttended']}</p>
+                        <form method='post'>
+                            <input type='hidden' name='confirmReset' value='1' />
+                            <input type='hidden' name='RollNo' value='$roll' />
+                            <input type='submit' name='ResetConfirmed' value='Confirm Reset' />
+                            <button type='button' id='cancelReset'>Cancel</button>
+                        </form>
+
+                        <p id='note'>**Note:This action cannot be undone. </p>
+                    </div>
+                </div>
+                <script>
+                    document.getElementById('confirmationModal').style.display = 'block';
+                    document.getElementById('cancelReset').addEventListener('click', function() {
+                        closeModal();
+                    });
+                    function closeModal() {
+                        document.getElementById('confirmationModal').style.display = 'none';
+                    }
+                </script>
+            ";
+        } else {
+            $msg = "Student not found!";
         }
-
-        $conn->query("DELETE FROM student WHERE RollNo= '$roll' and QuizId= $activeQuizId ");
-        $conn->query("DELETE FROM stud WHERE regno= '$roll' and QuizId= $activeQuizId");
-
-        $conn->close();
     }
+}
+
+if (isset($_POST['ResetConfirmed'])) {
+    $roll = $_POST['RollNo'];
+    $msg = 'Reset successfully';
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Reset student details in both tables
+    $conn->query("DELETE FROM student WHERE RollNo= '$roll' and QuizId= $activeQuizId ");
+    $conn->query("DELETE FROM stud WHERE regno= '$roll' and QuizId= $activeQuizId");
+
+    $conn->close();
 }
 
 if(isset($_POST['Questions'])){
@@ -131,8 +180,50 @@ if (isset($_POST['Back'])) {
 <head>
     <title>Quiz Settings</title>
 
-    <script src="inspect.js"></script>
+    <!-- <script src="inspect.js"></script> -->
     <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <style>
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 480px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover, .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #note{
+            color: #be0d0dec;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 <div class="content">
@@ -277,4 +368,4 @@ if (isset($_POST['Back'])) {
     }
 </script>
 </body>
-</html>
+</html> 
