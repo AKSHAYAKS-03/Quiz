@@ -13,6 +13,8 @@ $quizId = isset($_GET['quizId']) ? $_GET['quizId'] : 0;
 $department = isset($_GET['department']) ? $_GET['department'] : 'all';
 $section = isset($_GET['section']) ? $_GET['section'] : 'all';
 $year = isset($_GET['year']) ? $_GET['year'] : 'all';
+$performance = isset($_GET['performance']) ? $_GET['performance'] : 'all';
+
 if($year ==='1')
     $year = 'I';
 else if($year ==='2')
@@ -54,15 +56,26 @@ if (!empty($year) && $year !== 'all') {
 if (!empty($section) && $section !== 'all') {
     $filename .= "_{$section}";
 }
+if (!empty($performance) && $performance !== 'all') {
+    if($performance === '1')
+        $performance = 'Toppers';
+    else if($performance === '2')
+        $performance = 'Average';
+    else if($performance === '3')
+        $performance = 'BelowAverage';
+    else if($performance === '4')   
+        $performance = 'Bottom';
+    $filename .= "_{$performance}";
+}
 
-$filename .= ".xls";
+ $filename .= ".csv";
 
-header("Content-Disposition: attachment; filename=\"$filename\"");
-header("Content-Type: application/vnd.ms-excel");
+ header("Content-Disposition: attachment; filename=\"$filename\"");
+ header("Content-Type: text/csv"); 
 
 $flag = false;
 
-$query = "SELECT Name, RollNo, Department, Year, Section, Score, Time FROM student WHERE 1";
+$query = "SELECT Name, RollNo, Department,`Year`, Section, Score, `Percentage`,`Time` FROM student WHERE 1";
 
 if ($quizId !== 'all') {
     $query .= " AND QuizId = $quizId";
@@ -80,20 +93,33 @@ if ($year !== 'all') {
     $query .= " AND Year = '$year'";
 }
 
-$query .= " ORDER BY Score DESC, Time";
+if ($performance !== 'all') {
+    $performanceCondition = 'percentage>=0';
+    if($performance === 'Toppers')
+        $performanceCondition = 'percentage>=85';
+    else if($performance === 'Average')
+        $performanceCondition = 'percentage>=60 AND percentage<85';
+    else if($performance === 'Below Average')
+        $performanceCondition = 'percentage>=40 AND percentage<60';
+    else if($performance === 'Bottom')
+        $performanceCondition = 'percentage<40';
+
+    $query .= " AND $performanceCondition";
+}
+
+$query .= " ORDER BY Score DESC,`Time`";
 
 if ($result = $conn->query($query)) {
+    $output = fopen('php://output', 'w'); 
     while ($row = $result->fetch_assoc()) {
         if (!$flag) {
-            echo implode("\t", array_keys($row)) . "\r\n";
+            fputcsv($output, array_keys($row));
             $flag = true;
         }
-        array_walk($row, 'cleanData');
-        
         $row['RollNo'] = "=\"" . $row['RollNo'] . "\"";
-        
-        echo implode("\t", array_values($row)) . "\r\n";
+        fputcsv($output, $row);
     }
+    fclose($output);
     $result->free();
 } else {
     die('Query failed: ' . $conn->error);
@@ -101,4 +127,4 @@ if ($result = $conn->query($query)) {
 
 $conn->close();
 exit;
-?>
+ ?>

@@ -57,17 +57,16 @@ for ($i = 1; $i <= $total; $i++) {
         $total_time_formatted = sprintf('%02d:%02d:%02d', $total_hours, $total_minutes, $total_seconds);
 
 
+    $_SESSION['percentage'] = round($_SESSION['score'] / $_SESSION['active_NoOfQuestions'] * 100,2);
 
-    $sql = "UPDATE student SET Score = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
+    $sql = "UPDATE student SET Score = ?, percentage = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $_SESSION['score'], $total_time_formatted, $rollno, $quizId);
+    $stmt->bind_param("sdssi", $_SESSION['score'],$_SESSION['percentage'], $total_time_formatted, $rollno, $quizId);
     $stmt->execute();
     $stmt->close();
 
     $_SESSION['Score'] = "";
     $_SESSION['total_time'] = $total_time_formatted;
-
-
 
 $conn->close();
 ?>

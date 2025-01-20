@@ -18,6 +18,7 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
     $selectedDept = $_POST['department']; 
     $selectedSec = $_POST['section'];
     $selectedYear = $_POST['year'];
+    $selectedPerformance = $_POST['performance'];
     // $romanMapping = [
     //     "1" => "I",
     //     "2" => "II",
@@ -56,6 +57,26 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
             $sql .= " WHERE Year = '$selectedYear'";
         }   
     }
+    if($selectedPerformance !== 'all'){
+        if($selectedPerformance==='1'){
+            $performance = "percentage>=85";
+        }
+        else if($selectedPerformance==='2'){
+            $performance = "percentage>=60 AND percentage<85";
+        }
+        else if($selectedPerformance==='3'){
+            $performance = "percentage>=40 AND percentage<60";
+        }
+        else if($selectedPerformance==='4'){
+            $performance = "percentage<40";
+        }
+
+        if (strpos($sql, 'WHERE') !== false) {
+            $sql .= " AND $performance";
+        } else {
+            $sql .= " WHERE $performance";
+        }   
+    }
 
     $sql .= " ORDER BY Score DESC, `Time`";
 
@@ -75,7 +96,8 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
                     <th>SECTION</th>
                     <th>YEAR</th>
                     <th>SCORE</th>
-                    <th>TIME (in MIN)</th>
+                    <th>PERCENTAGE</th>
+                    <th>TIME TAKEN</th>
                 </tr>';
         $_SESSION['Sno'] = 0;
         while ($student = $records->fetch_assoc()) {
@@ -88,6 +110,7 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
             echo "<td>" . $student['Section'] . "</td>";
             echo "<td>" . $student['Year'] . "</td>";
             echo "<td>" . $student['Score'] . "</td>";
+            echo "<td>" . $student['percentage'] . "</td>";
             echo "<td>" . $student['Time'] . "</td>";
             echo "</tr>";
         }

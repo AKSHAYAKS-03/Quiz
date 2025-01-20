@@ -8,6 +8,7 @@ body {
   color: #fff;
   text-align: center;
   padding: 10px 0;
+  position: fixed;
 }
 .container {
   width: 80%;
@@ -15,27 +16,6 @@ body {
 }
 h1 {
   margin: 0;
-}
-
-.select{
-    text-align: center;
-    margin-top: 20px;        
-}
-
-select {
-    width: 180px; 
-    padding: 7px;
-    border: 1px solid #34495e;
-    border-radius: 5px;
-    background-color: #fff;
-    color: #34495e;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    font-size: 16px;
-    margin-top: 20px;
-    cursor: pointer;
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
-    margin-right: 30px;
-    transition: all 0.3s ease;
 }
 
 select:last-child {
@@ -55,11 +35,6 @@ option {
 
 option:hover {
     background-color: #ecf0f1;
-}
-
-#score {
-  width: 80%;
-  margin: 20px auto;
 }
 
 table {

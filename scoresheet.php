@@ -48,6 +48,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
     header('Location: index.php');
     exit;
 }
+
+$percentage = floatval($_SESSION['percentage']);
+$feedback_message = "";
+$feedback_color = "";
+$feedback_icon = "";
+$progress_bar = 0;
+
+if ($percentage >= 80) {
+    $feedback_message = "You are doing great!";
+    $feedback_color = "#28a745";  // Green
+    $feedback_icon = "🎉";
+} elseif ($percentage >= 60) {
+    $feedback_message = "You can do better!";
+} else {
+    $feedback_message = "You need to work hard!";
+    $feedback_color = "#dc3545";  // Red
+    $feedback_icon = "😞";
+}
 ?>
 
 <!DOCTYPE html>
@@ -82,12 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
 
     .header {
         margin-bottom: 20px;
+        text-align: center;
     }
 
     .header h1 {
-        font-size: 32px;
         margin: 0;
-        font-weight: 700;
         color: #13274F;
     }
 
@@ -107,11 +124,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
     }
 
     .highlight {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: bold;
         color: #28a745;
         text-align: center;
         margin: 15px 0;
+    }
+
+    .feedback {
+        font-size: 22px;
+        font-weight: bold;
+        margin: 10px 0;
+        padding: 10px;
+        display: inline-block;
     }
 
     .footer {
@@ -158,8 +183,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
 <body>
     <div class="container">
         <div class="header">
-            <h1> Congratulations! 🎉</h1>
-            <p>Your Quiz Results</p>
+            <h1> Congratulations🎉</h1>
+            <div class="feedback">
+                <?php echo $percentage."% - ".htmlspecialchars($feedback_message); ?>
+        </div>
         </div>
         <div class="score-details">
             <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></p>
@@ -170,6 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Ok'])) {
             </p>
             <p><strong>Time Taken:</strong> <?php echo htmlspecialchars($display_time); ?></p>
         </div>
+        
+
         <div class="footer">
             <form method="post" action="scoresheet.php">
                 <input type="submit" name="Ok" value="Logout" class="submit-btn" />
