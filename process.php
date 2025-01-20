@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $questionNo = $_POST['questionNo'];
             $total = $_POST['total'];
             $selected_choice = isset($_POST['choice']) ? $_POST['choice'] : null;
-            $questionName = $_POST['questionName'];
             $timeTakenSeconds = time() - $_POST['question_start_time'];
         
             
@@ -134,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $result['Choice3'],
                         $result['Choice4']
                     ];
-
+                    $img_path = $result['img_path'];
                     if ($_SESSION['shuffle'] == 1) {
                         shuffle($options);
                     }
@@ -155,6 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]
                 ];
                 if ($_SESSION['QuizType'] === 0) {
+                    $response['data']['questionImage'] = $img_path;
                     $response['data']['options'] = $options;
                 }
 

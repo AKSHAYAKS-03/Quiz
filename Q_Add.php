@@ -39,9 +39,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $c4 = $_POST['choice4'];
     $correct_choice = $_POST['correct_choice'];
 
-    $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $uploadFile = 'NULL';
+    if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] == 0) {
+        $target_dir = __DIR__ . "/uploads/" . $quizId . "/";
+
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true); // Create the folder and any necessary parent folders
+        }
+
+        $target_file = $target_dir . basename($_FILES["upload_file"]["name"]);
+        $uploadOk = 1;
+        $imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
+
+        $allowedExtensions = array("jpg", "jpeg", "png", "gif");
+
+        if (!in_array(strtolower($imageFileType), $allowedExtensions)) {
+            echo "Sorry, only JPG, JPEG, PNG, and GIF files are allowed.";
+            $uploadOk = 0;
+        }
+
+        $check = getimagesize($_FILES["upload_file"]["tmp_name"]);
+        if ($check === false) {
+            $uploadOk = 0;
+        }
+
+        $relative_path = "uploads/" . $quizId . "/" . basename($_FILES["upload_file"]["name"]);
+        
+        if ($uploadOk && move_uploaded_file($_FILES["upload_file"]["tmp_name"], $target_file)) {
+            $uploadFile = $relative_path;
+        }
+        else {
+            $uploadFile = 'NULL';  
+        }
+    }
+
+    $stmt = $conn->prepare("INSERT INTO multiple_choices (QuizId, QuestionNo, Question, Choice1, Choice2, Choice3, Choice4, Answer, img_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)");
     
-    $stmt->bind_param("iissssss", $quizId, $questionNo, $question, $c1, $c2, $c3, $c4, $correct_choice);
+    $stmt->bind_param("iisssssss", $quizId, $questionNo, $question, $c1, $c2, $c3, $c4, $correct_choice, $uploadFile);
     
     ob_clean();
     if ($stmt->execute()) {
@@ -67,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <title>Quizze</title>
 
-    <!-- <script src="inspect.js"></script> -->
+    <script src="inspect.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -220,6 +254,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p class="form-group">
                     <label><b>Correct Answer:</b></label>
                     <input type="text" name="correct_choice" required/>
+                </p>
+                <p class="form-group">
+                    <label>Upload Image (optional):</label>
+                    <input type="file" name="upload_file" />
                 </p>
                 <p>
                     <input type="submit" name="submit" value="Next" />

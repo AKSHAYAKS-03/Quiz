@@ -1,7 +1,5 @@
-
-
 <?php
- session_start();
+session_start();
 include 'core_db.php';
 date_default_timezone_set('Asia/Kolkata');
 
@@ -63,6 +61,18 @@ $conn->close();
     <link rel="stylesheet" type="text/css" href="css/question.css">
     <script src='inspect.js'></script>
     <script src='DisableKeys.js'></script>
+    <style>
+        #questionImage{
+            width: auto;
+            min-width: 600px;
+            max-width: 100%; 
+            height:auto; 
+            min-height: 350px;
+            max-height: 100%;
+            display: block; 
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body oncontextmenu="return false;">
 <div class="head" id="head">
@@ -100,7 +110,12 @@ $conn->close();
                 <?php $index = 1; ?>
                 <div class="question-container">
                     <h2 id="questionText" class="ques">
-                    <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); ?>
+                        <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); 
+                        if ($result['img_path']!='NULL') {
+                            echo '<br/><center>
+                                    <img id="questionImage" src="' . htmlspecialchars($result['img_path']) . '" alt="Question Image">
+                                    </center>';
+                        } ?>
                     </h2>
                 </div>
                 <br> 
@@ -395,6 +410,21 @@ function handleNextQuestion(questionData) {
     }
 
     questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
+
+    var questionImageElement = document.getElementById('questionImage');
+    if(questionData.question!='NULL'){
+        if(!questionImageElement) {
+            var questionImageElement = document.createElement('img');
+            questionImageElement.id = 'questionImage';
+            document.getElementById('questionText').appendChild(questionImageElement);
+        }
+        questionImageElement.src = questionData.questionImage;
+    }else{
+        const existingImg = questionTextElement.querySelector('img');
+        if (existingImg) {
+            existingImg.remove();
+        }
+    }
 
     var quizType = <?php echo $_SESSION['QuizType']; ?>;
     if (quizType === 0) {
