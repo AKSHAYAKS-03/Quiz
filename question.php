@@ -412,7 +412,7 @@ function handleNextQuestion(questionData) {
     questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
 
     var questionImageElement = document.getElementById('questionImage');
-    if(questionData.question!='NULL'){
+    if(questionData.questionImage!=='NULL'){
         if(!questionImageElement) {
             var questionImageElement = document.createElement('img');
             questionImageElement.id = 'questionImage';
@@ -420,9 +420,11 @@ function handleNextQuestion(questionData) {
         }
         questionImageElement.src = questionData.questionImage;
     }else{
-        const existingImg = questionTextElement.querySelector('img');
+        const existingImg = document.getElementById('questionImage');
+        console.log("img");
         if (existingImg) {
             existingImg.remove();
+            console.log("img removed");
         }
     }
 
