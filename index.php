@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -64,51 +64,51 @@ if (isset($_POST['Login_btn'])) {
     $sql2 = "SELECT * FROM stud WHERE regno='$RollNo' AND QuizId='$activeQuizId'";
     $result2 = $conn->query($sql2);
 
-    if ($currentUnixTime > $endTime) {
-        $sql1 = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND Section='$sec' AND Year='$year' AND QuizId='$activeQuizId'";
-        $result1 = $conn->query($sql1);
+//     if ($currentUnixTime > $endTime) {
+//         $sql1 = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND Section='$sec' AND Year='$year' AND QuizId='$activeQuizId'";
+//         $result1 = $conn->query($sql1);
 
-        if ($result1->num_rows > 0) {
-            $_SESSION['login'] = TRUE;
-            $_SESSION['logi'] = TRUE;
-            $_SESSION['log'] = TRUE;
-            $_SESSION['message'] = "You are logged in";
-            $_SESSION['Name'] = $Name;
-            $_SESSION['RollNo'] = $RollNo;
-            header("Location: Answers.php");
-            exit();
-        } else {
-        echo '<script>alert("Quiz is over"); window.location.href = "index.php";</script>';
-        exit();
-        }
-    }
+//         if ($result1->num_rows > 0) {
+//             $_SESSION['login'] = TRUE;
+//             $_SESSION['logi'] = TRUE;
+//             $_SESSION['log'] = TRUE;
+//             $_SESSION['message'] = "You are logged in";
+//             $_SESSION['Name'] = $Name;
+//             $_SESSION['RollNo'] = $RollNo;
+//             header("Location: Answers.php");
+//             exit();
+//         } else {
+//         echo '<script>alert("Quiz is over"); window.location.href = "index.php";</script>';
+//         exit();
+//         }
+//     }
 
-    if($result->num_rows <= 0 || $result2->num_rows<=0){
-        if($result->num_rows>0){
-            $row = $result->fetch_assoc();
-           // echo '<script>alert("'.$row['Name'].' '.$Name.' '.(trim($row['Name']) !== trim($Name)?1:0).''.'")</script>'; 
+//     if($result->num_rows <= 0 || $result2->num_rows<=0){
+//         if($result->num_rows>0){
+//             $row = $result->fetch_assoc();
+//            // echo '<script>alert("'.$row['Name'].' '.$Name.' '.(trim($row['Name']) !== trim($Name)?1:0).''.'")</script>'; 
 
-            if(trim($row['Name']) !== trim($Name) || $row['RollNo']!=$RollNo || $row['Department']!=$dept || $row['Section']!=$sec || $row['Year']!=$year || $row['Time'] !== NULL ){
-                echo '<script>alert("You already attended the quiz!"); window.location.href = "index.php";;</script>'; 
-                exit(); 
-            }
-        }
-        else{
-            $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
-            $conn->query($sql);
-        }
+//             if(trim($row['Name']) !== trim($Name) || $row['RollNo']!=$RollNo || $row['Department']!=$dept || $row['Section']!=$sec || $row['Year']!=$year || $row['Time'] !== NULL ){
+//                 echo '<script>alert("You already attended the quiz!"); window.location.href = "index.php";;</script>'; 
+//                 exit(); 
+//             }
+//         }
+//         else{
+//             $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
+//             $conn->query($sql);
+//         }
         $_SESSION['login'] = TRUE;
         $_SESSION['logi'] = TRUE;
         $_SESSION['log'] = TRUE;
         $_SESSION['message'] = "You are logged in";
         $_SESSION['Name'] = $Name;
         $_SESSION['RollNo'] = $RollNo;
-        header("Location: Welcome.php");
-    }
-    else{
-        echo '<script>alert("You already attended the quiz");window.location.href = "index.php";</script>';
-        exit();
-    }
+        header("Location: dashboard.php");
+//     }
+//     else{
+//         echo '<script>alert("You already attended the quiz");window.location.href = "index.php";</script>';
+//         exit();
+//     }
 }
 
 
