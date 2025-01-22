@@ -102,115 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Quizze</title>
 
     <script src="inspect.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #13274F;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            margin-top: 230px;
-        }
-
-        .cont {
-            background-color: #ecf0f1;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 60%;
-        }
-
-        .cont h1, h3 {
-            color: #13274F;
-            margin-bottom: 30px;
-            text-align: center;
-            text-transform: capitalize;
-        }
-
-        .cont p {
-            margin: 15px 0;
-            text-transform: capitalize;
-        }
-
-        .Curr_Q{
-            margin: 30px;
-            padding: 20px;
-        }
-
-        label {
-            display: inline-block;
-            width: 140px;
-            text-align: left;
-            padding-left: 70px;
-        }
-
-        input[type='text'], textarea, input[type='number'] {
-            width: calc(100% - 280px);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-
-        input[type='submit'], button {
-            background: #13274F;
-            color: #fff;
-            padding: 10px 20px;
-            border: 0;
-            border-radius: 5px;
-            margin-top: 20px;
-            width: 100px;
-
-        }
-
-        input[type='submit']:hover, button:hover {
-            cursor: pointer;
-            font-weight: bolder;
-            background-color: #0d1b37;
-        }
-
-        a {
-            text-decoration: none;
-            border: 2px solid #333;
-            padding: 2px 12px;
-            color: white;
-            border-radius: 6px;
-            background: #333;
-            display: inline-block;
-            margin-top: 20px;
-        }
-
-        a:hover {
-            font-weight: bolder;
-            color: #000;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-        }
-       
-        #upload {
-            padding: 10px 20px;
-            background-color: #13274F;
-            color: #fff;
-            width: auto;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            float : right;
-            margin-left: -150px;
-        }
-      
-      
- </style>
+    <link rel="stylesheet" type="text/css" href="css/Q_Add.css">
  
 </head>
 <body oncontextmenu="return false;">
@@ -224,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <div class="top">
                     <button type="button" id="upload" onclick="window.location.href = 'store_excel.php';">Upload Questions</button>  
+                    <button type="button" id="upload" style="margin-top:60px;margin-bottom:50px" onclick="window.location.href = 'load_image.php';">Upload Image Questions</button>  
 
                     <h3>Add Question 
                         <span id="current-question-no"><?php echo $Q_NO; ?> </span>
