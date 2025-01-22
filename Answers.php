@@ -12,13 +12,19 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
 }
 
 $rollno = $_SESSION['RollNo'];
+if (isset($_GET['quiz_id'])) {
+    $quiz_id = intval($_GET['quiz_id']); 
+//     echo "Selected Quiz ID: " . $quiz_id;
+// } else {
+//     echo "No quiz selected.";
+}
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
 $query_QuizName = $conn->prepare("SELECT QuizName,QuizType,active_NoOfQuestions FROM quiz_details WHERE Quiz_Id = ?");
-$query_QuizName->bind_param("i", $_SESSION['active']);
+$query_QuizName->bind_param("i", $quiz_id);
 $query_QuizName->execute();
 $result_QuizName = $query_QuizName->get_result();
 $quizDetails = $result_QuizName->fetch_assoc();
@@ -43,7 +49,7 @@ $mcq = $conn->prepare("
     ORDER BY mc.QuestionNo ASC
 ");
 
-$mcq->bind_param("si", $_SESSION['RollNo'], $_SESSION['active']);
+$mcq->bind_param("si", $_SESSION['RollNo'], $quiz_id);
 $mcq->execute();
 $mcq_result = $mcq->get_result();
 $questions_mcq = $mcq_result->fetch_all(MYSQLI_ASSOC);
@@ -93,7 +99,8 @@ $query_fillup->close();
 // echo $total_fillup." ".$total_mcq;
 
 $userquery = $conn->prepare("SELECT Score, Time FROM student WHERE RollNo = ? AND QuizId = ?");
-$userquery->bind_param("si", $_SESSION['RollNo'], $_SESSION['active']);
+
+$userquery->bind_param("si", $_SESSION['RollNo'], $quiz_id);
 $userquery->execute();
 $userquery_result = $userquery->get_result();
 
@@ -102,6 +109,7 @@ if ($userquery_result->num_rows > 0) {
     $score = $row['Score'];
     $time = $row['Time'];
 }
+// echo $score;
 
 list($hours, $minutes, $seconds) = explode(':', $time);
 
@@ -114,7 +122,7 @@ if ($hours == 0 && $minutes == 0) {
 }
 
 $user_answers_query = $conn->prepare("SELECT questionno, yanswer FROM stud WHERE regno = ? AND quizid = ?");
-$user_answers_query->bind_param("si", $_SESSION['RollNo'], $_SESSION['active']);
+$user_answers_query->bind_param("si", $_SESSION['RollNo'], $quiz_id);
 $user_answers_query->execute();
 $user_answers_result = $user_answers_query->get_result();
 
