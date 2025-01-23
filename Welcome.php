@@ -124,15 +124,15 @@ $_SESSION["end_time"] = $end_time;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['start'])) {
-        // $result = $conn->query('SELECT * FROM stud WHERE regno = ' . $rollno . ' AND QuizId = ' . $activeQuizId);
-        // if ($result->num_rows > 0) {
-        //     echo "<script>alert('You already attended the quiz!');</script>";
-        //     $_SESSION['login'] = FALSE;
-        //     $_SESSION['logi'] = FALSE;
-        //     $_SESSION['log'] = FALSE;
-        //     header('Refresh: 0.5; url=index.php'); 
-        //     exit;
-        // }
+        $result = $conn->query('SELECT * FROM stud WHERE regno = ' . $rollno . ' AND QuizId = ' . $activeQuizId);
+        if ($result->num_rows > 0) {
+            echo "<script>alert('You already attended the quiz!');</script>";
+            $_SESSION['login'] = FALSE;
+            $_SESSION['logi'] = FALSE;
+            $_SESSION['log'] = FALSE;
+            header('Refresh: 0.5; url=index.php'); 
+            exit;
+        }
         $_SESSION['score'] = 0;
         header('Location: question.php');
         exit;
@@ -182,10 +182,10 @@ $conn->close();
                     startButton.disabled = true;
                 }
 
-                // if (currentTime >= endingTime) {
-                //     alert("QUIZ OVER");
-                //     window.location.href = 'index.php';
-                // }
+                if (currentTime >= endingTime) {
+                    alert("QUIZ OVER");
+                    window.location.href = 'index.php';
+                }
             }
 
             checkTime();

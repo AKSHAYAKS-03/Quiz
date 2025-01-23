@@ -47,20 +47,34 @@ $results = $stmt->get_result();
 
 $completedQuizIds = [];
 $quizScores = [];
+$totscore = 0;
 while ($row = $results->fetch_assoc()) {
     $completedQuizIds[] = $row['QuizId'];
     $quizScores[$row['QuizName']] = $row['Score'];
+    $totscore += $row['Score'];
 }
 
+// echo $totscore;
 //for charts data
 $query = "
-    SELECT q.Quiz_id, q.QuizName, MAX(s.Score) AS HighestScore,
-           SUM(CASE WHEN s.RollNo = ? THEN s.Score ELSE 0 END) AS userscore
-    FROM student s
-    JOIN quiz_details q ON s.QuizId = q.Quiz_id
-    WHERE s.RollNo = ?
-    GROUP BY q.Quiz_id, q.QuizName
-    ORDER BY q.Quiz_id";
+  SELECT 
+    q.Quiz_id, 
+    q.QuizName, 
+    (SELECT MAX(s1.Score) 
+     FROM student s1 
+     WHERE s1.QuizId = q.Quiz_id) AS HighestScore, 
+    SUM(CASE WHEN s.RollNo = ? THEN s.Score ELSE 0 END) AS userscore
+FROM 
+    quiz_details q
+INNER JOIN 
+    student s ON s.QuizId = q.Quiz_id
+WHERE 
+    s.RollNo = ?
+GROUP BY 
+    q.Quiz_id, q.QuizName
+ORDER BY 
+    q.Quiz_id ";
+
 
 $stmt = $conn->prepare($query);
 $stmt->bind_param('ss', $rollno, $rollno);
@@ -80,7 +94,137 @@ while ($row = $results->fetch_assoc()) {
     $highestScores[] = $row['HighestScore'];
 }
 
+//SQL Query for Overall Performance Summary
+$query = "
+  SELECT 
+    COUNT(s.QuizId) AS total_quizzes_attempted,
+    AVG(s.Score) AS average_score,
+    MAX(s.Score) AS best_score
+  FROM 
+    student s
+  WHERE 
+    s.RollNo = ?";
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param('s', $rollno);
+$stmt->execute();
+$results = $stmt->get_result();
+$performanceData = $results->fetch_assoc();
+// echo "<div class='performance-summary'>";
+// echo "<h3>Overall Performance Summary</h3>";
+// echo "<p>Total Quizzes Attempted: <strong>" . $performanceData['total_quizzes_attempted'] . "</strong></p>";
+// echo "<p>Average Score: <strong>" . round($performanceData['average_score'], 2) . "</strong></p>";
+// echo "<p>Best Score Achieved: <strong>" . $performanceData['best_score'] . "</strong></p>";
+// echo "</div>";
+
+//performance with completedtime
+
+    $queryTrend = "
+    SELECT 
+    q.QuizName, 
+    s.Score, 
+    s.Time AS Time
+    FROM 
+    student s
+    JOIN 
+    quiz_details q ON s.QuizId = q.Quiz_id
+    WHERE 
+    s.RollNo = ?
+    ORDER BY 
+    s.Time";
+
+    $stmtTrend = $conn->prepare($queryTrend);
+    $stmtTrend->bind_param('s', $rollno);
+    $stmtTrend->execute();
+    $resultsTrend = $stmtTrend->get_result();
+
+    $quizNames = [];
+    $scores = [];
+
+    while ($row = $resultsTrend->fetch_assoc()) {
+    $quizNames[] = $row['QuizName'];  // Quiz Name
+    $scores[] = $row['Score'];        // Score for each quiz
+    }
+
+    $completedTimes = [];
+    while ($row = $resultsTrend->fetch_assoc()) {
+        $completedTimes[] = $row['Time'];  
+        echo $row['Time'];
+        // Store completion time for trend analysis
+        $scores[] = $row['Score'];
+    }
+
+//fetch student datas
+
+  $query = "SELECT RollNo, Name, Department, Year, QuizId FROM student WHERE RollNo = ?";
+  $stmt = $conn->prepare($query);
+  $stmt->bind_param('s', $rollno);
+  $stmt->execute();
+  $result = $stmt->get_result();
+
+  if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $rollno = $row['RollNo'];
+    $name = $row['Name'];
+    $department = $row['Department'];
+    $year = $row['Year'];
+    $quizId = $row['QuizId'];
+  }
+
+//   echo $rollno;
+//   echo $name;
+//   echo $department;
+//   echo $year;
+//   echo $quizId;
+
+  // rank of the student
+  $query = "
+  SELECT 
+      s1.RollNo, 
+      s1.Name, 
+      s1.QuizId, 
+      s1.Score, 
+      s1.Time,
+      (SELECT COUNT(*) + 1 
+       FROM student s2 
+       WHERE s2.Department = s1.Department 
+       AND s2.Year = s1.Year 
+       AND s2.QuizId = s1.QuizId
+       AND (s2.Score > s1.Score OR (s2.Score = s1.Score AND s2.Time < s1.Time))
+      ) AS RankInDeptYearQuiz
+  FROM student s1
+  WHERE s1.Department = ? AND s1.Year = ?
+  ORDER BY s1.QuizId ASC, RankInDeptYearQuiz ASC
+";
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param('ss', $department, $year);
+$stmt->execute();
+$results = $stmt->get_result();
+
+// Store data for chart
+$quizData = [];
+$studentRanks = [];
+
+while ($row = $results->fetch_assoc()) {
+    $quizData[] = [
+        'quizId' => $row['QuizId'],
+        'rollNo' => $row['RollNo'],
+        'rank' => $row['RankInDeptYearQuiz']
+
+    ];
+
+    // Track the current student's ranks
+    if ($row['RollNo'] == $rollno) {
+        $studentRanks[$row['QuizId']] = $row['RankInDeptYearQuiz'];
+       
+    }
+}
+
+// Convert PHP data to JSON for JS
+$studentRanksJson = json_encode($studentRanks);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -90,11 +234,13 @@ while ($row = $results->fetch_assoc()) {
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- <link rel="stylesheet" href="css/dashboard.css"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 10px;
     background-color: #f4f4f9;
     color: #333;
     display: flex;
@@ -102,22 +248,30 @@ while ($row = $results->fetch_assoc()) {
     min-height: 100vh;
 }
 .header {
-    /* background-color: #13274F; */
     color: #13274F;
+    display: flex;
+    justify-content: space-between; /* Place content at opposite corners */
+    align-items: center;  /* Align vertically in the center */
     padding: 20px;
-    text-align: center;
 }
-.header h1 {
+
+.header h2 {
     margin: 0;
 }
+
+.user-info {
+    text-align: right; /* Align user info to the right */
+}
+
 .content {
     display: flex;
     flex: 1;
 }
 .left-section {
-    width: 70%;
+    width: 60%;
     padding: 20px;
-    background-color: #ffffff;
+    border-radius: 20px;
+    background-color: #fff;
 }
 .left-section h2 {
     color: #13274F;
@@ -258,13 +412,33 @@ while ($row = $results->fetch_assoc()) {
     color: #e53935;
 }
 
+.rank-card {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .rank-number {
+            font-size: 50px;
+            font-weight: bold;
+        }
+        .quiz-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Welcome, <?= htmlspecialchars($name); ?>!</h1>
-        <p><?= htmlspecialchars($rollno); ?></p>
+        <h2>Dashboard</h2>
+        <div class="user-info">
+            <h3>Welcome, <?= htmlspecialchars($name); ?>!</h3>
+            <p><?= htmlspecialchars($rollno); ?></p>
+        </div>
     </div>
+
     <div class="content">
         <!-- Left Section: Quiz Boxes -->
         <div class="left-section">
@@ -320,38 +494,36 @@ while ($row = $results->fetch_assoc()) {
             <?php endif; ?>
 
         </div>
-        <div class="content_chart">
-                <h2>Your Performance</h2>
-                <!-- <canvas id="scoreComparisonChart" width="400" height="200"></canvas> -->
-                <canvas id="scoreChart" width="400" height="200"></canvas>
+        <div class="container mt-5">
+    <h2 class="text-center mb-4">Your Quiz Rankings</h2>
+    <div class="row">
+        <?php 
+        // Display the student's ranks for each quiz
+        foreach ($studentRanks as $quizId => $rank): 
+            // Optionally, fetch quiz title based on quizId if available in your data
+            $quizTitle = "Quiz #" . $quizId;  // Replace with actual logic to get quiz names
+        ?>
+            <div class="col-md-4 mb-4">
+                <div class="rank-card">
+                    <div class="quiz-title"><?= htmlspecialchars($quizTitle); ?></div>
+                    <div class="rank-number"><?= $rank; ?></div>
+                    <p>Rank in Quiz</p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    </div>
         </div>
+        <div class="analysis">
+            <div class="content_chart">
+                    <h2>Your Performance</h2>
+                    <!-- <canvas id="scoreComparisonChart" width="400" height="200"></canvas> -->
+                    <canvas id="scoreChart" width="400" height="200"></canvas>
+                    <canvas id="lineChart"></canvas>
+                    <canvas id="rankChart"></canvas>
+             </div>
         </div>
-        <!-- Right Sidebar: Available Quizzes -->
-        <div class="right-sidebar">
-            <h2>Available Quizzes</h2>
-            <ul class="quiz-list">
-                <?php if ($quizzes->num_rows > 0): ?>
-                    <?php while ($quiz = $quizzes->fetch_assoc()): ?>
-                        <li class="quiz-item">
-                            <h3><?= htmlspecialchars($quiz['QuizName']); ?></h3>
-                            <?php
-                            if($quiz['QuizType'] == 1){
-                                echo "<p>Fill Up</p>";
-                            }
-                            else{
-                                echo "<p>Multiple Choice</p>";
-                            }
-                            ?>
-                            <p>Questions: <?= htmlspecialchars($quiz['NumberOfQuestions']); ?></p>
-                            <p>Duration: <?= htmlspecialchars($quiz['TimeDuration']); ?> mins</p>
-                            <a href="Welcome.php" class="btn">Start Quiz</a>
-                        </li>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <p>No available quizzes at the moment.</p>
-                <?php endif; ?>
-            </ul>
-        </div>
+        
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -393,6 +565,24 @@ while ($row = $results->fetch_assoc()) {
             }
         }
     });
+    var ctx = document.getElementById('lineChart').getContext('2d');
+    var pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: <?php echo json_encode($quizNames); ?>,
+            datasets: [{
+                label: 'Scores',
+                data: <?php echo json_encode($scores); ?>,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)'
+                ]
+            }]
+        }
+    });
+   
 </script>
 
 

@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <div class="top">
                     <button type="button" id="upload" onclick="window.location.href = 'store_excel.php';">Upload Questions</button>  
-                    <button type="button" id="upload" style="margin-top:60px;margin-bottom:50px" onclick="window.location.href = 'load_image.php';">Upload Image Questions</button>  
+                    <!-- <button type="button" id="upload" style="margin-top:60px;margin-bottom:50px" onclick="window.location.href = 'load_image.php';">Upload Image Questions</button>   -->
 
                     <h3>Add Question 
                         <span id="current-question-no"><?php echo $Q_NO; ?> </span>
@@ -124,9 +124,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <form id="question-form" method="post">            
+                <p class="form-group" id="question_container">
+                <label id="question_label">Question Text</label>
+                <textarea id="question_text" cols="10" rows="5" name="question_text"></textarea>
+                </p>   
+                <!-- <p class="form-group">
+                    <img id="preview_image" src="" alt="Image Preview" style="display: none; max-width: 100%; height: auto; margin-top: 10px;" />
+                </p> -->
                 <p class="form-group">
-                    <label>Question Text</label>
-                    <textarea cols="80" rows="10" name="question_text" required></textarea>
+                    <label>Upload Image (optional):</label>
+                    <input type="file" name="upload_file" id="upload_file" />
+                    <p style="color : red;margin-left:70px">*Double Click the uploaded image to remove it </p>
                 </p>
                 <p class="form-group">
                     <label>Choice 1:</label>
@@ -148,10 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label><b>Correct Answer:</b></label>
                     <input type="text" name="correct_choice" required/>
                 </p>
-                <p class="form-group">
-                    <label>Upload Image (optional):</label>
-                    <input type="file" name="upload_file" />
-                </p>
+                
                 <p>
                     <input type="submit" name="submit" value="Next" />
                     <button type="button" onclick="window.location.href = 'admin.php'">Back</button>
@@ -200,7 +205,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const addContainer = document.getElementById('add-container');
             addContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+   
+        const fileInput = document.getElementById('upload_file');
+    const questionContainer = document.getElementById('question_container');
 
+    fileInput.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Remove textarea and label
+                questionContainer.innerHTML = `<img src="${e.target.result}" 
+                                                id="preview_image" 
+                                                alt="Image Preview" 
+                                                style="max-width: 100%; height: auto; margin-top: 10px; cursor: pointer;" />`;
+
+                // Add click event to the image to restore textarea
+                document.getElementById('preview_image').addEventListener('dblclick', function () {
+                    restoreTextarea();
+                });
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function restoreTextarea() {
+        questionContainer.innerHTML = `
+            <label id="question_label">Question Text</label>
+            <textarea id="question_text" cols="10" rows="5" name="question_text" required></textarea>
+        `;
+    }
     </script>
 </body>
 </html>
