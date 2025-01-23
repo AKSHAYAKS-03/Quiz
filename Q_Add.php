@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $c4 = $_POST['choice4'];
     $correct_choice = $_POST['correct_choice'];
 
-    $uploadFile = 'NULL';
-    if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] == 0) {
+    $uploadFile = '';
+    if (isset($_FILES['upload_file'])) {
         $target_dir = __DIR__ . "/uploads/" . $quizId . "/";
 
         if (!is_dir($target_dir)) {
@@ -49,16 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $target_file = $target_dir . basename($_FILES["upload_file"]["name"]);
         $uploadOk = 1;
-        $imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
-
-        $allowedExtensions = array("jpg", "jpeg", "png", "gif");
-
-        if (!in_array(strtolower($imageFileType), $allowedExtensions)) {
-            echo "Sorry, only JPG, JPEG, PNG, and GIF files are allowed.";
-            http_response_code(200);
-            echo json_encode(array("message" => "Sorry, Failed to insert question."));
-            $uploadOk = 0;
-        }
 
         $check = getimagesize($_FILES["upload_file"]["tmp_name"]);
         if ($check === false) {
@@ -108,8 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
  
 </head>
 <body oncontextmenu="return false;">
-    <!-- <script type="text/javascript" src="inspect.js"></script> -->
-    <script type="text/javascript" src="validate.js"></script>
     <div class="cont" id="add-container">
         <div class="contain">
             
@@ -135,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </p>
                 <p class="form-group">
                     <label>Upload Image (optional):</label>
-                    <input type="file" name="upload_file" id="upload_file" />
+                    <input type="file" name="upload_file" id="upload_file" accept=".png, .jpg, .jpeg"/>
                     <p style="font-size:13px;margin-left:70px;color:red">Double click to remove image</p>
 
                 </p>
