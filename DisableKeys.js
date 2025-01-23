@@ -27,6 +27,7 @@ window.onload = function() {
         // Disable Windows key (keyCode 91 or 92)
         if (e.keyCode === 91 || e.keyCode === 92) {
             e.preventDefault();
+            handleFullscreenChange();        
         }
         
         if (e.keyCode === 27) { // Esc key

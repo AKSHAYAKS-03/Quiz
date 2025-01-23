@@ -55,6 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (!in_array(strtolower($imageFileType), $allowedExtensions)) {
             echo "Sorry, only JPG, JPEG, PNG, and GIF files are allowed.";
+            http_response_code(200);
+            echo json_encode(array("message" => "Sorry, Failed to insert question."));
             $uploadOk = 0;
         }
 
@@ -124,17 +126,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <form id="question-form" method="post">            
-                <p class="form-group" id="question_container">
-                <label id="question_label">Question Text</label>
-                <textarea id="question_text" cols="10" rows="5" name="question_text"></textarea>
+                <p class="form-group">
+                    <label>Question Text</label>
+                    <textarea cols="10" rows="5" name="question_text" required></textarea>
                 </p>   
-                <!-- <p class="form-group">
+                <p class="form-group">
                     <img id="preview_image" src="" alt="Image Preview" style="display: none; max-width: 100%; height: auto; margin-top: 10px;" />
-                </p> -->
+                </p>
                 <p class="form-group">
                     <label>Upload Image (optional):</label>
                     <input type="file" name="upload_file" id="upload_file" />
-                    <p style="color : red;margin-left:70px">*Double Click the uploaded image to remove it </p>
+                    <p style="font-size:13px;margin-left:70px;color:red">Double click to remove image</p>
+
                 </p>
                 <p class="form-group">
                     <label>Choice 1:</label>
@@ -206,38 +209,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             addContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
    
-        const fileInput = document.getElementById('upload_file');
-    const questionContainer = document.getElementById('question_container');
-
-    fileInput.addEventListener('change', function (event) {
+        document.getElementById('upload_file').addEventListener('change', function(event) {
         const file = event.target.files[0];
-
         if (file) {
             const reader = new FileReader();
 
-            reader.onload = function (e) {
-                // Remove textarea and label
-                questionContainer.innerHTML = `<img src="${e.target.result}" 
-                                                id="preview_image" 
-                                                alt="Image Preview" 
-                                                style="max-width: 100%; height: auto; margin-top: 10px; cursor: pointer;" />`;
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                
+                // const textarea = document.querySelector('textarea[name="question_text"]');
+                // textarea.value += `\n<img src="${imageUrl}" alt="Question Image" />`;
 
-                // Add click event to the image to restore textarea
-                document.getElementById('preview_image').addEventListener('dblclick', function () {
-                    restoreTextarea();
-                });
+                document.getElementById('preview_image').src = imageUrl;
+                document.getElementById('preview_image').style.display = 'block';
+                //set the size of the preview image
+                document.getElementById('preview_image').style.maxWidth = '100%';
+                document.getElementById('preview_image').style.height = 'auto';
             };
 
             reader.readAsDataURL(file);
         }
-    });
-
-    function restoreTextarea() {
-        questionContainer.innerHTML = `
-            <label id="question_label">Question Text</label>
-            <textarea id="question_text" cols="10" rows="5" name="question_text" required></textarea>
-        `;
-    }
+        });
+        document.getElementById('preview_image').addEventListener('dblclick', function() {
+            this.src = '';
+            this.style.display = 'none';
+            document.getElementById('upload_file').value = ''; 
+        });
     </script>
 </body>
 </html>

@@ -111,7 +111,7 @@ $conn->close();
                 <div class="question-container">
                     <h2 id="questionText" class="ques">
                         <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); 
-                        if ($result['img_path']!='NULL') {
+                        if (!empty($result['img_path']) && $result['img_path']!='NULL') {
                             echo '<br/><center>
                                     <img id="questionImage" src="' . htmlspecialchars($result['img_path']) . '" alt="Question Image">
                                     </center>';
