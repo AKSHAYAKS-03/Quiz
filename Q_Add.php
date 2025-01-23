@@ -39,8 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $c4 = $_POST['choice4'];
     $correct_choice = $_POST['correct_choice'];
 
-    $uploadFile = '';
-    if (isset($_FILES['upload_file'])) {
+    $uploadFile = 'NULL';
+    if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] == 0) {     
+        
         $target_dir = __DIR__ . "/uploads/" . $quizId . "/";
 
         if (!is_dir($target_dir)) {
@@ -80,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(['message' => 'New question added successfully.']);
     } else {
         http_response_code(500);
-        echo json_encode(array("message" => "Sorry, Failed to insert question."));
+        echo json_encode(["message" => "Failed to insert question.", "error" => $stmt->error]);
     }
     
     $stmt->close();
@@ -113,18 +114,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </h3> <br>
             </div>
 
-            <form id="question-form" method="post">            
+            <form id="question-form" method="post" >            
                 <p class="form-group">
                     <label>Question Text</label>
                     <textarea cols="10" rows="5" name="question_text" required></textarea>
                 </p>   
                 <p class="form-group">
-                    <img id="preview_image" src="" alt="Image Preview" style="display: none; max-width: 100%; height: auto; margin-top: 10px;" />
+                  <center>  <img id="preview_image" src="" alt="Image Preview" style="display: none; max-width: 500px; max-height: 400px; margin-top: 10px;" /></center>
                 </p>
                 <p class="form-group">
                     <label>Upload Image (optional):</label>
                     <input type="file" name="upload_file" id="upload_file" accept=".png, .jpg, .jpeg"/>
-                    <p style="font-size:13px;margin-left:70px;color:red">Double click to remove image</p>
+                    <!-- <span class="tooltip-text">Double click to remove the image</span> -->
 
                 </p>
                 <p class="form-group">
@@ -171,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             .then(response => response.json())  // Get the response as text to debug
 
             .then(data => {
-                console.log(data.message);
+                console.log(data);
 
                 if (data.message) {
                     alert(data.message);
@@ -181,6 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     document.getElementById('current-question-no').textContent = questionNo + 1;
                     
                     this.reset();
+                    removeImage();
                     scroll();
                 } else {
                     alert('Failed to insert.');
@@ -210,7 +212,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 document.getElementById('preview_image').src = imageUrl;
                 document.getElementById('preview_image').style.display = 'block';
-                //set the size of the preview image
                 document.getElementById('preview_image').style.maxWidth = '100%';
                 document.getElementById('preview_image').style.height = 'auto';
             };
@@ -218,11 +219,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             reader.readAsDataURL(file);
         }
         });
-        document.getElementById('preview_image').addEventListener('dblclick', function() {
-            this.src = '';
-            this.style.display = 'none';
-            document.getElementById('upload_file').value = ''; 
+        function removeImage() {
+                document.getElementById('preview_image').addEventListener('dblclick', function() {
+                this.src = '';
+                this.style.display = 'none';
+                document.getElementById('upload_file').value = ''; 
+            });
+        }
+        
+        document.getElementById('preview_image').addEventListener('mouseenter', function(event) {
+            const tooltip = document.createElement('div');
+            tooltip.innerText = 'Double click to remove the image';
+            tooltip.style.position = 'absolute';
+            tooltip.style.backgroundColor = 'black';
+            tooltip.style.color = 'white';
+            tooltip.style.padding = '5px 10px';
+            tooltip.style.borderRadius = '5px';
+            tooltip.style.fontSize = '14px';
+            tooltip.style.pointerEvents = 'none';
+            tooltip.style.zIndex = '1000';
+            tooltip.id = 'tooltip';
+
+            document.body.appendChild(tooltip);
+
+            document.addEventListener('mousemove', moveTooltip);
         });
+
+        document.getElementById('preview_image').addEventListener('mouseleave', function() {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.remove();
+                document.removeEventListener('mousemove', moveTooltip);
+            }
+        });
+
+        function moveTooltip(event) {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.style.left = event.pageX + 10 + 'px';  
+                tooltip.style.top = event.pageY + 10 + 'px';
+            }
+        }
+
     </script>
 </body>
 </html>

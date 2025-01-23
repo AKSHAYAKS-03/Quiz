@@ -71,7 +71,7 @@ $quizDuration='';
             <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="reset.php">Reset Options</a></li>
             <li><a href="ViewResult.php">View Result</a></li>
-            
+            <li><a href="#" onclick="redirectIframe('iframe1', 'exportQuiz.php')">Export Quiz</a></li>
         </ul>
     </nav>
 

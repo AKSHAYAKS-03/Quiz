@@ -107,7 +107,7 @@ if ($performance !== 'all') {
     $query .= " AND $performanceCondition";
 }
 
-$query .= " ORDER BY Score DESC,`Time`";
+$query .= " ORDER BY CAST(RollNo as UNSIGNED)";
 
 if ($result = $conn->query($query)) {
     $output = fopen('php://output', 'w'); 

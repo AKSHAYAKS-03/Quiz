@@ -78,7 +78,7 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
         }   
     }
 
-    $sql .= " ORDER BY Score DESC, `Time`";
+    $sql .= " ORDER BY CAST(RollNo as UNSIGNED)";
 
     if ($limit !== 'all') {
         $sql .= " LIMIT " . intval($limit);

@@ -17,11 +17,11 @@ $activeQuiz = $_SESSION['activeQuiz'];
 $noRecords = false; 
 
 if($activeQuizId !== 'None'){
-    $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY Score DESC, `Time`";
+    $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY CAST(RollNo as UNSIGNED)";
     $records = $conn->query($sql);
 }
 else {
-  $sql = "SELECT * FROM student ORDER BY Score DESC, `Time`";
+  $sql = "SELECT * FROM student ORDER BY CAST(RollNo as UNSIGNED)";
   $records = $conn->query($sql);
 }
 
@@ -45,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
 
       if($activeQuizId !== 'None' && $activeQuizId !== 'all'){
-          $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY Score DESC, `Time`";
+          $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY CAST(RollNo as UNSIGNED)";
       }
       else
       {
-        $sql = "SELECT * FROM student ORDER BY Score DESC, `Time`";
+        $sql = "SELECT * FROM student ORDER BY CAST(RollNo as UNSIGNED)";
       }
       $records = $conn->query($sql);
   } 
