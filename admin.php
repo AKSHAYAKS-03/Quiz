@@ -24,18 +24,20 @@ echo '<script>console.log("Active Quiz type: ' . $quizType . '");</script>';
 $_SESSION['quiz'] = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['activeQuiz'])) {
-    $newActiveQuizId = $_POST['activeQuiz'];
+    if(isset($_POST['updateActive'])){
+        $newActiveQuizId = $_POST['activeQuiz'];
 
-    $conn->query("UPDATE quiz_details SET IsActive = 0");
+        $conn->query("UPDATE quiz_details SET IsActive = 0");
 
-    $conn->query("UPDATE quiz_details SET IsActive = 1 WHERE Quiz_Id = $newActiveQuizId");
+        $conn->query("UPDATE quiz_details SET IsActive = 1 WHERE Quiz_Id = $newActiveQuizId");
 
-    $activeQuizRes = $conn->query("SELECT QuizName FROM quiz_details WHERE Quiz_Id = $newActiveQuizId");
-    $activeQuiz = $activeQuizRes->fetch_assoc()['QuizName'];
+        $activeQuizRes = $conn->query("SELECT QuizName FROM quiz_details WHERE Quiz_Id = $newActiveQuizId");
+        $activeQuiz = $activeQuizRes->fetch_assoc()['QuizName'];
 
-    $activeQuizId = $newActiveQuizId;
-    $_SESSION['active'] = $activeQuizId;
-    $_SESSION['activeQuiz'] = $activeQuiz;
+        $activeQuizId = $newActiveQuizId;
+        $_SESSION['active'] = $activeQuizId;
+        $_SESSION['activeQuiz'] = $activeQuiz;
+    }
 }
 
 $query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions,Active_NoOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details";
@@ -52,9 +54,65 @@ $quizDuration='';
     <title>Admin</title>
     <link href="css/admin.css" rel="stylesheet">
     <!-- <script src="inspect.js"></script> -->
+     
+     <style>
+        table.quiz-details tbody {
+            display: block;
+            max-height: 430px; 
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100%; 
+        }
+
+        table.quiz-details tbody tr {
+            display: table;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        table.quiz-details thead, table.quiz-details tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed; 
+        }
+        .active-quiz-container {
+            display: flex;
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        .button-container{
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            gap: 20px;
+            margin-bottom: -20px;
+        }
+
+        .search-filter-container {
+            display: flex;
+            gap: 10px; /* Space between search and filter */
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        .filter-dropdown {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 14px;
+            width: 120px;
+        }
+     </style>
    
 </head>
-<body style="overflow: auto; height: auto;">
+<body>
     <nav class='admin-nav'>
         <h2>Admin</h2>
         <ul>
@@ -71,7 +129,6 @@ $quizDuration='';
             <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="reset.php">Reset Options</a></li>
             <li><a href="ViewResult.php">View Result</a></li>
-            <li><a href="#" onclick="redirectIframe('iframe1', 'exportQuiz.php')">Export Quiz</a></li>
         </ul>
     </nav>
 
@@ -86,7 +143,17 @@ $quizDuration='';
             </a>
         </div>
 
-        <p>Active Quiz: <strong><?php echo $activeQuiz; ?></strong></p>
+        <div class="active-quiz-container">
+            <p style="font-size: 18px;">Active Quiz: <strong><?php echo $activeQuiz; ?></strong></p>
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="Search Quiz..." />
+                <select class="filter-dropdown">
+                    <option value="all">All</option>
+                    <option value="Multiple Choice">MCQ</option>
+                    <option value="Fill Up">Fill-Up</option>
+                </select>
+            </div>
+        </div>
         <?php if ($result && $result->num_rows > 0) { ?>
             <form method="post" action="">
             <table class="quiz-details">
@@ -97,6 +164,7 @@ $quizDuration='';
                         <th>Number of Questions</th>
                         <th>Active No.of Questions</th>
                         <th>Time Duration</th>
+                        <th>Timer Type</th>
                         <th>Total Marks</th>
                         <th>Active</th>
                     </tr>
@@ -110,13 +178,19 @@ $quizDuration='';
                     echo "<td>" . $row['NumberOfQuestions'] . "</td>";
                     echo "<td>" . ($row['Active_NoOfQuestions']==0? $row['NumberOfQuestions']:$row['Active_NoOfQuestions']) . "</td>";
                     echo "<td>" . $row['TimeDuration'] . "</td>";
+                    echo "<td>" . ($row['QuizType']==0?"Per Question":"Per Quiz") . "</td>";
                     echo "<td>" . $row['TotalMarks'] . "</td>";
                     echo "<td><input type='radio' name='activeQuiz' value='" . $row['Quiz_Id'] . "' $checked></td>";
                     echo "</tr>";
+                    echo "<input type='hidden' name='QuizType' value='" . $row['QuizType'] . "'>";
+                    echo "<input type='hidden' name='QuizName' value='" . $row['QuizName'] . "'>";
                 } ?>
                 </tbody>
-            </table>
-            <button class='btn' style="margin-top: 20px" type="submit">Update Active Quiz</button>
+            </table> <br/>
+            <div class="button-container">
+                <button class="btn" type="submit" name="exportQuiz" id='exportQuiz'>Export Quiz</button>
+                <button class="btn" type="submit" name="updateActive" id="updateQuiz">Update Active Quiz</button>
+            </div>
         </form>
         <?php } else { ?>
             <p id='no-quiz'>No quiz found. Create New Quiz!</p>
@@ -150,6 +224,36 @@ $quizDuration='';
     </div>
 
     <script>
+        const quizRadios = document.querySelectorAll("input[name='activeQuiz']");
+        quizRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const selectedRow = this.closest('tr');
+                document.querySelector("input[name='QuizType']").value = selectedRow.cells[1].innerText.trim();
+                document.querySelector("input[name='QuizName']").value = selectedRow.cells[0].innerText.trim();
+            });
+        });
+
+        document.getElementById('exportQuiz').addEventListener('click', function() {
+            console.log("Export button clicked");
+            var quizRadio = document.querySelector("input[name='activeQuiz']:checked");
+            if (!quizRadio) {
+                alert("Please select a quiz to export.");
+                return;
+            }
+            var quizId = quizRadio.value;
+            var quizType = document.querySelector('[name="QuizType"]').value;
+            var quizName = document.querySelector('[name="QuizName"]').value;
+
+            console.log("Exporting Quiz with ID: " + quizId + ", Type: " + quizType + ", Name: " + quizName);
+
+            window.location.href = "exportQuiz.php?quizId=" + quizId + "&Quiztype=" + quizType + "&name=" + quizName;
+        });
+
+        document.getElementById('updateQuiz').addEventListener('click', function() {
+            event.preventDefault();
+            var form = document.querySelector('form');
+            openModal();
+        })
         function toggleSubmenu(menuId) {
             const menu = document.getElementById(menuId);
             if (menu.style.display === "none") {
@@ -202,7 +306,6 @@ $quizDuration='';
 
         document.querySelector('form').addEventListener('submit', function(event) {
             event.preventDefault();
-            openModal();
         });
 
         function openModal() {
@@ -284,6 +387,42 @@ $quizDuration='';
                 });
             }
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.querySelector('.search-box');
+            const filterDropdown = document.querySelector('.filter-dropdown');
+            const quizTable = document.querySelector('.quiz-details tbody');
+
+            searchBox.addEventListener('input', filterTable);
+            filterDropdown.addEventListener('change', filterTable);
+
+            function filterTable() {
+                const searchText = searchBox.value.toLowerCase();
+                const selectedFilter = filterDropdown.value;
+                
+                const rows = quizTable.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const quizName = row.cells[0].textContent.toLowerCase();
+                    const quizType = row.cells[1].textContent.toLowerCase();
+
+                    let match = true;
+
+                    // Filter by search text
+                    if (searchText && !quizName.includes(searchText)) {
+                        match = false;
+                    }
+
+                    // Filter by quiz type selection
+                    if (selectedFilter !== 'all' && !quizType.includes(selectedFilter.toLowerCase())) {
+                        match = false;
+                    }
+
+                    // Show/hide rows based on filter results
+                    row.style.display = match ? '' : 'none';
+                });
+            }
+        });
+
     </script>
 </body>
 </html>

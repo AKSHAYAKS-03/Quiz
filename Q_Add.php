@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <textarea cols="10" rows="5" name="question_text" required></textarea>
                 </p>   
                 <p class="form-group">
-                  <center>  <img id="preview_image" src="" alt="Image Preview" style="display: none; max-width: 500px; max-height: 400px; margin-top: 10px;" /></center>
+                  <center>  <img id="preview_image" src="" style="display: none; max-width: 500px; max-height: 400px; margin-top: 10px;" /></center>
                 </p>
                 <p class="form-group">
                     <label>Upload Image (optional):</label>
@@ -182,7 +182,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     document.getElementById('current-question-no').textContent = questionNo + 1;
                     
                     this.reset();
-                    removeImage();
+                    //
+                    document.getElementById("preview_image").src = "";
                     scroll();
                 } else {
                     alert('Failed to insert.');

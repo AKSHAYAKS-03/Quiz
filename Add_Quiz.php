@@ -56,6 +56,7 @@ if (isset($_POST['submit'])) {
 <head>
     <title>Add Quiz</title>
     <script src="inspect.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/navigation.css">    
     <style>
         body {
             background-color: #13274F;
@@ -165,6 +166,14 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 <body>
+    <div class="header">
+            <a href="admin.php" id="back" title="Back">
+                <img src="icons\back_white.svg" alt="back">
+            </a>
+            <a href="logout.php" id="logout" title="Log Out">
+                <img src="icons\exit_white.svg" alt="exit">
+            </a>
+    </div>    
     <div class="outer" id="quizFormContainer">
         <h1>Add Quiz</h1>
         <?php if ($error): ?>

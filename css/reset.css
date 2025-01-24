@@ -96,21 +96,3 @@ body {
 .up input[type="submit"]:hover {
     background-color: #0d1b37;
 }
-
-.header-right {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    padding: 8px;
-}
-.header-right a {
-    text-decoration: none;
-    padding: 2px;
-    display: inline-block;
-}
-
-.header-right a img {
-    cursor: pointer;
-    width: 26px;  
-    height: 32px; 
-}

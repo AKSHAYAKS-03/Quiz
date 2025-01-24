@@ -4,7 +4,7 @@ include 'core_db.php';
 date_default_timezone_set('Asia/Kolkata');
 
 if (!isset($_SESSION['RollNo']) || empty($_SESSION['RollNo'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -59,8 +59,8 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
-    <script src='inspect.js'></script>
-    <script src='DisableKeys.js'></script>
+    <!-- <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script> -->
     <style>
         #questionImage{
             width: auto;
@@ -72,6 +72,433 @@ $conn->close();
             display: block; 
             margin: 0 auto;
         }
+        body {
+            background-color: #13274F;
+            font-family: "Poppins", sans-serif;
+            color: white;
+            margin: 0;
+            padding: 100px;
+            font-family: 'Poppins', sans-serif;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 60px;
+        }
+
+    .head {
+        text-align: center;
+        margin-top: -100px;
+        text-transform: uppercase;
+        letter-spacing: 2px; /* Added letter-spacing for better readability */
+        font-size: 36px;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    h1 {
+        font-size: 36px;
+    }
+
+    .quizContent {
+        width: auto;
+        max-width: 1000px;
+        height: auto;
+        /* max-height: 900px; */
+        /* background-color: yellow; */
+        padding: 50px;
+        border-radius: 15px;
+        color: #333;
+        box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.2);
+        position: relative;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        backdrop-filter: blur(10px);
+    }
+
+    h2.ques {
+        color: #13274F;
+        font-size: 26px;
+        margin-bottom: 25px;
+        font-weight: 600;
+        line-height: 1.4;
+        text-align: center;
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .quizContent ul {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .quizContent ul li {
+        color: #13274F;
+        margin-bottom: 25px;
+        font-size: 18px;
+    }
+
+    .option {
+        width: auto;
+        margin: 0 auto;
+        align-items: center;
+        text-align: center;
+    }
+
+    .option input[type="radio"] {
+        display: none; /* Hide default radio buttons */
+
+    }
+
+    .option label {
+        display: flex;
+        justify-content: center; /* Centers content horizontally */
+        align-items: center; /* Centers content vertically */
+        background-color: #f9f9f9;
+        color: #13274F;
+        border-radius: 10px;
+        padding: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        width:  300px;
+        height: 55px;
+        font-size: 17px;
+        font-weight: 500;
+    }
+
+    .option label:hover {
+        background-color: #dce4f7;
+        transform: translateY(-5px);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .option input[type="radio"]:checked + label {
+        background-color: #13274F;
+        color: #fff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        transform: translateY(-10px);
+    }
+
+    .quizContent input[type="submit"] {
+        background-color: #13274F;
+        margin-top: 30px;
+        color: #fff;
+        padding: 14px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 120px;
+        text-transform: uppercase;
+        transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .quizContent input[type="submit"]:hover {
+        background-color: #fff;
+        color: #13274F;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        transform: scale(1.07);
+    }
+
+    .quizContent input[type="submit"]:active {
+        transform: scale(0.98);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    #response {
+        font-family: monospace;
+        width: 100px;
+        font-weight: bold;
+        font-size: 35px;
+        padding-right: 10px;
+        margin-top: -35px;
+        position: absolute;
+        margin-right: 40px;
+        right: 20px;
+        text-shadow: 1px 1px 5px #fff;
+    }
+
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    .blink{
+        animation: blinker 1s ease-in-out infinite;
+    }
+
+    @keyframes pop {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .pop {
+        animation: pop 0.5s ease-in-out;
+    }
+
+    #quizContent {
+        display: none;
+    }
+
+    #quizForm {
+        text-align: center;
+    }
+
+    #agreement {
+        background-color: #f7f7f7;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px;
+        margin: 30px auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #agreement h2 {
+        text-align: center;
+        color: #2c3e50;
+        font-family: Arial, sans-serif;
+        margin-bottom: 20px;
+    }
+
+    .terms-box {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+        text-align: justify; /* Aligns text inside the terms box to justify */
+    }
+
+    .terms-box h3 {
+        font-size: 18px;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 15px;
+        text-align: justify; /* Aligns h3 to justify */
+    }
+
+    .terms-box p {
+        font-size: 16px;
+        margin: 10px 0;
+        text-align: justify; /* Aligns paragraphs to justify */
+    }
+
+    #agreebut{
+        background-color: #13274F;
+        margin-top: 0px;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #agreebut:hover {
+        background-color: #fff;
+        color: #13274F;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        transform: scale(1.05);
+        }
+        
+        #agreebut:active {
+        transform: scale(0.98);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        color: #000;
+        max-width: 350px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        transform: scale(0);
+        transition: transform 0.5s ease;
+    }
+
+    .modal-content.show-modal {
+        transform: scale(1); 
+    } */
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
+        padding: 20px;
+    }
+
+    .modal-content {
+        background-color: #ffffff;
+        margin: 15% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+        color: #333333; /* Darker text for better readability */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Soft shadow */
+        transform: scale(0);
+        transition: transform 0.4s ease, opacity 0.3s ease;
+        opacity: 0;
+    }
+
+    .modal-content.show-modal {
+        transform: scale(1); 
+        opacity: 1;
+    }
+
+    #msg {
+        color: black;
+        font-weight: bold;
+        font-size: 20px;
+        padding: 10px;
+        padding-bottom: 25px;
+        text-align: center;
+        margin-top: 10px;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px; 
+        margin-top: 10px;
+    }
+
+    /* .modal-content button {
+        padding: 8px 10px;
+        background-color: #13274F;
+        color: #ecf0f1;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 80px;
+        height: 30px;
+        transition: background-color 0.3s ease;
+    }
+
+    .modal-content button:hover {
+        background-color: #0d1b37;
+    } */
+
+    #remtime {
+        font-size: 40px;
+        color: red;
+        font-weight: bold;
+        font-family: 'poppins' sans-serif;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    #remtime.show {
+        opacity: 1;
+    }
+
+                    
+    .question-container {
+        width: 100%;
+        max-width: 800px;
+        /* background-color: #e74c3c; */
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    #questionText {
+        color: black;
+        text-align: left; 
+        font-size: 20px;
+        margin: 10px 0;
+    } 
+
+    .answer-container {
+        text-align: left;
+        display: flex;
+        margin-left: 50px;
+        padding: 10px 0;
+    }
+
+    .answer-container label {
+        font-size: 16px;
+        margin-right: 10px;
+        white-space: nowrap;  
+        flex-shrink: 0;  
+    }
+
+    .answer-container input[type="text"] {
+        padding: 5px 10px;
+        font-size: 16px;
+        border: none;
+        border-bottom: 2px solid #000;  
+        background: transparent;
+        outline: none;
+        text-align: left;
+        flex-grow: 1; 
+        width: 600px;  
+    }
+
+    .answer-container input[type="text"]:focus {
+        border-color: #1f3f81;
+    }
+    .option-container{
+        /* background-color: pink; */
+        padding: 0;
+        margin: 0;
+        /* margin-top : -30px; */
+    }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -108,21 +535,18 @@ $conn->close();
             <form id="quizForm">
                 <br>
                 <?php $index = 1; ?>
-                <div class="question-container">
+                <div class="question-container" id="questionContainer">
                     <h2 id="questionText" class="ques">
                         <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); 
                         if (!empty($result['img_path']) && $result['img_path']!='NULL') {
                             echo '<br/><center>
-                                    <img id="questionImage" src="' . htmlspecialchars($result['img_path']) . '" alt="Question Image">
+                                    <img id="questionImage" src="' . htmlspecialchars($result['img_path']) . '" alt="Question Image" style="max-width: auto; height: auto;">
                                     </center>';
                         } ?>
                     </h2>
                 </div>
-                <br> 
-
-                <?php if($_SESSION['QuizType'] ===0): ?>
-                    
-                <div class="option-container" style="display: block; ">
+                <?php if($_SESSION['QuizType'] ===0): ?>                    
+                    <center><div class="option-container" style="display: block; ">
                     <ul id="optionsList">
                         <?php foreach ($options as $option): ?>
                         
@@ -134,7 +558,7 @@ $conn->close();
                             </div>
                         <?php endforeach; ?>
                     </ul>
-                <div>
+                <div><center>
                 <?php else: ?>
                     
                     <div class="answer-container" id="answer" style="display: block;">
@@ -148,7 +572,7 @@ $conn->close();
                 <input type="hidden" name="total" id="total" value="<?php echo $activeQuestions; ?>">
                 <input type="hidden" name="timeout" id="timeout" value="0">
                 <input type="hidden" name="currentIndex" id="currentIndex" value="<?php echo $currentIndex; ?>">
-                <input type="submit" name="submit" value="Submit" id="submit">
+                <input type="submit" name="submit" value="Submit" id="submit" style="margin-top: -20px;">
                 <?php $index+=1; ?>
             </form>
                 </center>
@@ -177,6 +601,8 @@ var fullInterval;
 var timerType;
 
 function agreeAndStart() {
+    scrollToQuestion();
+
     <?php $_SESSION['agreed'] = 1; ?>
 
     var elem = document.documentElement;
@@ -269,7 +695,7 @@ function startQuiz() {
 }
 
 function startFullTimer() {
-   
+
     if (interval) {
         clearInterval(interval);
     }
@@ -279,6 +705,8 @@ function startFullTimer() {
 
     var fullDurationStr = "<?php echo $duration; ?>"; 
     var durationParts = fullDurationStr.split(":");
+
+    var endingTime = new Date("<?php echo $_SESSION['endingtime']; ?>").getTime();
 
     var hours = 0, minutes = 0, seconds = 0;
     if (durationParts.length === 3) {
@@ -303,7 +731,8 @@ function startFullTimer() {
             clearInterval(fullInterval);
             console.log('Full quiz timeout reached, submitting form.');
             document.getElementById('submit').click();
-            document.getElementById('quizForm').submit();
+            document.getElementById('quizForm').submit(); 
+            handleFinalPage();           
         } else {
             updateFullDisplay();
         }
@@ -331,12 +760,13 @@ function startFullTimer() {
             display.classList.remove('blink');
         }
     
-    }
+    }    
     checkTime();
 
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+
     document.getElementById('quizForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
@@ -403,6 +833,8 @@ function handleReset(){
 }
 
 function handleNextQuestion(questionData) {
+    scrollToQuestion();
+
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
         console.error('Question text element not found');
@@ -488,16 +920,18 @@ function handleNextQuestion(questionData) {
     }
 
     checkTime(); 
-
 }
 
 function handleFinalPage() {
     window.location.href = 'final.php';
 }
 
+
 function checkTime() {
     var endingTime = new Date("<?php echo $_SESSION['endingtime']; ?>").getTime();
     var currentTime = new Date().getTime();
+    console.log("Ending Time: " + endingTime);
+    console.log("Current Time: " + currentTime);
     var remainingTime = endingTime - currentTime;
 
     var quesduration = "<?php echo $duration; ?>"; 
@@ -542,6 +976,12 @@ function formatTime(ms) {
     var seconds = totalSeconds % 60;
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+function scrollToQuestion() {
+        const questionContainer = document.getElementById('head');
+        if (questionContainer) {
+            questionContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 }
 </script>
 </body>

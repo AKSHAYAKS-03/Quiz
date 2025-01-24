@@ -12,6 +12,8 @@ $activeQuizId = $_SESSION['active'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
 $activeNoOfQuestions = $conn->query("Select NumberOfQuestions from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['NumberOfQuestions'];
+$TimerType = $conn->query("Select TimerType from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['TimerType'];
+
 
 if(isset($_POST['name'])){
     if(empty($_POST['quizName']))
@@ -169,6 +171,25 @@ if (isset($_POST['pass'])) {
     }
 }
 
+if(isset($_POST['TimerType'])){
+    if(empty($_POST['TimerType']))
+        $msg = "Enter Timer Type & Try Again";
+    else{
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $TimerType = $_POST['TimerType'];    
+        $query = "UPDATE quiz_details SET TimerType='$TimerType' WHERE Quiz_id = $activeQuizId";
+        if ($conn->query($query) === true) {
+            $msg = "Timer Type was Updated successfully ";
+        } else {
+            $msg = "Failed to update Timer Type for $activeQuiz Quiz";
+        }
+        $conn->close();
+    }
+}
+
 if (isset($_POST['Back'])) {
     header("Location: admin.php");
     exit();
@@ -182,8 +203,11 @@ if (isset($_POST['Back'])) {
 
     <!-- <script src="inspect.js"></script> -->
     <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/navigation.css">
     <style>
-
+        body{
+            margin: 50px 0px;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -205,6 +229,29 @@ if (isset($_POST['Back'])) {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
+        .modal-content input[type="submit"], button {
+            background: #13274F;
+            color: #fff;
+            font-size: 14px;
+            padding: 7px 10px;
+            border: 0;
+            border-radius: 5px;
+            margin-top: 20px;
+            width: auto;
+        }
+
+        .modal-content input[type="submit"]:hover, button:hover {
+            cursor: pointer;
+            font-weight: bolder;
+            background-color: #0d1b37;
+        }
+        .form-group select{
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 16px;
+            width: 220px;
+        }
         .close-btn {
             color: #aaa;
             float: right;
@@ -226,12 +273,15 @@ if (isset($_POST['Back'])) {
     </style>
 </head>
 <body>
-<div class="content">
-    <div class="header-right">
+<div class="header">
+        <a href="admin.php" id="back" title="Back">
+            <img src="icons\back_white.svg" alt="back">
+        </a>
         <a href="logout.php" id="logout" title="Log Out">
-            <img src="icons/exit.svg" alt="exit">
+            <img src="icons\exit_white.svg" alt="exit">
         </a>
     </div>
+<div class="content">    
   <div class="container">
     <h1 style="color: #13274F; margin-bottom: 30px; text-align: center;">Reset Settings</h1>
     <form method="post" action="reset.php">
@@ -262,6 +312,15 @@ if (isset($_POST['Back'])) {
         <label for="ques">Active No.of Questions:</label>
         <input type="number" id="ques" name="ques" min="1" max= "<?php echo $activeNoOfQuestions ?>"/>
         <input type="submit" name="Questions" value="Update" />
+      </div>
+
+      <div class="form-group">
+        <label for="tType">Timer type:</label>
+        <select id="tType" name="tType">
+            <option <?php echo $TimerType == '0' ? 'selected' : ''; ?> value="0">For each Question</option>
+            <option <?php echo $TimerType == '0' ? 'selected' : ''; ?> value="1">For Full Quiz</option>
+        </select>
+        <input type="submit" name="TimerType" value="Change" />
       </div>
 
       <div class="form-group">

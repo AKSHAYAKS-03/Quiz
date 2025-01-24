@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Score table</title>
   <script src="inspect.js"></script>
   <link rel="stylesheet" type="text/css" href="css/viewResult.css">
+  <link rel="stylesheet" type="text/css" href="css/navigation.css">
   <style>
     aside {
       position: fixed;
@@ -85,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         width: 220px; 
         border: 1px solid #34495e;
         border-radius: 5px;
+        padding: 5px;
         background-color: #fff;
         color: #34495e;
         font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -109,32 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       width: 80%; 
       margin-right: 10px; 
       margin-top: 50px;
-    }
-    .header{
-      position: fixed;
-      width: 100%;
-      top: 0;
-    }
-    .header a {
-        text-decoration: none;
-        padding: 2px;
-        display: inline-block;
-        position: absolute;
-        top: 5px;
-        right: 10px;
-        padding: 8px;
-    }
-    .header #back{
-        left: 10px;
-        color: #fff;
-    }
-    .header a img {
-        cursor: pointer;
-        width: 26px;  
-        height: 32px; 
-    }
-    #back{
-        right: 98%;
     }
   </style>
 </head>
