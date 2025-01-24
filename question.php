@@ -737,9 +737,10 @@ function startFullTimer() {
         if (--fullTimer < 0) {
             clearInterval(fullInterval);
             console.log('Full quiz timeout reached, submitting form.');
-            document.getElementById('submit').click();
-            document.getElementById('quizForm').submit(); 
-            handleFinalPage();           
+                document.getElementById('submit').click();
+                // document.getElementById('quizForm').submit();         
+                handleFinalPage();
+
         } else {
             updateFullDisplay();
         }
