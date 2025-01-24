@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <form id="question-form" method="post" >            
                 <p class="form-group">
                     <label>Question Text</label>
-                    <textarea cols="10" rows="5" name="question_text" required></textarea>
+                    <textarea cols="10" rows="5" name="question_text"></textarea>
                 </p>   
                 <p class="form-group">
                   <center>  <img id="preview_image" src="" style="display: none; max-width: 500px; max-height: 400px; margin-top: 10px;" /></center>

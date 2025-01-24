@@ -59,8 +59,8 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
-    <!-- <script src='inspect.js'></script>
-    <script src='DisableKeys.js'></script> -->
+    <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script>
     <style>
         #questionImage{
             width: auto;
@@ -107,7 +107,7 @@ $conn->close();
         height: auto;
         /* max-height: 900px; */
         /* background-color: yellow; */
-        padding: 50px;
+        padding: 40px;
         border-radius: 15px;
         color: #333;
         box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.2);
@@ -216,7 +216,7 @@ $conn->close();
         font-weight: bold;
         font-size: 35px;
         padding-right: 10px;
-        margin-top: -35px;
+        margin-top: -45px;
         position: absolute;
         margin-right: 40px;
         right: 20px;
@@ -453,8 +453,7 @@ $conn->close();
         width: 100%;
         max-width: 800px;
         /* background-color: #e74c3c; */
-        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 30px;
+        /* padding: 30px; */
     }
 
     #questionText {
@@ -495,9 +494,14 @@ $conn->close();
     }
     .option-container{
         /* background-color: pink; */
-        padding: 0;
-        margin: 0;
+        /* padding: 0;
+        margin: 0; */
         /* margin-top : -30px; */
+    }
+    .option{
+        margin-top: -10px;
+        /* background-color: #13274F; */
+        margin-bottom:-20px;
     }
     </style>
 </head>
@@ -537,10 +541,13 @@ $conn->close();
                 <?php $index = 1; ?>
                 <div class="question-container" id="questionContainer">
                     <h2 id="questionText" class="ques">
-                        <?php echo $currentIndex + 1; ?> . <?php echo htmlspecialchars($result['Question']); 
+                        <?php echo $currentIndex + 1; ?> .;
+                        <?php if (!empty($result['Question'])){
+                             echo htmlspecialchars($result['Question']); 
+                        }                        
                         if (!empty($result['img_path']) && $result['img_path']!='NULL') {
                             echo '<br/><center>
-                                    <img id="questionImage" src="' . htmlspecialchars($result['img_path']) . '" alt="Question Image" style="max-width: auto; height: auto;">
+                                    <img id="questionImage" src="' . htmlspecialchars($result['img_path']) . '" alt="Question Image">
                                     </center>';
                         } ?>
                     </h2>
