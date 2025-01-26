@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 <head>
     <title>Edit Question</title>
-
+    <link rel="stylesheet" type="text/css" href="css/navigation.css">
     <script src="inspect.js"></script>
     <style>
         body {
@@ -138,6 +138,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
+    <div class="header">
+        <a href="admin.php" id="back" title="Back">
+            <img src="icons\back.svg" alt="back">
+        </a>
+        <a href="logout.php" id="logout" title="Log Out">
+            <img src="icons/exit.svg" alt="exit">
+        </a>
+    </div>
     <h1>Edit <?php echo $activeQuiz ?> Quiz</h1>
             <?php
             if ($result && $result->num_rows>0) {

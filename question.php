@@ -62,9 +62,9 @@ $conn->close();
     <script src='inspect.js'></script>
     <script src='DisableKeys.js'></script>
     <style>
-        #questionImage{
+            #questionImage{
             width: auto;
-            min-width: 600px;
+            min-width: 500px;
             max-width: 100%; 
             height:auto; 
             min-height: 350px;
@@ -103,7 +103,7 @@ $conn->close();
 
     .quizContent {
         width: auto;
-        max-width: 1000px;
+        max-width: 900px;
         height: auto;
         /* max-height: 900px; */
         /* background-color: yellow; */
@@ -116,6 +116,9 @@ $conn->close();
         -ms-user-select: none;
         user-select: none;
         backdrop-filter: blur(10px);
+        background-color: #c0c0c0;
+        background-color: #979dac;
+        background-color: #AAB7C4;
     }
 
     h2.ques {
@@ -447,13 +450,13 @@ $conn->close();
     #remtime.show {
         opacity: 1;
     }
-
-                    
     .question-container {
         width: 100%;
-        max-width: 800px;
+        min-width: 900px;    
+        max-width: 1000px;
+        margin-left:-10px;
         /* background-color: #e74c3c; */
-        /* padding: 30px; */
+        padding: 10px; 
     }
 
     #questionText {
@@ -492,12 +495,7 @@ $conn->close();
     .answer-container input[type="text"]:focus {
         border-color: #1f3f81;
     }
-    .option-container{
-        /* background-color: pink; */
-        /* padding: 0;
-        margin: 0; */
-        /* margin-top : -30px; */
-    }
+
     .option{
         margin-top: -10px;
         /* background-color: #13274F; */

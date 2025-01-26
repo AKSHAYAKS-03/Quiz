@@ -11,9 +11,10 @@ $msg = '';
 $activeQuizId = $_SESSION['active'];
 $activeQuiz = $_SESSION['activeQuiz'];
 
-$activeNoOfQuestions = $conn->query("Select NumberOfQuestions from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['NumberOfQuestions'];
-$TimerType = $conn->query("Select TimerType from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['TimerType'];
-
+if($activeQuizId !== 'None'){
+    $activeNoOfQuestions = $conn->query("Select NumberOfQuestions from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['NumberOfQuestions'];
+    $TimerType = $conn->query("Select TimerType from quiz_details where quiz_id = $activeQuizId")->fetch_assoc()['TimerType'];
+}
 
 if(isset($_POST['name'])){
     if(empty($_POST['quizName']))
@@ -24,14 +25,20 @@ if(isset($_POST['name'])){
         }
 
         $quizName = $_POST['quizName'];
-        $query = "UPDATE quiz_details SET QuizName='$quizName' WHERE Quiz_id = $activeQuizId";
-        if ($conn->query($query) === true) {
-            $msg = "Quiz Name Updated successfully";
-            $_SESSION['activeQuiz'] = $quizName;
-            $activeQuiz = $quizName;
-            header("Refresh:0"); 
-        } else {
-            $msg = "Error updating record: " . $conn->error;
+        $result = $conn->query("Select quiz_details where QuizName = '$quizName'")->fetch_assoc();
+        if($result){
+            $msg = "Quiz Already Exists with this name";
+        }
+        else{
+            $query = "UPDATE quiz_details SET QuizName='$quizName' WHERE Quiz_id = $activeQuizId";
+            if ($conn->query($query) === true) {
+                $msg = "Quiz Name Updated successfully";
+                $_SESSION['activeQuiz'] = $quizName;
+                $activeQuiz = $quizName;
+                header("Refresh:0"); 
+            } else {
+                $msg = "Error updating record: " . $conn->error;
+            }
         }
     }
 }

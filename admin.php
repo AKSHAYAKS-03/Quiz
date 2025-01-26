@@ -62,6 +62,9 @@ $quizDuration='';
             overflow-x: hidden;
             overflow-y: auto;
             width: 100%; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;  
+            overflow: scroll;
         }
 
         table.quiz-details tbody tr {
@@ -166,7 +169,7 @@ $quizDuration='';
                         <th>Time Duration</th>
                         <th>Timer Type</th>
                         <th>Total Marks</th>
-                        <th>Active</th>
+                        <th>Select</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -178,7 +181,7 @@ $quizDuration='';
                     echo "<td>" . $row['NumberOfQuestions'] . "</td>";
                     echo "<td>" . ($row['Active_NoOfQuestions']==0? $row['NumberOfQuestions']:$row['Active_NoOfQuestions']) . "</td>";
                     echo "<td>" . $row['TimeDuration'] . "</td>";
-                    echo "<td>" . ($row['QuizType']==0?"Per Question":"Per Quiz") . "</td>";
+                    echo "<td>" . ($row['QuizType']==0?"Each Question":"Full Timer") . "</td>";
                     echo "<td>" . $row['TotalMarks'] . "</td>";
                     echo "<td><input type='radio' name='activeQuiz' value='" . $row['Quiz_Id'] . "' $checked></td>";
                     echo "</tr>";
@@ -406,18 +409,12 @@ $quizDuration='';
                     const quizType = row.cells[1].textContent.toLowerCase();
 
                     let match = true;
-
-                    // Filter by search text
                     if (searchText && !quizName.includes(searchText)) {
                         match = false;
                     }
-
-                    // Filter by quiz type selection
                     if (selectedFilter !== 'all' && !quizType.includes(selectedFilter.toLowerCase())) {
                         match = false;
                     }
-
-                    // Show/hide rows based on filter results
                     row.style.display = match ? '' : 'none';
                 });
             }

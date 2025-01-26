@@ -203,10 +203,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fillup Add Questions</title>
     <link rel="stylesheet" href="css/fillup_q_add.css">
-    <!-- <script src="inspect.js"></script> -->
+    <link rel="stylesheet" href="css/navigation.css">
+    <script src="inspect.js"></script>
     
 </head>
 <body>
+    <div class="header">
+        <a href="admin.php" id="back" title="Back">
+            <img src="icons\back_white.svg" alt="back">
+        </a>
+    </div>
 <div id="questions" data-questions='<?= htmlspecialchars(json_encode($questions), ENT_QUOTES, 'UTF-8') ?>'></div>
 
 <div class="outer">

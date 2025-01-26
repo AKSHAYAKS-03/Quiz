@@ -96,9 +96,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="inspect.js"></script>
     <link rel="stylesheet" type="text/css" href="css/Q_Add.css">
- 
+    <link rel="stylesheet" type="text/css" href="css/navigation.css">
+    <style>
+        body{
+            margin: 50px;
+        }
+    </style>
 </head>
 <body oncontextmenu="return false;">
+    <div class="header">
+        <a href="admin.php" id="back" title="Back">
+            <img src="icons\back_white.svg" alt="back">
+        </a>
+        <a href="logout.php" id="logout" title="Log Out">
+            <img src="icons/exit_white.svg" alt="exit">
+        </a>
+    </div>
     <div class="cont" id="add-container">
         <div class="contain">
             
@@ -163,6 +176,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         document.getElementById('question-form').addEventListener('submit', function(event) {
             event.preventDefault(); 
 
+            const questionText = document.querySelector('[name="question_text"]').value.trim();
+            const uploadFile = document.getElementById('upload_file').files[0];
+
+            if (!questionText && !uploadFile) {
+                alert("Please provide either a question text or upload an image.");
+                return; 
+            }
+
             var formData = new FormData(this);
 
             fetch('Q_Add.php', {
@@ -201,6 +222,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
    
         document.getElementById('upload_file').addEventListener('change', function(event) {
+            document.getElementById('preview_image').addEventListener('dblclick', function() {
+                this.src = '';
+                this.style.display = 'none';
+                document.getElementById('upload_file').value = ''; 
+            });
+
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();

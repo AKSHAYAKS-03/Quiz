@@ -51,10 +51,10 @@ table th, table td {
 table th {
   background-color: #13274F;
   color: #ecf0f1;
+  cursor: pointer;
 }
 table td {
     color: #2c3e50;
-    cursor: pointer;
 }
 table tr:nth-child(even) {
     background-color: #f9f9f9;

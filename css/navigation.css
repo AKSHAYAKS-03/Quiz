@@ -19,9 +19,9 @@
 }
 .header a img {
     cursor: pointer;
-    width: 26px;  
-    height: 32px; 
+    width: 24px;  
+    height: px; 
 }
 #back{
-    right: 98%;
+    right: 99%;
 }

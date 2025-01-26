@@ -12,23 +12,12 @@ if ($conn->connect_errno) {
     exit();
 }
 
-if (isset($_POST['quizId']) && isset($_POST['limit'])) {
+if (isset($_POST['quizId'])) {
     $quizId = $conn->real_escape_string($_POST['quizId']);
-    $limit = $conn->real_escape_string($_POST['limit']);
     $selectedDept = $_POST['department']; 
     $selectedSec = $_POST['section'];
     $selectedYear = $_POST['year'];
     $selectedPerformance = $_POST['performance'];
-    // $romanMapping = [
-    //     "1" => "I",
-    //     "2" => "II",
-    //     "3" => "III",
-    //     "4" => "IV"
-    // ];
-
-    // $romanYear = isset($romanMapping[$selectedYear]) ? $romanMapping[$selectedYear] : $selectedYear;
-
-    // // echo $selectedYear . " " . $romanYear;
 
     if ($quizId === 'all') {
         $sql = "SELECT * FROM student";  
@@ -58,16 +47,16 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
         }   
     }
     if($selectedPerformance !== 'all'){
-        if($selectedPerformance==='1'){
+        if($selectedPerformance==='toppers'){
             $performance = "percentage>=85";
         }
-        else if($selectedPerformance==='2'){
+        else if($selectedPerformance==='aboveAverage'){
             $performance = "percentage>=60 AND percentage<85";
         }
-        else if($selectedPerformance==='3'){
+        else if($selectedPerformance==='average'){
             $performance = "percentage>=40 AND percentage<60";
         }
-        else if($selectedPerformance==='4'){
+        else if($selectedPerformance==='belowAverage'){
             $performance = "percentage<40";
         }
 
@@ -80,25 +69,9 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
 
     $sql .= " ORDER BY CAST(RollNo as UNSIGNED)";
 
-    if ($limit !== 'all') {
-        $sql .= " LIMIT " . intval($limit);
-    }
-
     $records = $conn->query($sql);
 
     if ($records && $records->num_rows > 0) {
-        echo '<div><table>
-                <tr>
-                    <th>SNO</th>
-                    <th>NAME</th>
-                    <th>REGISTER NO</th>
-                    <th>DEPARTMENT</th>
-                    <th>SECTION</th>
-                    <th>YEAR</th>
-                    <th>SCORE</th>
-                    <th>PERCENTAGE</th>
-                    <th>TIME TAKEN</th>
-                </tr>';
         $_SESSION['Sno'] = 0;
         while ($student = $records->fetch_assoc()) {
             $_SESSION['Sno']++;
@@ -114,9 +87,8 @@ if (isset($_POST['quizId']) && isset($_POST['limit'])) {
             echo "<td>" . $student['Time'] . "</td>";
             echo "</tr>";
         }
-        echo '</table></div>';
     } else {
-        echo '<p>No records found for the selected quiz.</p>';
+        echo 'empty';
     }
 }
 

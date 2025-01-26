@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3307";
+$host = "localhost:3390";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -143,21 +143,21 @@ $conn->close();
     <script type="text/javascript" src="inspect.js"></script>
     <style>
       body {
-    background-color: white;  
-    color: #13274F;
-    background-image: url("img3.jpg");
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    font-family: 'Poppins', sans-serif;
-    background-size: cover;  
-    margin: 0;
-    padding: 0;
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
-    height: 100vh;
-  }
+        background-color: white;  
+        color: #13274F;
+        background-image: url("img3.jpg");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        font-family: 'Poppins', sans-serif;
+        background-size: cover;  
+        margin: 0;
+        padding: 0;
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; 
+        height: 100vh;
+      }
   
   .full-container {
     width: 100%;
