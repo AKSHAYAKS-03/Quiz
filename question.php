@@ -503,7 +503,7 @@ $conn->close();
     }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body oncontextmenu="return false;" data-rollno="<?php echo htmlspecialchars($rollno); ?>" data-quizid="<?php echo htmlspecialchars($quizid); ?>">
 <div class="head" id="head">
     <div class="container">
         <h1><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h1>
@@ -663,7 +663,7 @@ function startQuiz() {
     }
 
     var timer = duration;
-    var halfway = Math.floor(duration / 2);
+    var criticalTime = Math.floor(fullTimer * 0.10); 
 
     updateDisplay();
 
@@ -689,7 +689,7 @@ function startQuiz() {
 
         display.textContent = displayHours + ":" + displayMinutes + ":" + displaySeconds;
 
-        if (timer <= halfway) {
+        if (timer <= criticalTime) {
             display.style.color = '#c94c4c';
             display.classList.add('blink');
         } else {
@@ -725,7 +725,9 @@ function startFullTimer() {
 
     var fullTimer = (hours * 3600) + (minutes * 60) + seconds;
     var display = document.getElementById("response");
-    var halfway = Math.floor(fullTimer / 2);
+    var criticalTime = Math.floor(fullTimer * 0.10); 
+    console.log(formatTime(criticalTime));
+
 
     if (!display) return;
   
@@ -748,7 +750,7 @@ function startFullTimer() {
         if(interval){
         clearInterval(interval);
     }
-        var displayHours = Math.floor(fullTimer / 3600);
+    var displayHours = Math.floor(fullTimer / 3600);
         var displayMinutes = Math.floor((fullTimer % 3600) / 60);
         var displaySeconds = fullTimer % 60;
 
@@ -758,7 +760,7 @@ function startFullTimer() {
 
         display.textContent = displayHours + ":" + displayMinutes + ":" + displaySeconds;
 
-        if (fullTimer <= halfway) {
+        if (fullTimer <= criticalTime) {
             display.style.color = '#c94c4c';
             display.classList.add('blink');
         } else {

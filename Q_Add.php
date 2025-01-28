@@ -51,12 +51,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $target_file = $target_dir . basename($_FILES["upload_file"]["name"]);
         $uploadOk = 1;
 
+        $extension = strtolower(pathinfo($FILES["upload_file"]["name"], PATHINFO_EXTENSION));
+        // echo "Uploading " . $relative_path;
+
+        $relative_path = "uploads/" . $quizId . "/" .$questionNo . "." .$extension;
+
         $check = getimagesize($_FILES["upload_file"]["tmp_name"]);
         if ($check === false) {
             $uploadOk = 0;
         }
 
-        $relative_path = "uploads/" . $quizId . "/" . basename($_FILES["upload_file"]["name"]);
         
         if ($uploadOk && move_uploaded_file($_FILES["upload_file"]["tmp_name"], $target_file)) {
             $uploadFile = $relative_path;

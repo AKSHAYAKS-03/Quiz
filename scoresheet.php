@@ -1,6 +1,6 @@
 <?php
-include 'core/db.php';
-// session_start(); // Start session at the beginning
+include 'core_db.php';
+session_start(); 
 date_default_timezone_set('Asia/Kolkata');
 
 
@@ -12,16 +12,6 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     header('Location: index.php');
     exit;
 }
-
-// $exited = isset($_GET['exitscore']) && $_GET['exitscore'] == 1;
-
-// if (!$exited) {
-//     if (!isset($_SESSION['score']) || empty($_SESSION['score']) ||
-//         !isset($_SESSION['total_time']) || empty($_SESSION['total_time'])) {
-//         header('Location: login.php');
-//         exit;
-//     }
-// }
 
 $rollno = $_SESSION['RollNo'];
 $total_time = $_SESSION['total_time'];

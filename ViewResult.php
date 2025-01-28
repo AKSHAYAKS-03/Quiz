@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <br>
 
 <div id="score">
-<h3 id="noRecordsMessage"  style="font-weight: bold; color: red; display: none">** No records found. Select Quiz to viewzz **</h3>
+<h3 id="noRecordsMessage"  style="font-weight: bold; color: red; display: none">** No records found. Select Quiz to view **</h3>
   <div id="scoreTable">
       <div>
           <table>
@@ -256,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
   </div>
 
-  <div class="back" id="options" style="">
+  <div class="back" id="options">
       <form method="post" action="ViewResult.php" method='post'>
         <input type="hidden" id="selectedQuizId" name="quizId" value="<?php echo $activeQuizId; ?>">
         <input type="hidden" id="selectedQuizName" value="<?php echo $activeQuiz; ?>">

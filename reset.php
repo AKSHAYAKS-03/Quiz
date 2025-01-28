@@ -59,6 +59,9 @@ if (isset($_POST['Reset'])) {
         $studQuery = "SELECT count(*) as QuestionsAttended FROM stud WHERE regno = '$roll' and QuizId = $activeQuizId";
         $studData = $conn->query($studQuery)->fetch_assoc();
 
+        $cheatedQuery = "SELECT event FROM logEVent WHERE regno = '$roll' and QuizId = $activeQuizId";
+        $cheatedData = $conn->query($cheatedQuery)->fetch_assoc();
+
         if ($studentData) {
             echo "
                 <div id='confirmationModal' class='modal'>
@@ -74,9 +77,17 @@ if (isset($_POST['Reset'])) {
                             <input type='hidden' name='RollNo' value='$roll' />
                             <input type='submit' name='ResetConfirmed' value='Confirm Reset' />
                             <button type='button' id='cancelReset'>Cancel</button>
-                        </form>
-
-                        <p id='note'>**Note:This action cannot be undone. </p>
+                        </form>";
+                        if($cheatedData){
+                            $keyValue = $cheatedData['event'];
+                            $keyValue = $cheatedData['event'] == 'Escape' ? 'Esc' : $keyValue;
+                            $keyValue = $cheatedData['event'] == 91 || 92 ? 'Windows' : $keyValue;
+                            $keyValue = $cheatedData['event'] == 123 ? 'F12' : $keyValue;
+                            $keyValue = $cheatedData['event'] == 18 ? 'ALt' : $keyValue;
+                            $keyValue = $keyValue == $cheatedData['event']?  'unwanted' : $keyValue;
+                            echo "<p id='flag'> Possible cheating detected: Attempted to exit using the {$keyValue} key(s) combination</p>";
+                        }
+                        echo "<p id='note'>**This action cannot be undone. </p>
                     </div>
                 </div>
                 <script>
@@ -106,6 +117,7 @@ if (isset($_POST['ResetConfirmed'])) {
     // Reset student details in both tables
     $conn->query("DELETE FROM student WHERE RollNo= '$roll' and QuizId= $activeQuizId ");
     $conn->query("DELETE FROM stud WHERE regno= '$roll' and QuizId= $activeQuizId");
+    $conn->query("DELETE FROM logEvent WHERE regNo = '$roll' and QuizId = $activeQuizId");
 
     $conn->close();
 }
@@ -277,7 +289,13 @@ if (isset($_POST['Back'])) {
             color: #be0d0dec;
             font-weight: bold;
         }
+        #flag{
+            color: #be0d0dec;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
     </style>
+
 </head>
 <body>
 <div class="header">
