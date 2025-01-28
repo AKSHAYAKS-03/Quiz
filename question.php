@@ -663,7 +663,7 @@ function startQuiz() {
     }
 
     var timer = duration;
-    var criticalTime = Math.floor(fullTimer * 0.10); 
+    var criticalTime = Math.floor(timer * 0.10); 
 
     updateDisplay();
 

@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3390";
+$host = "localhost:3307";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -142,22 +142,44 @@ $conn->close();
     <link rel="stylesheet" href="css/index.css">
     <script type="text/javascript" src="inspect.js"></script>
     <style>
-      body {
-        background-color: white;  
-        color: #13274F;
-        background-image: url("img3.jpg");
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-position: center;
-        font-family: 'Poppins', sans-serif;
-        background-size: cover;  
-        margin: 0;
-        padding: 0;
-        -webkit-user-select: none; /* Safari */
-        -ms-user-select: none; /* IE 10 and IE 11 */
-        user-select: none; 
-        height: 100vh;
-      }
+     body {
+  background-color: white;  
+  color: #13274F;
+  background-image: url("img3.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  font-family: 'Poppins', sans-serif;
+  background-size: cover;  
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; 
+  height: 100vh;
+    }
+  /* Add the animation */
+  /* animation: backgroundColorChange 10s infinite;
+}
+
+@keyframes backgroundColorChange {
+  0% {
+    background-color:rgb(219, 238, 255); 
+  }
+  25% {
+    background-color:rgb(227, 235, 249); 
+  }
+  50% {
+    background-color:rgb(206, 217, 252); 
+  }
+  75% {
+    background-color: #cce5ff; 
+  }
+  100% {
+    background-color:rgb(211, 236, 252); 
+  }
+} */
+
   
   .full-container {
     width: 100%;
