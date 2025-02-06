@@ -16,8 +16,9 @@ $response = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['submit'])) {
         try {
-            $rollno = $_SESSION['RollNo'];
+            $RegNo = $_SESSION['RegNo'];
             $quizid = $_SESSION['active'];
+
             $currentIndex = $_POST['currentIndex'];
             $questionNo = $_POST['questionNo'];
             $total = $_POST['total'];
@@ -27,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $timeTaken = gmdate("H:i:s", $timeTakenSeconds);
 
-            $resetCheck = "SELECT * FROM student WHERE RollNo = ? AND QuizId = ?";
+            $resetCheck = "SELECT * FROM student WHERE RegNo = ? AND QuizId = ?";
             $stmt = $conn->prepare($resetCheck);
-            $stmt->bind_param("si", $rollno, $quizid);
+            $stmt->bind_param("si", $RegNo, $quizid);
             $stmt->execute();
             $result = $stmt->get_result();
             $reset = $result->fetch_assoc();
@@ -110,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $answer_insert_query = "INSERT INTO stud (QuizId, regno, questionno, time, yanswer) VALUES (?,?,?,?,?)";
             $stmt = $conn->prepare($answer_insert_query);
-            $stmt->bind_param("isiss",$quizid, $rollno, $questionNo, $timeTaken,$selected_choice);
+            $stmt->bind_param("isiss",$quizid, $RegNo, $questionNo, $timeTaken,$selected_choice);
             $stmt->execute();
             $stmt->close();
         

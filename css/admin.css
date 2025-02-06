@@ -7,7 +7,7 @@ body {
 }
 
 .admin-nav {
-    width: 20%;
+    width: 17%;
     background-color: #13274F;
     padding: 20px;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
@@ -39,7 +39,8 @@ body {
     display: block;
     padding: 10px;
     border-radius: 5px;
-    text-align: center;
+    text-align: left;
+    transition: background-color 0.3s ease;
 }
 
 .admin-nav ul li a:hover {
@@ -51,7 +52,7 @@ body {
     padding: 20px;
     box-sizing: border-box;
     background-color: #ecf0f1;
-    margin-left: 20%;
+    margin-left: 18%;
 }
 
 .content h1 {

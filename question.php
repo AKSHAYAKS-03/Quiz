@@ -3,13 +3,15 @@ session_start();
 include 'core_db.php';
 date_default_timezone_set('Asia/Kolkata');
 
-if (!isset($_SESSION['RollNo']) || empty($_SESSION['RollNo'])) {
+if (!isset($_SESSION['RegNo']) || empty($_SESSION['RegNo'])) {
     header('Location: index.php');
     exit;
 }
 
-$rollno = $_SESSION['RollNo'];
+$RegNo = $_SESSION['RegNo'];
+$name = $_SESSION['Name'];
 $quizid = $_SESSION['active'];
+
 $currentIndex = isset($_SESSION['currentIndex']) ? $_SESSION['currentIndex'] : 0;
 $question_duration = $_SESSION['question_duration'];
 $duration = $_SESSION['duration'];
@@ -20,7 +22,7 @@ $timertype = $_SESSION['TimerType'];
 // echo $question_duration." ". $duration;
 $questions = $_SESSION['shuffled_questions']; 
 
-$activeQuestions = $_SESSION['active_NoOfQuestions'];
+$activeQuestions = $_SESSION['Active_NoOfQuestions'];
 if ($currentIndex >= $activeQuestions) {
     header('Location: final.php');
     exit;
@@ -503,7 +505,7 @@ $conn->close();
     }
     </style>
 </head>
-<body oncontextmenu="return false;" data-rollno="<?php echo htmlspecialchars($rollno); ?>" data-quizid="<?php echo htmlspecialchars($quizid); ?>">
+<body oncontextmenu="return false;" data-rollno="<?php echo htmlspecialchars($RegNo); ?>" data-quizid="<?php echo htmlspecialchars($quizid); ?>">
 <div class="head" id="head">
     <div class="container">
         <h1><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h1>
@@ -582,15 +584,6 @@ $conn->close();
             </form>
                 </center>
         </div>
-    
-    <!--    <div class="modal" id="QuizModal">
-     <div class="modal-content">
-        <div id="msg">Are you sure you want to exit the quiz? You are not allowed to re-take the quiz again.</div>
-        <div class="button-container">
-            <button type="button" class="btn" id="yes">Yes</button>
-            <button type="button" class="btn" id="no">No</button>
-        </div>
-    </div> -->
 
     <!-- Modal for warning -->
     <div id="QuizModal" class="modal" style="display: none;">
@@ -607,6 +600,23 @@ var timerType;
 
 function agreeAndStart() {
     scrollToQuestion();
+ 
+    let regNo = "<?php echo $RegNo; ?>";
+    let quizId = "<?php echo $activeQuizId; ?>";
+
+    fetch('check_quiz_attempt.php?regNo=' + regNo + '&quizId=' + quizId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "exists") {
+                alert("You have already attended the quiz!");
+                window.location.href = 'index.php';
+            } else if (data.status === "not_exists") {
+                enterFullScreen();
+            } else {
+                alert("Error checking quiz status. Try again.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
 
     <?php $_SESSION['agreed'] = 1; ?>
 
@@ -627,14 +637,10 @@ function agreeAndStart() {
     timerType = "<?php echo $_SESSION['TimerType']; ?>";
     
     if (timerType === "1") {
-        // Start the full quiz timer
         startFullTimer(); 
     } else if (timerType === "0") {
-        // Start the question timer
         startQuiz();
     }
-
-    // Always check the total remaining quiz time
     checkTime();
 }
 
@@ -762,7 +768,7 @@ function startFullTimer() {
 
         if (fullTimer <= criticalTime) {
             display.style.color = '#c94c4c';
-            display.classList.add('blink');
+            display.classList.add('blink'); 
         } else {
             display.style.color = '#82b74b';
             display.classList.remove('blink');

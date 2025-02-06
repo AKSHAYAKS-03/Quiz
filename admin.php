@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['activeQuiz'])) {
     }
 }
 
-$query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions,Active_NoOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details";
+$query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions,Active_NoOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details ORDER BY Quiz_Id DESC";
 $result = $conn->query($query);
  
 $endTime='';
@@ -56,6 +56,16 @@ $quizDuration='';
     <!-- <script src="inspect.js"></script> -->
      
      <style>
+        .admin-nav ul li a {
+            text-align: left;
+            font-size: 17px;
+        }
+        .admin-nav {
+            width: 17%;
+        }
+        .content {
+            margin-left: 18%;
+        }
         table.quiz-details tbody {
             display: block;
             max-height: 430px; 
@@ -132,6 +142,7 @@ $quizDuration='';
             <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="reset.php">Reset Options</a></li>
             <li><a href="ViewResult.php">View Result</a></li>
+            <li><a href="analytics.php">Analytics</a></li>
         </ul>
     </nav>
 

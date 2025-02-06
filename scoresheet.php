@@ -6,14 +6,14 @@ date_default_timezone_set('Asia/Kolkata');
 
 if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
     !isset($_SESSION['logi']) || empty($_SESSION['logi']) ||
-    !isset($_SESSION['RollNo']) || empty($_SESSION['RollNo']) ||
+    !isset($_SESSION['RegNo']) || empty($_SESSION['RegNo']) ||
     !isset($_SESSION['Name']) || empty($_SESSION['Name']) ||
-    !isset($_SESSION['dept']) || empty($_SESSION['dept'])) {
+    !isset($_SESSION['dept']) || empty($_SESSION['dept']) ){
     header('Location: index.php');
     exit;
 }
 
-$rollno = $_SESSION['RollNo'];
+$RegNo = $_SESSION['RegNo'];
 $total_time = $_SESSION['total_time'];
 
 list($hours, $minutes, $seconds) = explode(':', $total_time);
@@ -180,7 +180,7 @@ if ($percentage >= 80) {
         </div>
         <div class="score-details">
             <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></p>
-            <p><strong>Register No:</strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></p>
+            <p><strong>Register No:</strong> <?php echo htmlspecialchars($_SESSION['RegNo']); ?></p>
             <p><strong>Department:</strong> <?php echo htmlspecialchars($_SESSION['dept']); ?></p>
             <p><strong>Your Score:</strong> 
                 <span class="highlight"><?php echo htmlspecialchars($_SESSION['score']); ?>/<?php echo $total; ?></span>

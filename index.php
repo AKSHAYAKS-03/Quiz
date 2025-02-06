@@ -3,7 +3,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Kolkata');
 session_start();
 
-$host = "localhost:3307";
+$host = "localhost:3390";
 $user = "root";
 $password = "";
 $db = "quizz";
@@ -48,66 +48,36 @@ if($activeQuizId === 'None'){
 }
 // echo $totalduration;
 if (isset($_POST['Login_btn'])) {
-    $Name = $conn->real_escape_string($_POST['name']);
-    $Name = strtoupper($Name);
-    $RollNo = 9131 . $_POST['rollno'];
-    $dept = $conn->real_escape_string($_POST['dept']);
-    $_SESSION['dept'] = $dept;
-    $sec = $conn->real_escape_string($_POST['sec']);
-    $_SESSION['sec'] = $sec;
-    $year = $conn->real_escape_string($_POST['year']);
-    $_SESSION['year'] = $year;
 
-    $sql = "SELECT * FROM student WHERE RollNo='$RollNo' AND QuizId='$activeQuizId'";
+    $RollNo = 9131 . $_POST['rollno'];
+    $Password = $_POST['pass'];
+    
+    $sql = "SELECT * FROM users WHERE RegNo='$RollNo'";
     $result = $conn->query($sql);
 
-    $sql2 = "SELECT * FROM stud WHERE regno='$RollNo' AND QuizId='$activeQuizId'";
-    $result2 = $conn->query($sql2);
-
-    if ($currentUnixTime > $endTime) {
-        $sql1 = "SELECT * FROM student WHERE Name='$Name' AND RollNo='$RollNo' AND Department='$dept' AND Section='$sec' AND Year='$year' AND QuizId='$activeQuizId'";
-        $result1 = $conn->query($sql1);
-
-        if ($result1->num_rows > 0) {
-            $_SESSION['login'] = TRUE;
-            $_SESSION['logi'] = TRUE;
-            $_SESSION['log'] = TRUE;
-            $_SESSION['message'] = "You are logged in";
-            $_SESSION['Name'] = $Name;
-            $_SESSION['RollNo'] = $RollNo;
-            header("Location: Answers.php");
+    if($result->num_rows>0){
+        $row = $result->fetch_assoc();
+        if($row['Password']!=$Password){
+            echo '<script>alert("Enter the correct password");</script>';
+            header("Refresh: 0.5");
             exit();
-        } else {
-        echo '<script>alert("Quiz is over"); window.location.href = "index.php";</script>';
-        exit();
         }
-    }
-
-    if($result->num_rows <= 0 || $result2->num_rows<=0){
-        if($result->num_rows>0){
-            $row = $result->fetch_assoc();
-           // echo '<script>alert("'.$row['Name'].' '.$Name.' '.(trim($row['Name']) !== trim($Name)?1:0).''.'")</script>'; 
-
-            if(trim($row['Name']) !== trim($Name) || $row['RollNo']!=$RollNo || $row['Department']!=$dept || $row['Section']!=$sec || $row['Year']!=$year || $row['Time'] !== NULL ){
-                echo '<script>alert("You already attended the quiz!"); window.location.href = "index.php";;</script>'; 
-                exit(); 
-            }
-        }
-        else{
-            $sql = "INSERT INTO student (Name, RollNo, Department,Section,Year, QuizId) VALUES ('$Name', '$RollNo', '$dept','$sec','$year', '$activeQuizId')";
-            $conn->query($sql);
-        }
+        $_SESSION['RegNo'] = $RollNo;
+        $_SESSION['Name'] = $row['Name'];
+        $_SESSION['dept'] = $row['Department'];
+        $_SESSION['sec'] = $row['Section'];
+        $_SESSION['year'] = $row['Year'];
         $_SESSION['login'] = TRUE;
         $_SESSION['logi'] = TRUE;
         $_SESSION['log'] = TRUE;
         $_SESSION['message'] = "You are logged in";
-        $_SESSION['Name'] = $Name;
-        $_SESSION['RollNo'] = $RollNo;
-        header("Location: Welcome.php");
+        
+        header("Location: Dashboard.php");
     }
     else{
-        echo '<script>alert("You already attended the quiz");window.location.href = "index.php";</script>';
-        exit();
+      echo '<script>alert("Register Number doesn\'t exist");</script>';
+      header("Refresh: 0.5");
+      exit();
     }
 }
 
@@ -559,10 +529,7 @@ $conn->close();
                 <center><h1>Student Login</h1> </center>
                 <br>
                 <form name="lg" method="post" action="index.php" onsubmit="return validateStudentLogin();">
-                    <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
-                        <label for="username" >Name </label>
-                        <input type="text" id="username" name="name" placeholder="eg: John D">
-                    </div>
+                  
                     <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between" >
                         <label for="rollno" style="white-space: nowrap;">Register number </label><br>
                         <div class="fixed-input">
@@ -570,46 +537,11 @@ $conn->close();
                             <input type="text" id="rollno" name="rollno" placeholder="22104001" style="width: 150px;">            
                         </div>           
                     </div>
-                <div class="form-group">
-                <label for="year" style="font-weight: bold; margin-bottom: 5px; color: #13274F;">Year</label>
-                <select name="year" required 
-                        style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
-                                 color: #13274F; outline: none; transition: border-color 0.3s;">
-                    <option style="color: black;" disabled selected>Select</option>
-                    <option value="I">I</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
-                    <option value="IV">IV</option>
-                </select>
-                </div>
-                <div class="form-group">
-                <label for="sec" style="font-weight: bold; margin-bottom: 5px; color: #13274F;">Section</label>
-                <select name="sec" required 
-                        style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
-                                color: #13274F; outline: none; transition: border-color 0.3s;">
-                    <option style="color: black;" disabled selected>Select</option>
-                    <option value="A" style="color: black;">A</option>
-                    <option value="B" style="color: black;">B</option>
-                    <option value="C" style="color: black;">C</option>
-
-                </select>
-                </div>
-
-                <div class="form-group">
-                <label for="dept" style="font-weight: bold; margin-bottom: 5px; color: #13274F;">Department</label>
-                <select name="dept" required 
-                        style="width: 200px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; 
-                                color: #13274F; outline: none; transition: border-color 0.3s;">
-                    <option value="" style="color: black;" disabled selected>Select</option>
-                    <option value="CSE" style="color: black;">CSE</option>
-                    <option value="IT" style="color: black;">IT</option>
-                    <option value="EEE" style="color: black;">EEE</option>
-                    <option value="ECE" style="color: black;">ECE</option>
-                    <option value="MECH" style="color: black;">MECH</option>
-                    <option value="CIV" style="color: black;">CIV</option>
-                </select>
-                </div>
-
+                    <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
+                            <label for="password">Password</label>
+                            <input type="password" id="pass" name="pass">            
+                    </div>
+               
                     <br>
                     <div class="form-group" style="display:flex;flex-direction:row">
                         <button type="submit" name="Login_btn" value="Login" id="Login_btn">Login</button>
@@ -670,35 +602,18 @@ $conn->close();
     function validateStudentLogin() {
         var valid = true;
 
-        var name = document.forms['lg']['name'].value.trim();
         var rollno = document.forms['lg']['rollno'].value.trim();
-        var year = document.forms['lg']['year'];
-        var dept = document.forms['lg']['dept'];
-        var sec = document.forms['lg']['sec'];
-
-        if (name === '' || !/^[a-zA-Z\s.]*$/.test(name)) {
-            alert('Please enter a valid name.');
-            valid = false;
-        }
+        var password = document.forms['lg']['pass'].value.trim();
 
         if (rollno === '' || !/^\d+$/.test(rollno) || rollno.length !== 8) {
             alert('Please enter a valid roll number.');
             valid = false;
         }
 
-        if (dept === '') {
-            alert('Please select a department.');
+       if(password === '') {
+            alert('Please enter a password.');
             valid = false;
-        }
-
-        if (year === '') {
-            alert('Please select a year.');
-            valid = false;
-        }
-        if(sec === '') {
-            alert('Please select a section.');
-            valid = false;
-        }
+       }
         return valid;
     }
 

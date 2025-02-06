@@ -31,12 +31,12 @@ $query_total = "SELECT * FROM $table WHERE QuizId = '$quizId'";
 $result_total = $conn->query($query_total);
 $total = $result_total->num_rows;
 
-$rollno = $_SESSION['RollNo'];
+$RegNo = $_SESSION['RegNo'];
 $total_time_seconds = 0;
 
 
 for ($i = 1; $i <= $total; $i++) {
-    $tim_query = "SELECT time FROM stud WHERE regno='$rollno' AND questionno ='$i' and QuizId = '$quizId'";
+    $tim_query = "SELECT time FROM stud WHERE regno='$RegNo' AND questionno ='$i' and QuizId = '$quizId'";
     $tim_result = $conn->query($tim_query);
 
     if ($tim_result->num_rows > 0) {
@@ -57,11 +57,11 @@ for ($i = 1; $i <= $total; $i++) {
         $total_time_formatted = sprintf('%02d:%02d:%02d', $total_hours, $total_minutes, $total_seconds);
 
 
-    $_SESSION['percentage'] = round($_SESSION['score'] / $_SESSION['active_NoOfQuestions'] * 100,2);
+    $_SESSION['percentage'] = round($_SESSION['score'] / $_SESSION['Active_NoOfQuestions'] * 100,2);
 
-    $sql = "UPDATE student SET Score = ?, percentage = ?, Time = ? WHERE RollNo = ? and QuizId = ?";
+    $sql = "UPDATE student SET Score = ?, percentage = ?, Time = ? WHERE RegNo = ? and QuizId = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sdssi", $_SESSION['score'],$_SESSION['percentage'], $total_time_formatted, $rollno, $quizId);
+    $stmt->bind_param("sdssi", $_SESSION['score'],$_SESSION['percentage'], $total_time_formatted, $RegNo, $quizId);
     $stmt->execute();
     $stmt->close();
 

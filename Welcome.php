@@ -8,10 +8,14 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
     exit;
 }
 
+$RegNo = $_SESSION['RegNo'];
+$name = $_SESSION['Name'];
+$activeQuizId = $_SESSION['active'];
+
 if ($_SESSION['active'] === 'None') {
     echo '<script> alert("Logging Out");</script>';
-    $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ? AND QuizId = ?");
-    $stmt->bind_param("si", $rollno, $activeQuizId);
+    $stmt = $conn->prepare("DELETE FROM student WHERE RegNo = ? AND QuizId = ?");
+    $stmt->bind_param("si", $RegNo, $activeQuizId);
     if ($stmt->execute()) {
         header("Location: index.php");
         exit;
@@ -20,9 +24,6 @@ if ($_SESSION['active'] === 'None') {
     }
     $stmt->close();
 }
-$activeQuizId = $_SESSION['active'];
-$rollno = $_SESSION['RollNo'];
-$name = $_SESSION['Name'];
 
 $_SESSION['quiz_name'] = "";
 $_SESSION['Marks'] = "";
@@ -39,7 +40,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$quiz_query = "SELECT QuizName, TimeDuration, NumberOfQuestions, QuizType, active_NoOfQuestions, QuestionMark, QuestionDuration,TimerType,IsShuffle, startingtime, EndTime
+$quiz_query = "SELECT QuizName, TimeDuration, NumberOfQuestions, QuizType, Active_NoOfQuestions, QuestionMark, QuestionDuration,TimerType,IsShuffle, startingtime, EndTime
                FROM quiz_details WHERE Quiz_ID = ?";
 $stmt = $conn->prepare($quiz_query);
 $stmt->bind_param("i", $activeQuizId);
@@ -53,7 +54,7 @@ if ($quiz_result->num_rows > 0) {
     $_SESSION['duration'] = $row["TimeDuration"];
     $_SESSION['QuizType'] = $row['QuizType'];
     $_SESSION['numberofquestions'] = $row["NumberOfQuestions"];
-    $_SESSION['active_NoOfQuestions'] = $row["active_NoOfQuestions"]===0? $row["NumberOfQuestions"]:  min($row["active_NoOfQuestions"], $row["NumberOfQuestions"]);
+    $_SESSION['Active_NoOfQuestions'] = $row["Active_NoOfQuestions"]===0? $row["NumberOfQuestions"]:  min($row["Active_NoOfQuestions"], $row["NumberOfQuestions"]);
     $_SESSION['question_duration'] = $row["QuestionDuration"];
     $_SESSION['question_marks'] = $row["QuestionMark"];
     $_SESSION['shuffle'] = $row["IsShuffle"];
@@ -63,8 +64,8 @@ if ($quiz_result->num_rows > 0) {
 
     // echo $_SESSION["duration"]." ".$_SESSION['question_duration']." ".$_SESSION['TimerType'];
 }
-// echo $_SESSION['active_NoOfQuestions'];
-$_SESSION['Marks'] = $_SESSION['active_NoOfQuestions'] * $_SESSION['question_marks'];
+// echo $_SESSION['Active_NoOfQuestions'];
+$_SESSION['Marks'] = $_SESSION['Active_NoOfQuestions'] * $_SESSION['question_marks'];
 
 $isshuffle = $_SESSION['shuffle'];
 
@@ -98,7 +99,7 @@ $start_time = $_SESSION["start_time"];
 
 list($minutes, $seconds) = explode(':', $_SESSION['question_duration']);
 $question_duration_seconds =((int)$minutes * 60) + (int)$seconds;
-$total_duration_seconds = $_SESSION['active_NoOfQuestions'] * $question_duration_seconds;
+$total_duration_seconds = $_SESSION['Active_NoOfQuestions'] * $question_duration_seconds;
 
 $total_hours = floor($total_duration_seconds / 3600);
 $total_duration_seconds = $total_duration_seconds % 3600;
@@ -124,9 +125,12 @@ $_SESSION["end_time"] = $end_time;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['start'])) {
-        $result = $conn->query('SELECT * FROM stud WHERE regno = ' . $rollno . ' AND QuizId = ' . $activeQuizId);
-        if ($result->num_rows > 0) {
-            echo "<script>alert('You already attended the quiz!');</script>";
+        $result1 = $conn->query('SELECT * FROM student WHERE RegNo = ' . $RegNo . ' AND QuizId = ' . $activeQuizId);
+        $result2 = $conn->query('SELECT * FROM stud WHERE regno='.$RegNo.' AND QuizId='.$activeQuizId);
+
+        if($result->num_rows > 0 || $result2->num_rows > 0){
+            echo "<script>alert('You already attended the quiz!');
+            console.log('student & stud');</script>";
             $_SESSION['login'] = FALSE;
             $_SESSION['logi'] = FALSE;
             $_SESSION['log'] = FALSE;
@@ -139,8 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['Logout'])) {
-        $stmt = $conn->prepare("DELETE FROM student WHERE RollNo = ? AND QuizId = ?");
-        $stmt->bind_param("si", $rollno, $activeQuizId);
+        $stmt = $conn->prepare("DELETE FROM student WHERE RegNo = ? AND QuizId = ?");
+        $stmt->bind_param("si", $RegNo, $activeQuizId);
         if ($stmt->execute()) {
             header("Location: index.php");
             $_SESSION['login'] = FALSE;
@@ -204,7 +208,7 @@ $conn->close();
     <h2>Welcome, <?php echo htmlspecialchars($name); ?>!</h2>
     <ul>
 
-        <li><strong>Number of Questions</strong><span><?php echo htmlspecialchars($_SESSION["active_NoOfQuestions"]); ?></span></li>
+        <li><strong>Number of Questions</strong><span><?php echo htmlspecialchars($_SESSION["Active_NoOfQuestions"]); ?></span></li>
         <li><strong>Type</strong><span> <?php echo $_SESSION["QuizType"]===0? "Multiple Choices": 'Fill Up'?></span></li>
         <li><strong>Total Marks</strong><span><?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</span></li>
         <li><strong>Time</strong><span><?php echo htmlspecialchars($_SESSION["duration"]); ?></span></li>

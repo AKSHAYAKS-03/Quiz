@@ -4,14 +4,13 @@ include 'core/db.php';
 
 if (!isset($_SESSION['login']) || empty($_SESSION['login']) || 
     !isset($_SESSION['logi']) || empty($_SESSION['logi']) || 
-    !isset($_SESSION['RollNo']) || empty($_SESSION['RollNo']) || 
-    
+    !isset($_SESSION['RegNo']) || empty($_SESSION['RegNo']) || 
     !isset($_SESSION['Name']) || empty($_SESSION['Name'])) {
     header('Location: index.php');
     exit;
 }
 
-$rollno = $_SESSION['RollNo'];
+$RegNo = $_SESSION['RegNo'];
 if (isset($_GET['quiz_id'])) {
     $quiz_id = intval($_GET['quiz_id']); 
 //     echo "Selected Quiz ID: " . $quiz_id;
@@ -23,14 +22,14 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$query_QuizName = $conn->prepare("SELECT QuizName,QuizType,active_NoOfQuestions FROM quiz_details WHERE Quiz_Id = ?");
+$query_QuizName = $conn->prepare("SELECT QuizName,QuizType,Active_NoOfQuestions FROM quiz_details WHERE Quiz_Id = ?");
 $query_QuizName->bind_param("i", $quiz_id);
 $query_QuizName->execute();
 $result_QuizName = $query_QuizName->get_result();
 $quizDetails = $result_QuizName->fetch_assoc();
 $QuizName = $quizDetails['QuizName'];
 $QuizType = $quizDetails['QuizType'];
-$activeQuestions = $quizDetails['active_NoOfQuestions'];
+$activeQuestions = $quizDetails['Active_NoOfQuestions'];
 $query_QuizName->close();
 
 $mcq = $conn->prepare("
@@ -49,7 +48,7 @@ $mcq = $conn->prepare("
     ORDER BY mc.QuestionNo ASC
 ");
 
-$mcq->bind_param("si", $_SESSION['RollNo'], $quiz_id);
+$mcq->bind_param("si", $_SESSION['RegNo'], $quiz_id);
 $mcq->execute();
 $mcq_result = $mcq->get_result();
 $questions_mcq = $mcq_result->fetch_all(MYSQLI_ASSOC);
@@ -76,7 +75,7 @@ WHERE
     s.regno = ? 
 ");
 
-$query_fillup->bind_param("s", $_SESSION['RollNo']); // Bind the RollNo parameter
+$query_fillup->bind_param("s", $_SESSION['RegNo']); // Bind the RegNo parameter
 $query_fillup->execute();
 $fillup_result = $query_fillup->get_result();
 
@@ -98,9 +97,9 @@ $query_fillup->close();
 
 // echo $total_fillup." ".$total_mcq;
 
-$userquery = $conn->prepare("SELECT Score, Time FROM student WHERE RollNo = ? AND QuizId = ?");
+$userquery = $conn->prepare("SELECT Score, Time FROM student WHERE RegNo = ? AND QuizId = ?");
 
-$userquery->bind_param("si", $_SESSION['RollNo'], $quiz_id);
+$userquery->bind_param("si", $_SESSION['RegNo'], $quiz_id);
 $userquery->execute();
 $userquery_result = $userquery->get_result();
 
@@ -122,7 +121,7 @@ if ($hours == 0 && $minutes == 0) {
 }
 
 $user_answers_query = $conn->prepare("SELECT questionno, yanswer FROM stud WHERE regno = ? AND quizid = ?");
-$user_answers_query->bind_param("si", $_SESSION['RollNo'], $quiz_id);
+$user_answers_query->bind_param("si", $_SESSION['RegNo'], $quiz_id);
 $user_answers_query->execute();
 $user_answers_result = $user_answers_query->get_result();
 
@@ -144,7 +143,7 @@ $conn->close();
 </head>
 <body oncontextmenu="return false;">
 <div class="head">
-    <h1><?php echo htmlspecialchars($QuizName) . " - " . $rollno; ?></h1>
+    <h1><?php echo htmlspecialchars($QuizName) . " - " . $RegNo; ?></h1>
 </div>
 
 <div class="score">
@@ -166,7 +165,7 @@ $conn->close();
         <div class="parentdiv">
             <ul>
                 <li><strong style="margin-right: 127px;">Name</strong> <?php echo htmlspecialchars($_SESSION['Name']); ?></li>
-                <li><strong style="margin-right: 70px;">Register No</strong> <?php echo htmlspecialchars($_SESSION['RollNo']); ?></li>
+                <li><strong style="margin-right: 70px;">Register No</strong> <?php echo htmlspecialchars($_SESSION['RegNo']); ?></li>
                 <li><strong style="margin-right: 70px;">Department</strong> <?php echo htmlspecialchars($_SESSION['dept']); ?></li>
                 <li><strong style="margin-right: 75px;">Your Score</strong> <?php echo htmlspecialchars($score) ?>/<?php echo ($total_mcq + $total_fillup); ?></li>
                 <li><strong style="margin-right: 70px;">Time Taken</strong> <?php echo htmlspecialchars($display_time); ?></li>

@@ -72,6 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script src="inspect.js"></script>
   <link rel="stylesheet" type="text/css" href="css/viewResult.css">
   <link rel="stylesheet" type="text/css" href="css/navigation.css">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
   <style>
     aside {
       position: fixed;
@@ -144,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h2 style="color: #13274F;">FILTERS</h2><hr/>
   
   <div class="category-label">Quiz Name</div>
-      <select id="quiz">
+      <select id="quiz" name="quiz[]" multiple>
         <option value="all">All</option>
         <?php
           $sql = "SELECT Quiz_Id, QuizName FROM quiz_details";
@@ -214,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <h3 id="noRecordsMessage"  style="font-weight: bold; color: red; display: none">** No records found. Select Quiz to view **</h3>
   <div id="scoreTable">
       <div>
-          <table>
+          <table id="t1">
           <tr>
             <th onclick="sortTable(0)">SNO <span class="arrow"></span></th>
             <th onclick="sortTable(1)">NAME <span class="arrow"></span></th>
@@ -281,7 +285,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById("options").style.display = "block"; // Show if not hidden
 }
   function setHiddenValues() {
-    document.getElementById("selectedQuizId").value = document.getElementById("quiz").value;
+    // document.getElementById("selectedQuizId").value = document.getElementById("quiz").value;
+    let selectedQuizzes = $('#quiz').val();
+    $('#selectedQuizId').val(selectedQuizzes.join(',')); 
+    console.log("selectedQuizzes: " + selectedQuizzes);
+    
     document.getElementById("selectedQuizName").value = document.getElementById("quiz").options[document.getElementById("quiz").selectedIndex].text;
     document.getElementById("selectedDepartment").value = document.getElementById("department").value;
     document.getElementById("selectedSection").value = document.getElementById("section").value;
@@ -292,8 +300,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // Call the function when the user submits the form or changes the selection
   document.querySelector('form').addEventListener('submit', setHiddenValues);
-
-  document.getElementById("quiz").addEventListener('change', setHiddenValues);
+  $('#quiz').on('change', setHiddenValues);
+  // document.getElementById("quiz").addEventListener('change', setHiddenValues);
   document.getElementById("department").addEventListener('change', setHiddenValues);
   document.getElementById("section").addEventListener('change', setHiddenValues);
   document.getElementById("year").addEventListener('change', setHiddenValues);
@@ -301,21 +309,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   document.getElementById("performance").addEventListener('change', setHiddenValues);
   
   function fetchScores() {
-      var tableBody = document.getElementById("tableBody");
-      if(tableBody){
-        document.getElementById("tableBody").innerHTML = "";
+      var t1 = document.getElementById("t1");
+      if(t1){
+        document.getElementById("t1").innerHTML = "";
       }
-      const quizId = document.getElementById("quiz").value;
+      const quizId = document.getElementById("selectedQuizId").value;
       const department = document.getElementById("department").value;
       const section = document.getElementById("section").value;
       const year = document.getElementById("year").value;
       const performance = document.getElementById("performance").value;
-      console.log("insideee");
+      // console.log("insideee");
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "FetchScores.php", true);
       xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhr.onreadystatechange = function() {
-        console.log("inside on ready state change");
+        // console.log("inside on ready state change");
           if (xhr.readyState === 4 && xhr.status === 200) {
               if(xhr.responseText.trim() === 'empty'){
                 console.log('here');
@@ -329,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 document.getElementById('scoreTable').style.display = 'block';
                 document.getElementById("options").style.display = 'block';
                 document.getElementById('noRecordsMessage').style.display = 'none';
-                document.getElementById("tableBody").innerHTML = xhr.responseText;
+                document.getElementById("t1").innerHTML = xhr.responseText;
                 if(currentSortColumn>0){
                     currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
                     sortTable(currentSortColumn);
@@ -369,7 +377,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
   document.getElementById("limit").addEventListener('change', fetchScores);
 
-  document.getElementById("quiz").addEventListener('change', fetchScores);
+  // document.getElementById("quiz").addEventListener('change', fetchScores);
+  $(document).ready(function() {
+    $('#quiz').select2();
+
+    // let selectedQuizzes = $('#quiz').val();
+    // $('#selectedQuizId').val(selectedQuizzes.join(','));  
+
+    $('#quiz').on('change', fetchScores);
+
+});
   document.getElementById("department").addEventListener('change', fetchScores);
   document.getElementById("section").addEventListener('change', fetchScores);
   document.getElementById("year").addEventListener('change', fetchScores);
@@ -512,6 +529,7 @@ sortedRows.forEach(row => {
       }
     });
   }
+
 
 </script>
 </body>
