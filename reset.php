@@ -59,7 +59,7 @@ if (isset($_POST['Reset'])) {
         $studQuery = "SELECT count(*) as QuestionsAttended FROM stud WHERE regno = '$RegNo' and QuizId = $activeQuizId";
         $studData = $conn->query($studQuery)->fetch_assoc();
 
-        $cheatedQuery = "SELECT event FROM logEVent WHERE regno = '$RegNo' and QuizId = $activeQuizId";
+        $cheatedQuery = "SELECT Event FROM logevent WHERE RegNo = '$RegNo' and QuizId = $activeQuizId";
         $cheatedData = $conn->query($cheatedQuery)->fetch_assoc();
 
         $studentDetails = $conn->query("SELECT * FROM users WHERE RegNo = '$RegNo'")->fetch_assoc();
@@ -81,12 +81,12 @@ if (isset($_POST['Reset'])) {
                             <button type='button' id='cancelReset'>Cancel</button>
                         </form>";
                         if($cheatedData){
-                            $keyValue = $cheatedData['event'];
-                            $keyValue = $cheatedData['event'] == 'Escape' ? 'Esc' : $keyValue;
-                            $keyValue = $cheatedData['event'] == 91 || 92 ? 'Windows' : $keyValue;
-                            $keyValue = $cheatedData['event'] == 123 ? 'F12' : $keyValue;
-                            $keyValue = $cheatedData['event'] == 18 ? 'ALt' : $keyValue;
-                            $keyValue = $keyValue == $cheatedData['event']?  'unwanted' : $keyValue;
+                            $keyValue = $cheatedData['Event'];
+                            $keyValue = $cheatedData['Event'] == 27 ? 'Esc' : $keyValue;
+                            $keyValue = ($cheatedData['Event'] == 91 || $cheatedData['Event'] == 92) ? 'Windows' : $keyValue;
+                            $keyValue = $cheatedData['Event'] == 36 ? 'Fn+F11' : $keyValue;
+                            $keyValue = $cheatedData['Event'] == 18 ? 'ALt' : $keyValue;
+                            $keyValue = $keyValue == $cheatedData['Event']?  'unwanted' : $keyValue;
                             echo "<p id='flag'> Possible cheating detected: Attempted to exit using the {$keyValue} key(s) combination</p>";
                         }
                         echo "<p id='note'>**This action cannot be undone. </p>
@@ -345,7 +345,7 @@ if (isset($_POST['Back'])) {
         <label for="tType">Timer type:</label>
         <select id="tType" name="tType">
             <option <?php echo $TimerType == '0' ? 'selected' : ''; ?> value="0">For each Question</option>
-            <option <?php echo $TimerType == '0' ? 'selected' : ''; ?> value="1">For Full Quiz</option>
+            <option <?php echo $TimerType == '1' ? 'selected' : ''; ?> value="1">For Full Quiz</option>
         </select>
         <input type="submit" name="TimerType" value="Change" />
       </div>
