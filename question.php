@@ -61,10 +61,10 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="css/question.css">
-    <script src='inspect.js'></script>
-    <script src='DisableKeys.js'></script>
+    <!-- <script src='inspect.js'></script>
+    <script src='DisableKeys.js'></script> -->
     <style>
-            #questionImage{
+        #questionImage{
             width: auto;
             min-width: 500px;
             max-width: 100%; 
@@ -108,7 +108,7 @@ $conn->close();
         max-width: 900px;
         height: auto;
         /* max-height: 900px; */
-        /* background-color: yellow; */
+        background-color: #fff;
         padding: 40px;
         border-radius: 15px;
         color: #333;
@@ -117,10 +117,10 @@ $conn->close();
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        backdrop-filter: blur(10px);
+        /* backdrop-filter: blur(10px);
         background-color: #c0c0c0;
         background-color: #979dac;
-        background-color: #AAB7C4;
+        background-color: #AAB7C4; */
     }
 
     h2.ques {
@@ -528,7 +528,7 @@ $conn->close();
         </div>
 
         </center>
-<center><div id="remtime"></div></center>
+        <center><div id="remtime"></div></center>
 
         <div id="quizContent" class="quizContent">
         <br>
@@ -541,7 +541,7 @@ $conn->close();
                 <?php $index = 1; ?>
                 <div class="question-container" id="questionContainer">
                     <h2 id="questionText" class="ques">
-                        <?php echo $currentIndex + 1; ?> .;
+                        <?php echo $currentIndex + 1; ?> .
                         <?php if (!empty($result['Question'])){
                              echo htmlspecialchars($result['Question']); 
                         }                        
@@ -593,16 +593,18 @@ $conn->close();
     </div>
 
 </div>
+
 <script>
 
 var fullInterval; 
 var timerType;
 
+console.log("start loaded");
 function agreeAndStart() {
     scrollToQuestion();
  
     let regNo = "<?php echo $RegNo; ?>";
-    let quizId = "<?php echo $activeQuizId; ?>";
+    let quizId = "<?php echo $quizid; ?>";
 
     fetch('check_quiz_attempt.php?regNo=' + regNo + '&quizId=' + quizId)
         .then(response => response.json())
@@ -610,11 +612,13 @@ function agreeAndStart() {
             if (data.status === "exists") {
                 alert("You have already attended the quiz!");
                 window.location.href = 'index.php';
-            } else if (data.status === "not_exists") {
-                enterFullScreen();
-            } else {
-                alert("Error checking quiz status. Try again.");
-            }
+            } 
+            else if (data.status === "not_exists") {
+                console.log("inserted");
+            } 
+            //else {
+            //     alert("Error checking quiz status. Try again.");
+            // }
         })
         .catch(error => console.error("Error:", error));
 
@@ -848,6 +852,7 @@ function handleReset(){
 
 function handleNextQuestion(questionData) {
     scrollToQuestion();
+    console.log(questionData)
 
     var questionTextElement = document.getElementById('questionText');
     if (!questionTextElement) {
@@ -858,7 +863,9 @@ function handleNextQuestion(questionData) {
     questionTextElement.innerHTML = (questionData.currentIndex + 1) + ' . ' + questionData.question;
 
     var questionImageElement = document.getElementById('questionImage');
-    if(questionData.questionImage!=='NULL'){
+    
+    console.log(questionData.questionImage);
+    if(questionData.questionImage!=='NULL' && questionData.questionImage!=='') {
         if(!questionImageElement) {
             var questionImageElement = document.createElement('img');
             questionImageElement.id = 'questionImage';
@@ -871,6 +878,9 @@ function handleNextQuestion(questionData) {
         if (existingImg) {
             existingImg.remove();
             console.log("img removed");
+        }
+        else{
+            console.log("img not removed");
         }
     }
 

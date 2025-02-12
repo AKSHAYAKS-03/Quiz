@@ -22,23 +22,40 @@ if (isset($_POST['quizId'])) {
 
     $whereConditions = [];
 
-    if (!empty($quizIdsArray) && $quizId !== 'all') {
+    if ($quizId === 'all' || (is_array($quizIdsArray) && in_array('all', $quizIdsArray))) {
+        $quizIdsQuery = "SELECT DISTINCT Quiz_Id FROM quiz_details";
+        $result = mysqli_query($conn, $quizIdsQuery);
+    
+        $quizIdsArray = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $quizIdsArray[] = $row['Quiz_Id'];
+        }
+    
+        if (!empty($quizIdsArray)) {
+            $quizIds = implode(",", array_map('intval', $quizIdsArray)); // Sanitize input
+            $whereConditions[] = "s.QuizId IN ($quizIds)";
+        } else {
+            $whereConditions[] = "1 = 0"; // No quizzes exist, prevent invalid queries
+        }
+    }
+    else if (!empty($quizIdsArray) && $quizId !== 'all') {
         $quizIds = implode(",", array_map('intval', $quizIdsArray)); // Sanitize input
         $whereConditions[] = "s.QuizId IN ($quizIds)";
     }
     else if($quizId !== 'all')
-        {
-            $whereConditions[] = "s.QuizId = $quizId";
-        }
+    {
+        $whereConditions[] = "s.QuizId = $quizId";
+    }
+
 
     if ($selectedDept !== 'all') {
-        $whereConditions[] = "s.Department = '$selectedDept'";
+        $whereConditions[] = "u.Department = '$selectedDept'";
     }
     if ($selectedSec !== 'all') {
-        $whereConditions[] = "s.Section = '$selectedSec'";
+        $whereConditions[] = "u.Section = '$selectedSec'";
     }
     if ($selectedYear !== 'all') {
-        $whereConditions[] = "s.Year = '$selectedYear'";
+        $whereConditions[] = "u.Year = '$selectedYear'";
     }
     if ($selectedPerformance !== 'all') {
         if ($selectedPerformance === 'toppers') {
@@ -61,8 +78,9 @@ if (isset($_POST['quizId'])) {
         $quizNames[$row['Quiz_Id']] = $row['QuizName'];
     }
 
-    $sql = "SELECT s.RollNo, s.Name, s.Department, s.Section, s.Year, s.QuizId, s.percentage, s.Score, s.Time
-            FROM student s 
+    $sql = "SELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+            FROM student s
+            JOIN users u ON s.RegNo = u.RegNo
             $whereSQL";
 
     $records = $conn->query($sql);
@@ -71,7 +89,7 @@ if (isset($_POST['quizId'])) {
         $students = [];
 
         while ($row = $records->fetch_assoc()) {
-            $rollNo = $row['RollNo'];
+            $rollNo = $row['RegNo'];
             if (!isset($students[$rollNo])) {
                 $students[$rollNo] = [
                     'Name' => $row['Name'],

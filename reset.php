@@ -25,7 +25,7 @@ if(isset($_POST['name'])){
         }
 
         $quizName = $_POST['quizName'];
-        $result = $conn->query("Select quiz_details where QuizName = '$quizName'")->fetch_assoc();
+        $result = $conn->query("Select * from quiz_details where QuizName = '$quizName'")->fetch_assoc();
         if($result){
             $msg = "Quiz Already Exists with this name";
         }
@@ -44,23 +44,25 @@ if(isset($_POST['name'])){
 }
 
 if (isset($_POST['Reset'])) {
-    if (empty($_POST['RollNo'])) {
-        $msg = 'RollNo is required';
+    if (empty($_POST['RegNo'])) {
+        $msg = 'Register Number is required';
     } else {
-        $roll = $_POST['RollNo'];
+        $RegNo = $_POST['RegNo'];
 
-        $check = "SELECT * FROM student where RollNo = '$roll'";
+        $check = "SELECT * FROM student where RegNo = '$RegNo'";
         $result = $conn->query($check)->fetch_assoc();
 
         // Fetch student data to display in the modal
-        $studentQuery = "SELECT * FROM student WHERE RollNo = '$roll' and QuizId = $activeQuizId";
+        $studentQuery = "SELECT * FROM student WHERE RegNo = '$RegNo' and QuizId = $activeQuizId";
         $studentData = $conn->query($studentQuery)->fetch_assoc();
 
-        $studQuery = "SELECT count(*) as QuestionsAttended FROM stud WHERE regno = '$roll' and QuizId = $activeQuizId";
+        $studQuery = "SELECT count(*) as QuestionsAttended FROM stud WHERE regno = '$RegNo' and QuizId = $activeQuizId";
         $studData = $conn->query($studQuery)->fetch_assoc();
 
-        $cheatedQuery = "SELECT event FROM logEVent WHERE regno = '$roll' and QuizId = $activeQuizId";
+        $cheatedQuery = "SELECT event FROM logEVent WHERE regno = '$RegNo' and QuizId = $activeQuizId";
         $cheatedData = $conn->query($cheatedQuery)->fetch_assoc();
+
+        $studentDetails = $conn->query("SELECT * FROM users WHERE RegNo = '$RegNo'")->fetch_assoc();
 
         if ($studentData) {
             echo "
@@ -68,13 +70,13 @@ if (isset($_POST['Reset'])) {
                     <div class='modal-content'>
                         <span class='close-btn' onclick='closeModal()'>&times;</span>
                         <h3>Student Information</h3>
-                        <p><strong>Register Number:</strong> $roll</p>
-                        <p><strong>Name:</strong> {$studentData['Name']}</p>
-                        <p><strong>Class:</strong>  {$studentData['Year']} {$studentData['Department']} {$studentData['Section']}</p>
+                        <p><strong>Register Number:</strong> $RegNo</p>
+                        <p><strong>Name:</strong> {$studentDetails['Name']}</p>
+                        <p><strong>Class:</strong>  {$studentDetails['Year']} {$studentDetails['Department']} {$studentDetails['Section']}</p>
                         <p><strong>Questions Attended:</strong> {$studData['QuestionsAttended']}</p>
                         <form method='post'>
                             <input type='hidden' name='confirmReset' value='1' />
-                            <input type='hidden' name='RollNo' value='$roll' />
+                            <input type='hidden' name='RegNo' value='$RegNo' />
                             <input type='submit' name='ResetConfirmed' value='Confirm Reset' />
                             <button type='button' id='cancelReset'>Cancel</button>
                         </form>";
@@ -107,7 +109,7 @@ if (isset($_POST['Reset'])) {
 }
 
 if (isset($_POST['ResetConfirmed'])) {
-    $roll = $_POST['RollNo'];
+    $RegNo = $_POST['RegNo'];
     $msg = 'Reset successfully';
 
     if ($conn->connect_error) {
@@ -115,9 +117,9 @@ if (isset($_POST['ResetConfirmed'])) {
     }
 
     // Reset student details in both tables
-    $conn->query("DELETE FROM student WHERE RollNo= '$roll' and QuizId= $activeQuizId ");
-    $conn->query("DELETE FROM stud WHERE regno= '$roll' and QuizId= $activeQuizId");
-    $conn->query("DELETE FROM logEvent WHERE regNo = '$roll' and QuizId = $activeQuizId");
+    $conn->query("DELETE FROM student WHERE RegNo= '$RegNo' and QuizId= $activeQuizId ");
+    $conn->query("DELETE FROM stud WHERE regno= '$RegNo' and QuizId= $activeQuizId");
+    $conn->query("DELETE FROM logEvent WHERE regNo = '$RegNo' and QuizId = $activeQuizId");
 
     $conn->close();
 }
@@ -184,7 +186,7 @@ if (isset($_POST['pass'])) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        $conn->query("UPDATE admin SET pwd='$pass'");
+        $conn->query("UPDATE admin SET Password='$pass'");
 
         $conn->close();
     }
@@ -322,8 +324,8 @@ if (isset($_POST['Back'])) {
       ?>
       <h3 style="font-weight: bold;">For Quiz <?php echo $activeQuiz; ?>,</h3>
       <div class="form-group">
-        <label for="RollNo">RollNo:</label>
-        <input type="text" id="RollNo" name="RollNo" placeholder="Enter RollNo" />
+        <label for="RegNo">RegNo:</label>
+        <input type="text" id="RegNo" name="RegNo" placeholder="Enter RegNo" />
         <input type="submit" name="Reset" value="Reset" />
       </div>
 

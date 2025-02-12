@@ -17,6 +17,11 @@ $activeQuizId=$_SESSION['active'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Analytics Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,6 +29,7 @@ $activeQuizId=$_SESSION['active'];
             justify-content: center;
             margin: 0;
             padding: 0;
+            margin-left: 265px;
             /* background-color:rgb(4, 0, 20);  */
             background-color:rgba(16, 16, 83, 0.49); 
         }
@@ -35,7 +41,11 @@ $activeQuizId=$_SESSION['active'];
         }
 
         .sidebar {
-            width: 20%;
+            position: fixed;
+            top: 20px;
+            left: 90px;
+            height: 100%;
+            width: 270px;
             background-color: #13274F; /* Dark blue for sidebar */
             color: #fff; /* White text */
             padding: 20px;
@@ -52,7 +62,7 @@ $activeQuizId=$_SESSION['active'];
             flex-direction: column;
         }
 
-        .sidebar select, .sidebar button {
+        .sidebar select, .sidebar button{
             margin: 10px 0;
             padding: 8px;
             border: none;
@@ -66,9 +76,54 @@ $activeQuizId=$_SESSION['active'];
             border: 1px solid #3498db;
         }
 
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container .select2-selection {
+            background-color: #34495e !important; 
+            color: black !important;
+            border-radius: 5px;
+            padding: 6px;
+            border: none;
+            font-size: 14px;
+        }
+
+        .select2-container--focus .select2-selection {
+            border: 1px solid #3498db !important; 
+            outline: none !important;
+        }
+        .select2-dropdown {
+            background-color: #34495e !important;
+            color: #fff !important;
+        }
+
+        .select2-results__option--selected {
+            background-color: #13274F !important;
+            color: white !important;
+        }
+
+        .select2-selection__choice {
+            background-color:rgb(201, 218, 225) !important;  /* Dark blue */
+            color: white !important;
+            border: none !important;
+            padding: 6px 8px !important;
+            border-radius: 4px !important;
+        }
+
+        .select2-selection__choice__display{
+            margin-left: 6px;
+        }
+        /* Adjust text color inside the selected option */
+        .select2-selection__choice span {
+            color:  #13274F !important;
+        }
+        
         .main-content {
-            width: 80%;
+            width: 95%;
             padding: 10px;
+            height: fit-content;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
@@ -110,6 +165,9 @@ $activeQuizId=$_SESSION['active'];
         }
 
         .bar-chart-container {
+            display: flex;
+            align-items: center; 
+            justify-content: center;
             width: 100%;
             height: 200px;
         }
@@ -177,15 +235,15 @@ $activeQuizId=$_SESSION['active'];
             width: 350px; 
             background: #f1f1f1;
             border-radius: 8px;
-            padding: 8px;
+            padding: 6px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
         #all-year-toppers h4 {
-            font-size: 16px;
+            font-size: 14px;
             color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         #all-time-toppers {
@@ -198,7 +256,7 @@ $activeQuizId=$_SESSION['active'];
             display: flex;
             align-items: center;
             background: #fff;
-            padding: 6px;
+            padding: 7px;
             border-radius: 8px;
             margin: 6px 0;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
@@ -245,6 +303,30 @@ $activeQuizId=$_SESSION['active'];
             color: #555;
         }
 
+        .bar-chart-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .bar-chart-container {
+            width: 100%;
+        }
+
+        .nav-btn {
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: black;
+            font-size: 20px;
+        }
+
+        .nav-btn:hover {
+            scale: 1.1;
+            color:rgb(40, 76, 101);
+        }
 
 
         /* Responsive Design */
@@ -263,13 +345,11 @@ $activeQuizId=$_SESSION['active'];
         width: 100%;
     }
 
-    .top-stats,
-    .bottom-stats {
+    .top-stats, .bottom-stats {
         flex-direction: column;
     }
 
-    .stat-box,
-    .stats-container {
+    .stat-box, .stats-container {
         width: 100%;
         margin-bottom: 20px;
     }
@@ -326,8 +406,7 @@ $activeQuizId=$_SESSION['active'];
         width: 80%;
     }
 
-    .stat-box,
-    .stats-container {
+    .stat-box, .stats-container {
         padding: 25px;
         font-size: 20px;
     }
@@ -346,20 +425,21 @@ $activeQuizId=$_SESSION['active'];
             <h3>Filter Options</h3>
             <form method="GET" action="">
                 <label for="quiz">Quiz:</label>
-                <select id="quiz" onchange="fetchQuizDetails()">
+                <select id="quiz" multiple onchange="fetchQuizDetails()">
                     <option value="all" selected>All</option>
                     <?php
                     $sql = "SELECT Quiz_Id, QuizName FROM quiz_details";
                     $options = $conn->query($sql);
                     if ($options->num_rows > 0) {
                         while ($row = $options->fetch_assoc()) {
-                        $id = $row['Quiz_Id'];
-                        $name = $row['QuizName'];
-                        echo "<option value='$id'>" . $name . "</option>";
+                            $id = $row['Quiz_Id'];
+                            $name = $row['QuizName'];
+                            echo "<option value='$id'>" . $name . "</option>";
                         }
                     }
                     ?>
                 </select><br/>
+                <input type="hidden" value="all" id="selectedQuizId" name="quizId">
 
                 <label for="year">Year:</label>
                 <select id="year" onchange="fetchQuizDetails()">
@@ -388,7 +468,9 @@ $activeQuizId=$_SESSION['active'];
                     <option value="MECH">MECH</option>
                     <option value="CIV">CIV</option>
                 </select><br>
-
+                
+                <br>
+                <button>View Students</button>
             </form>
         </div>
 
@@ -405,79 +487,106 @@ $activeQuizId=$_SESSION['active'];
                 <div class="stats-container">
                     <div class="counter-widget" style="background-color: rgba(77, 81, 91, 0.55);">
                         <div class="icon">🏆</div>
-                        <h4>Total Quizzes</h4>
-                        <div class="counter" id="totalQuizzes"></div>
+                        <h4 id="c1">Total Quizzes</h4>
+                        <div class="counter" id="c1_val"></div>
                     </div>
                     <div class="counter-widget" style="background-color: rgba(22, 77, 79, 0.63);">
                         <div class="icon">👨‍🎓</div>
-                        <h4>Total Students</h4>
-                        <div class="counter" id="totalStudents"></div>
+                        <h4 id="c2">Total Students</h4>
+                        <div class="counter" id="c2_val"></div>
                     </div>
                     <div class="counter-widget" style="background-color:rgba(118, 131, 173, 0.72);">
                         <div class="icon">📊</div>
-                        <h4>Average Performance</h4>
-                        <div class="counter" id="averagePerformance"></div>
+                        <h4 id="c3">Average Performance</h4>
+                        <div class="counter" id="c3_val"></div>
                     </div>
                     <div class="counter-widget" style="background-color:rgba(108, 145, 210, 0.5);">
                         <div class="icon">🌟</div>
-                        <h4>Best Score Rate</h4>
-                        <div class="counter" id="bestQuiz"></div>
+                        <h4 id="c4">Best Score Rate</h4>
+                        <div class="counter" id="c4_val"></div>
                     </div>
-                </div>
-            
+                </div>   
             </div>
 
             <div class="top-stats">                
                 
                 <div id="all-year-toppers">
-                    <h4>All Time Toppers (Year-wise)</h4>
+                    <h4>Top Performers (Year-wise)</h4>
                     <div id="all-time-toppers">
                     </div>
                 </div>
 
-                <div class="stat-box" style="width: 280px;">
-                    <h4>Percentage</h4>
-                    <div class="bar-chart-container">
-                        <canvas id="pieChart"></canvas>
+                <div class="stat-box" style="width: 280px; height:300px; margin-bottom: 0px; padding-bottom:0px">
+                    <h4 style="margin: 0px;">Average Percentage</h4>
+                    <div class="bar-chart-container" style="width: 280px; height: 280px; ">
+                        <canvas id="pieChart" style="width: 100%; height: 100%; padding:0px; margin:0px"></canvas>
                     </div>
                 </div>
 
-                <div class="stat-box"  style=" height: 380px; margin-top:-140px; width:310px ">
-                    <h4>All Over Toppers</h4>
-                    <div class="bar-chart-container"  style="width: 100%; height: 380px;">
-                        <canvas id="activeQuizTopperChart"  style="width: 100%; height: 350px;"></canvas>
+                <div class="stat-box"  style=" height: 420px; margin-top:-140px; width:290px ">
+                    <h4>Toppers</h4>
+                    <div class="bar-chart-container"  style="width: 100%; height: 400px;">
+                        <canvas id="activeQuizTopperChart"  style="width: 100%; height: 370px;"></canvas>
                     </div>
                 </div>
         </div>
-        <div class="stat-box" id="completionTimeDistribution" style="visibility: hidden;">
-                <h2>Completion Time Distribution</h2>
-                    <div class="bar-chart-container">
-                        <canvas id="completionTimeDistributionChart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-
-            <div class="stat-box" id="timeSpentOnEachQuestion" style="visibility: hidden;">
-                <h2>Time Spent on Each Question</h2>
+        <div class="bottom-stats">
+            <div class="stat-box" id="completionTimeDistribution">
+                <h4>Completion Time Distribution</h4>
                 <div class="bar-chart-container">
-                    <canvas id="timeSpentOnEachQuestionChart" width="400" height="200"></canvas>
+                    <canvas id="completionTimeDistributionChart" width="400" height="200"></canvas>
                 </div>
             </div>
+
+            <div class="stat-box" style="padding: 14px;">
+                <h4>Performance Comparison</h4>
+                <div class="bar-chart-wrapper">
+                    <button id="prev" class="nav-btn">⬅</button>
+                    <div class="bar-chart-container" style="height: 165px;">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                    <button id="next" class="nav-btn">➡</button>
+                </div>
+                <p id="currentView">Viewing: Year-wise Performance</p>
+            </div>
+
+        </div>
+        
+        <div class="bottom-stats">
+            <div class="stat-box" id="performance" style="width: 960px; height:100%">
+                <h2> Average Performance (avg vs count)</h2>
+                <div class="bar-chart-container" style="width:100%; height:100%">
+                    <canvas id="performanceBarChart" ></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchQuizDetails();
+        });
+
+        $(document).ready(function() {
+            $('#quiz').select2();
+            $('#quiz').on('change', fetchQuizDetails);
+        });
 
         function animateCounter(target, value, extra = ''){
             console.log(target);
             let current = 0;
             value = parseFloat(value);
             const step = value / 10; 
+            let fixed = 0;
+            if(target.id==='c4_val')
+                fixed = 2;
             const interval = setInterval(function() {
                 current += step;
                 if (current >= value) {
                     current = value;
                     clearInterval(interval);
                 }
-                target.innerText = extra+" "+current.toFixed(0); 
+                target.innerText = extra+" "+current.toFixed(fixed); 
             }, 10);
         }
 
@@ -493,7 +602,7 @@ $activeQuizId=$_SESSION['active'];
             const labels = toppers.map(topper => topper.name);  
             const percentages = toppers.map(topper => parseFloat(topper.percentage));
             const topperDetails = toppers.map(topper => ({
-                rollNo: topper.rollNo,
+                RegNo: topper.RegNo,
                 year: topper.year,
                 section: topper.section,
                 department: topper.department
@@ -510,7 +619,7 @@ $activeQuizId=$_SESSION['active'];
                 data: {
                     labels: labels, // Names of top performers
                     datasets: [{
-                        label: 'Top 3 Performers',
+                        label: 'Average Score',
                         data: percentages, // Percentage scores
                         backgroundColor: ['#13274F', '#34495e', '#95a5a6'], // Dark blue, dark gray, light gray
                         borderColor: ['#13274F', '#34495e', '#95a5a6'],
@@ -535,9 +644,9 @@ $activeQuizId=$_SESSION['active'];
                                 label: function(tooltipItem) {
                                     const index = tooltipItem.dataIndex; // Get the index of the hovered bar
                                     const topper = topperDetails[index]; // Get the corresponding topper details
+
                                     const details = [
-                                        `Name: ${labels[index]}`,
-                                        `Roll No: ${topper.rollNo}`,
+                                        `Reg No: ${topper.RegNo}`,
                                         `Year: ${topper.year}`,
                                         `Section: ${topper.section}`,
                                         `Department: ${topper.department}`
@@ -551,228 +660,81 @@ $activeQuizId=$_SESSION['active'];
             });
         }
 
-        function renderCompletionTimeDistribution() {
-    document.getElementById("completionTimeDistribution").style.visibility = "visible";
+        function renderCompletionTimeDistribution(completionTimeData) {
+            const canvas = document.getElementById("completionTimeDistributionChart");
 
-    const canvas = document.getElementById("completionTimeDistributionChart");
-
-    if (window.completionTimeDistributionChart && typeof window.completionTimeDistributionChart.destroy === "function") {
-        window.completionTimeDistributionChart.destroy();
-    }
-
-    const ctx = canvas.getContext("2d");
-
-    
-    times = [10, 15, 20, 25]; // Time intervals
-    frequency = [5, 15, 25, 10] ;// Number of students in each time interval
-    window.completionTimeDistributionChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: times, // Example: [10, 15, 20, 25]
-            datasets: [{
-                label: "Number of Students",
-                data: frequency, // Example: [5, 15, 25, 10]
-                backgroundColor: "#9b59b6",
-                borderColor: "#8e44ad",
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: { title: { display: true, text: "Time Taken (min)" } },
-                y: { beginAtZero: true, title: { display: true, text: "Frequency" } }
+            if (window.completionTimeDistributionChart && typeof window.completionTimeDistributionChart.destroy === "function") {
+                window.completionTimeDistributionChart.destroy();
             }
-        }
-    });
-}
 
-function renderTimeSpentOnEachQuestion() {
-    document.getElementById("timeSpentOnEachQuestion").style.visibility = "visible";
-    const canvas = document.getElementById("timeSpentOnEachQuestionChart");
+            const ctx = canvas.getContext("2d");
+            
+            const labels = completionTimeData.map(item => `${item.timeRange}-${parseInt(item.timeRange) + 10} sec`);
+            const counts = completionTimeData.map(item => item.studentCount);
 
-    if (window.timeSpentOnEachQuestionChart && typeof window.timeSpentOnEachQuestionChart.destroy === "function") {
-        window.timeSpentOnEachQuestionChart.destroy();
-    }
-    const questions = ["1", "2", "3", "4", "5"];// Question numbers
-    const timeSpent = [30, 45, 60, 25, 40] ;// Average time in seconds spent per question
-    const ctx = canvas.getContext("2d");
-
-    window.timeSpentOnEachQuestionChart = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: questions, // Example: ["1", "2", "3"]
-            datasets: [{
-                label: "Time Spent (s)",
-                data: timeSpent, // Example: [30, 45, 60]
-                borderColor: "#2ecc71",
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: { title: { display: true, text: "Question" } },
-                y: { beginAtZero: true, title: { display: true, text: "Avg. Time per Question (s)" } }
-            }
-        }
-    });
-}
-
-
-        // statistics
-        fetch('fetchStats.php')
-            .then(response => response.text()) // Change `.json()` to `.text()`
-            .then(text => {
-                console.log('Raw response:', text); // Debugging response content
-                return JSON.parse(text); // Manually parse JSON
-            })
-            .then(data => {
-                // Handle counters
-                console.log('data', data);
-                const totalQuizzesElement = document.getElementById('totalQuizzes');
-                const averagePerformance = document.getElementById('averagePerformance');
-                const totalStudentsElement = document.getElementById('totalStudents');
-                const bestQuizElement = document.getElementById('bestQuiz');
-                
-                // Animate total quizzes counter
-                animateCounter(totalQuizzesElement, data.totalQuizzes);
-                animateCounter(totalStudentsElement, data.totalStudents);
-                animateCounter(bestQuizElement, data.bestQuizRate, data.bestQuizName);
-                
-                // Animate pass percentage counter
-                averagePerformance.innerText = '0%';
-                let currentPercentage = 0;
-                const passStep = data.average / 10;
-                const passInterval = setInterval(function() {
-                    currentPercentage += passStep;
-                    if (currentPercentage >= data.average) {
-                        currentPercentage = data.average;
-                        clearInterval(passInterval);
+            window.completionTimeDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Students Count',
+                        data: counts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
                     }
-                    averagePerformance.innerText = currentPercentage.toFixed(2) + '%';
-                }, 30);
-
-                // Update toppers section
-                const toppersContainer = document.getElementById('all-time-toppers');
-                toppersContainer.innerHTML = ''; 
-
-                Object.entries(data.allTimeToppers).forEach(([year, topper]) => {
-                    const yearDiv = document.createElement('div');
-
-                    const yearHeader = document.createElement('h5');
-                    yearHeader.textContent = `${year} Year`;
-                    yearDiv.appendChild(yearHeader);
-
-                    const topperContainer = document.createElement('div');
-                    topperContainer.classList.add('topper-container');
-
-                    const profileImg = document.createElement('img');
-                    profileImg.src = topper.avatar ? topper.avatar : 'uploads/49/download(2).jpg';
-                    console.log(topper.avatar);
-                    profileImg.alt = 'Profile Picture';
-
-                    const topperDetails = document.createElement('div');
-                    topperDetails.classList.add('topper-details');
-
-                    topperDetails.innerHTML = `
-                        <p><strong>${topper.Name}</strong> (${topper.avg_percentage || 'N/A'}%)</p>
-                        <p><strong>Reg No:</strong> ${topper.RegNo}</p>
-                    `;
-
-                    // Append elements
-                    topperContainer.appendChild(profileImg);
-                    topperContainer.appendChild(topperDetails);
-                    yearDiv.appendChild(topperContainer);
-
-                    // Add to main container
-                    toppersContainer.appendChild(yearDiv);
-                });
-
-                // pie Chart
-                const ctx = document.getElementById("pieChart").getContext("2d");
-                const labels = Object.keys(data.percentageRange);
-                const percentages = Object.values(data.percentageRange);
-                window.pieChart =new Chart(ctx, {
-                    type: "pie",
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: "Score Distribution",
-                            data: percentages,
-                            backgroundColor: ["rgba(22, 77, 79, 0.63)", '#13274F', '#34495e', 'black','rgba(108, 145, 210, 0.5)']
-                        }]
-                    },
-                    options: {
-                        responsive: true
-                    }
-                });
-
-                if(data.toppers.length > 0){
-                    renderToppersChart(data.toppers);
                 }
+            });
+        }
 
-                // Line Chart Data for average scores
-                const realTimeCtx = document.getElementById('realTimeChart').getContext('2d');
-                const realTimeChart = new Chart(realTimeCtx, {
-                    type: 'line',
-                    data: {
-                        labels: data.avgScores.labels,  
-                        datasets: [{
-                            label: 'Average Score',
-                            data: data.avgScores.data,  
-                            borderColor: '#34495e',
-                            backgroundColor: 'rgba(12, 4, 89, 0.2)',
-                            fill: true,
-                            tension: 0.4 // for smoothness
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                display: false
-                            },
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
-                        animation: {
-                            duration: 1000, 
-                            easing: 'easeInOutQuad'
-                        },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(tooltipItem) {
-                                        const score = tooltipItem.raw;
-                                        if (typeof score === 'number') {
-                                            return 'Score: ' + score.toFixed(2);
-                                        } else {
-                                            const numericScore = parseFloat(score);
-                                            if (!isNaN(numericScore)) {
-                                                return 'Score: ' + numericScore.toFixed(2);
-                                            } else {
-                                                return 'Score: N/A';  
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        function renderPerformanceBarChart(avgPerformance) {
+            const avgPerformanceElement = document.getElementById('performanceBarChart');
+            
+            const ctx = avgPerformanceElement.getContext('2d');
+            ctx.clearRect(0, 0, avgPerformanceElement.width, avgPerformanceElement.height);
+
+            if (window.performanceBarChart && typeof window.performanceBarChart.destroy === "function") {
+                console.log('destroyed');
+                window.performanceBarChart.destroy();
+            }
+            const labels = Object.keys(avgPerformance);
+            const values = Object.values(avgPerformance);
+
+            window.performanceBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'No.of Students',
+                        data: values,
+                        backgroundColor: 'rgba(72, 126, 201, 0.55)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
                     }
-                });
-            })
-            .catch(error => console.error('Error fetching stats:', error));
+                }
+            });
+        }
 
-
-            // when dropDown value changes
             function fetchQuizDetails() {
-                const quiz = document.getElementById('quiz').value;
+                let selectedQuizzes = $('#quiz').val();
+                $('#selectedQuizId').val(selectedQuizzes.join(',')); 
+                console.log("selectedQuizzes: " + selectedQuizzes);
+                
+                const quiz = document.getElementById('selectedQuizId').value;
                 const year = document.getElementById('year').value;
                 const section = document.getElementById('section').value;
                 const department = document.getElementById('department').value;
+                console.log("quiz: "+quiz+", year: "+year+", section: "+section+", department: "+department);
 
                 fetch('fetchQuizDetails.php', {
                     method: 'POST',
@@ -786,28 +748,64 @@ function renderTimeSpentOnEachQuestion() {
                     console.log("Fetched Data: ", data); // Debugging output
 
                     // Update statistics dynamically
-                    document.getElementById('totalQuizzes').innerText = data.totalQuizzes;
-                    document.getElementById('totalStudents').innerText = data.totalStudents;
-                    document.getElementById('averagePerformance').innerText = data.averagePerformance + "%";
-                    document.getElementById('bestQuiz').innerText = data.bestQuiz;
+                    document.getElementById('c1').innerText = data.c1;
+                    document.getElementById('c2').innerText = data.c2;
+                    document.getElementById('c3').innerText = data.c3;
+                    document.getElementById('c4').innerText = data.c4;
+
+                    c1 = document.getElementById('c1_val');
+                    animateCounter(c1, data.c1_val);
+
+                    c2 = document.getElementById('c2_val');
+                    animateCounter(c2, data.c2_val);
+
+                    const c4 = document.getElementById('c4_val');
+                    if (typeof data.c4_val === 'object' && data.c4_val.bestQuizName) {
+                        animateCounter(c4, data.c4_val.bestQuizRate, data.c4_val.bestQuizName); 
+                    } else {
+                        animateCounter(c4, data.c4_val); 
+                    }
+                    
+                    c3 = document.getElementById('c3_val');
+                    c3.innerText = '0%';
+                    let currentPercentage = 0;
+                    console.log("avg percentage: "+data.c3_val);
+                    const passStep = data.c3_val / 10;
+                    const passInterval = setInterval(function() {
+                        currentPercentage += passStep;
+                        if (currentPercentage >= data.c3_val) {
+                            currentPercentage = data.c3_val;
+                            clearInterval(passInterval);
+                        }
+                        c3.innerText = currentPercentage+ '%';
+                    }, 30);
+
                     
                     // Update charts
                     renderToppersChart(data.topToppers);
 
+                    // update completion time chart 
+                    renderCompletionTimeDistribution(data.completionTimeData);
+
+                    renderPerformanceBarChart(data.avgPerformance);
+
+                    // piechart
                     const canvas = document.getElementById('pieChart');
                     const ctx = canvas.getContext('2d');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    const labels = Object.keys(data.scoreTrend);
-                    const percentages = Object.values(data.scoreTrend);
+                    const labels = Object.keys(data.percentages);
+                    const percentages = Object.values(data.percentages);
 
+                    console.log(percentages);
+                    console.log(labels);
                     console.log('before destruction');
                     if (window.pieChart && typeof window.pieChart.destroy === "function") {
                         console.log('destroyed');
                         window.pieChart.destroy();
                     }
 
-                        // Create a new chart instance
+                    // Create a new chart instance
                     window.pieChart = new Chart(ctx, {
                         type: "pie",
                         data: {
@@ -819,15 +817,219 @@ function renderTimeSpentOnEachQuestion() {
                             }]
                         },
                         options: {
-                            responsive: true
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'left', // Move labels to the left side
+                                    labels: {
+                                        font: {
+                                            size: 12 // Increase label size if needed
+                                        }
+                                    }
+                                }
+                            }
                         }
                     });
+
+                    // line chart
+                    const realTime= document.getElementById('realTimeChart');
+                    const realTimeCtx = realTime.getContext('2d');
+                    realTimeCtx.clearRect(0, 0, realTimeCtx.width, realTimeCtx.height);
+                    console.log('before destruction');
+                    if (window.realTimeChart && typeof window.realTimeChart.destroy === "function") {
+                        console.log('destroyed');
+                        window.realTimeChart.destroy();
+                    }
+
+                    window.realTimeChart = new Chart(realTimeCtx, {
+                        type: 'line',
+                        data: {
+                            labels: data.scoreTrend.labels,  
+                            datasets: [{
+                                label: 'Average Score',
+                                data: data.scoreTrend.data,  
+                                borderColor: '#34495e',
+                                backgroundColor: 'rgba(12, 4, 89, 0.2)',
+                                fill: true,
+                                tension: 0.4 // for smoothness
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    display: false
+                                },
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            animation: {
+                                duration: 1000, 
+                                easing: 'easeInOutQuad'
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const score = tooltipItem.raw;
+                                            if (typeof score === 'number') {
+                                                return 'Score: ' + score.toFixed(2);
+                                            } else {
+                                                const numericScore = parseFloat(score);
+                                                return `Score: ${score.toFixed(2)}`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+
+                    // Update toppers section
+                    const toppersContainer = document.getElementById('all-time-toppers');
+                    toppersContainer.innerHTML = ''; 
+
+                    Object.entries(data.performers).forEach(([year, topper]) => {
+                        const yearDiv = document.createElement('div');
+
+                        const yearHeader = document.createElement('h5');
+                        yearHeader.textContent = `${year} Year`;
+                        yearDiv.appendChild(yearHeader);
+
+                        const topperContainer = document.createElement('div');
+                        topperContainer.classList.add('topper-container');
+
+                        const profileImg = document.createElement('img');
+                        profileImg.src = topper.avatar ? topper.avatar : 'uploads/49/download(2).jpg';
+                        console.log(topper.avatar);
+                        profileImg.alt = 'Profile Picture';
+
+                        const topperDetails = document.createElement('div');
+                        topperDetails.classList.add('topper-details');
+
+                        topperDetails.innerHTML = `
+                            <p><strong>${topper.Name}</strong> (${topper.avg_percentage || 'N/A'}%)</p>
+                            <p><strong>Reg No:</strong> ${topper.RegNo}</p>
+                        `;
+
+                        // Append elements
+                        topperContainer.appendChild(profileImg);
+                        topperContainer.appendChild(topperDetails);
+                        yearDiv.appendChild(topperContainer);
+
+                        // Add to main container
+                        toppersContainer.appendChild(yearDiv);
+                    });    
+                    
+                    
+                    // comparison chart
+                    const comparisonCanvas = document.getElementById('comparisonChart');
+                    const comparisonCtx = comparisonCanvas.getContext('2d');
+                    const comparisonData = data;  
+
+                    let currentViewIndex = 0;
+                    const viewText = document.getElementById('currentView');
+                    let isYearlyView = true;  // Toggle between Yearly and Section View
+
+                   // Handle Next Button Click (Switch View from Yearly → Section-wise)
+                    document.getElementById("next").addEventListener("click", function () {
+                        const yearKeys = Object.keys(comparisonData.sectionPerformance);
+                        const maxIndex = yearKeys.length - 1; // Number of years available
+
+                        if (isYearlyView) {
+                            // If currently showing yearly, switch to 1st-year sections
+                            currentViewIndex = 0;
+                            isYearlyView = false;
+                        } else {
+                            // If currently in section-wise mode, move to next year's sections
+                            if (currentViewIndex < maxIndex) {
+                                currentViewIndex++;
+                            } else {
+                                // If already at the last year's section, go back to Yearly View
+                                isYearlyView = true;
+                            }
+                        }
+                        
+                        updateComparisonChart(currentViewIndex, comparisonData, comparisonCtx, viewText, isYearlyView);
+                    });
+
+                    // Handle Previous Button Click (Move Backwards)
+                    document.getElementById("prev").addEventListener("click", function () {
+                        if (!isYearlyView && currentViewIndex > 0) {
+                            currentViewIndex--;
+                        } else {
+                            isYearlyView = true;
+                        }
+                        
+                        updateComparisonChart(currentViewIndex, comparisonData, comparisonCtx, viewText, isYearlyView);
+                    });
+
+                    // Function to update the chart
+                    function updateComparisonChart(index, data, chart, textElement, isYearlyView) {
+                        let chartData = [];
+                        let chartLabels = [];
+                    
+                        if (window.comparisonChart && typeof window.comparisonChart.destroy === "function") {
+                            console.log('destroyed comparisonChart');
+                            window.comparisonChart.destroy();
+                        }
+
+                        if (isYearlyView) {
+                            // Yearly performance data
+                            const yearData = data.yearlyPerformance;
+                            chartLabels = yearData.map(item => item.year);
+                            chartData = yearData.map(item => item.avgPercentage);
+                            textElement.textContent = `Viewing: Yearly Performance`;
+                        } else {
+                            // Section-wise performance data
+                            const yearKeys = Object.keys(data.sectionPerformance);
+                            const selectedYear = yearKeys[index]; // Get the correct year
+                            const sectionData = data.sectionPerformance[selectedYear]; // Get sections for that year
+
+                            if (sectionData) {
+                                chartLabels = sectionData.map((item) => item.section);
+                                chartData = sectionData.map((item) => item.avgPercentage);
+                                textElement.textContent = `Viewing: Section Performance for Year ${selectedYear}`;
+                            } else {
+                                textElement.textContent = `No section data available`;
+                            }
+                        }
+                        
+                        window.comparisonChart = new Chart(comparisonCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: chartLabels,
+                                datasets: [{
+                                    label: 'Performance Comparison',
+                                    data: chartData,
+                                    backgroundColor: 'rgba(22, 77, 79, 0.70)',
+                                    barThickness: 12
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                indexAxis: 'y',
+                                scales: {
+                                    x: {
+                                        beginAtZero: true
+                                    },
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    updateComparisonChart(currentViewIndex, comparisonData, comparisonChart, viewText, isYearlyView);
+
                 })
                 .catch(error => console.error('Error fetching data:', error));
 
-                renderTimeSpentOnEachQuestion();
-                renderCompletionTimeDistribution();
             }
+
     </script>
 </body>
 </html>

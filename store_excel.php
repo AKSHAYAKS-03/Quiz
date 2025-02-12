@@ -217,9 +217,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="correct_choice">Correct Answer:</label>
                     <input type="text" id="correct_choice" name="correct_choice" value="<?php echo htmlspecialchars($currentQuestion[5]); ?>"><br><br>
                     
-                    <button type="submit" name="previous" value="Previous">Previous</button>
                     <input type="submit" name="next" value="Next">
-                    <button type="submit" style="margin-left:500px" name="submit">Submit</button>
+                    <button type="submit" name="submit">Submit</button>
                 </form>
             <?php else: ?>
                 <p>No questions uploaded yet.</p>

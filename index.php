@@ -72,7 +72,7 @@ if (isset($_POST['Login_btn'])) {
         $_SESSION['log'] = TRUE;
         $_SESSION['message'] = "You are logged in";
         
-        header("Location: Dashboard.php");
+        header("Location: welcome.php");
     }
     else{
       echo '<script>alert("Register Number doesn\'t exist");</script>';
@@ -87,7 +87,7 @@ $_SESSION['logged'] = "";
 if (isset($_POST['username'])) {
     $uname = $conn->real_escape_string($_POST['username']);
     $pwd = $conn->real_escape_string($_POST['password']);
-    $sql = "SELECT * FROM admin WHERE Admin='$uname' AND Pwd='$pwd'";
+    $sql = "SELECT * FROM admin WHERE Admin='$uname' AND Password='$pwd'";
     $result = $conn->query($sql);
 
     if ($result->num_rows == 1) {
@@ -524,7 +524,7 @@ $conn->close();
 
         <div class="container">
             
-            <div class="form-box login" style="width: 400px; height: 450px;">
+            <div class="form-box login" style="margin-top:-10px;">
                 <br>
                 <center><h1>Student Login</h1> </center>
                 <br>
@@ -537,6 +537,7 @@ $conn->close();
                             <input type="text" id="rollno" name="rollno" placeholder="22104001" style="width: 150px;">            
                         </div>           
                     </div>
+                    <br>
                     <div class="form-group" style="display:flex;flex-direction:row;justify-content:space-between">
                             <label for="password">Password</label>
                             <input type="password" id="pass" name="pass">            

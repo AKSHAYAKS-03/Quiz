@@ -17,11 +17,18 @@ $activeQuiz = $_SESSION['activeQuiz'];
 $noRecords = false; 
 
 if($activeQuizId !== 'None'){
-    $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY CAST(RollNo as UNSIGNED)";
+    $sql = "SELECT s.RegNo, u.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+            FROM student s
+            JOIN users u ON s.RegNo = u.RegNo 
+            WHERE QuizId = $activeQuizId ORDER BY CAST(s.RegNo as UNSIGNED)";
+
+    
     $records = $conn->query($sql);
 }
 else {
-  $sql = "SELECT * FROM student ORDER BY CAST(RollNo as UNSIGNED)";
+  $sql = "SSELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+          FROM student s
+          JOIN users u ON s.RegNo = u.RegNo ORDER BY CAST(s.RegNo as UNSIGNED)";
   $records = $conn->query($sql);
 }
 
@@ -49,11 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
 
       if($activeQuizId !== 'None' && $activeQuizId !== 'all'){
-          $sql = "SELECT * FROM student WHERE QuizId = $activeQuizId ORDER BY CAST(RollNo as UNSIGNED)";
+          $sql = "SELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+                FROM student s
+                JOIN users u ON s.RegNo = u.RegNo
+                WHERE QuizId = $activeQuizId ORDER BY CAST(s.RegNo as UNSIGNED)";
       }
       else
       {
-        $sql = "SELECT * FROM student ORDER BY CAST(RollNo as UNSIGNED)";
+        $sql = "SELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+                FROM student s
+                JOIN users u ON s.RegNo = u.RegNo ORDER BY CAST(s.RegNo as UNSIGNED)";
       }
       $records = $conn->query($sql);
   } 
@@ -73,8 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" type="text/css" href="css/viewResult.css">
   <link rel="stylesheet" type="text/css" href="css/navigation.css">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
   <style>
     aside {
@@ -238,8 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Sno']++;         
                 echo "<tr>";
                 echo "<td>" . $_SESSION['Sno'] . "</td>";
-                echo "<td>" . $student['Name'] . "</td>";
-                echo "<td>" . $student['RollNo'] . "</td>";
+                echo "<td>" . $student['Name'] . "</td> <script>co</script>";
+                echo "<td>" . $student['RegNo'] . "</td>";
                 echo "<td>" . $student['Department'] . "</td>";
                 echo "<td>" . $student['Section'] . "</td>";
                 echo "<td>" . strtoupper($student['Year']) . "</td>";
@@ -394,6 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   function exportData() {
       setHiddenValues();
+      const quizId = document.getElementById("selectedQuizId").value;
       const quizName = document.getElementById("selectedQuizName").value;
       const department = document.getElementById("selectedDepartment").value;
       const section = document.getElementById("selectedSection").value;
@@ -401,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const limit = document.getElementById("selectedLimit").value;
       const performance = document.getElementById("selectedPerformance").value;
 
-      var fileName = generateCSVFilename(quizName, department, section, year, performance);
+      var fileName = generateCSVFilename(quizId, quizName, department, section, year, performance);
 
       const table = document.getElementById("scoreTable").getElementsByTagName('table')[0];
       const rows = table.getElementsByTagName('tr');
@@ -442,11 +455,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-  function generateCSVFilename(quizName, department, section, year, performance) {
+  function generateCSVFilename(quizId, quizName, department, section, year, performance) {
       let filename = `quiz_${new Date().toISOString().split('T')[0]}`;
-
-      if (quizName!=='all') {
-          filename = `${quizName}_${new Date().toISOString().split('T')[0]}`;
+      const quizArray = quizId.split(','); 
+      if (quizName!=='all' && quizArray.length === 1) {
+        filename = `${quizName}_${new Date().toISOString().split('T')[0]}`;
       }
       if (department && department !== 'all') {
           filename += `_${department}`;

@@ -67,7 +67,7 @@ $student = $conn->query($student_query)->fetch_assoc();
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $RegNo);
     $stmt->execute();
-    $stmt->bind_result($name, $RegNo, $department, $section, $year, $time);
+    $stmt->bind_result($name, $RegNo, $department, $section, $year);
     $result = $stmt->get_result();
     $studentDetails = $result->fetch_assoc();
 

@@ -13,50 +13,41 @@ if ($conn->connect_errno) {
 }
 
 $quiz = $_POST['quiz'];
-$year = $_POST['year'];
+$gnYear = $_POST['year'];
 $section = $_POST['section'];
 $department = $_POST['department'];
 
-$query = "SELECT COUNT(DISTINCT QuizId) AS totalQuizzes, COUNT(DISTINCT rollNo) AS totalStudents, 
-                 AVG(Score) AS averagePerformance, 
-                 MAX(Score) AS bestQuiz
-          FROM student WHERE 1";
+$whereConditions = '';
 
 if ($quiz !== 'all') {
-    $query .= " AND QuizId = '$quiz'";
+    $quizIdsArray = explode(',', $quiz);
+    $quizIdsArray = array_map(function($id) {
+        return $id === 'all' ? $id : (int)$id;  
+    }, $quizIdsArray);
+
+    if (!in_array('all', $quizIdsArray)) {
+        $whereConditions .= " AND q.Quiz_Id IN (" . implode(',', $quizIdsArray) . ")";
+    }
 }
-if ($year !== 'all') {
-    $query .= " AND Year = '$year'";
+if ($gnYear !== 'all') {
+    $whereConditions .= " AND u.Year = '$gnYear'";
 }
 if ($section !== 'all') {
-    $query .= " AND Section = '$section'";
+    $whereConditions .= " AND u.Section = '$section'";
 }
 if ($department !== 'all') {
-    $query .= " AND Department = '$department'";
+    $whereConditions .= " AND u.Department = '$department'";
 }
 
-$result = $conn->query($query);
-$data = $result->fetch_assoc();
-
-// Fetch top performers
-$topperQuery = "SELECT name AS name, RollNo AS rollNo, Year AS year, Section AS section, Department AS department, Score AS percentage 
-                FROM student 
+// Fetch top performers 
+$topperQuery = "SELECT s.RegNo AS RegNo, s.Name AS name, u.Department AS department, u.Section AS section, u.Year AS year, s.percentage AS percentage 
+                FROM student s
+                JOIN users u ON s.RegNo = u.RegNo
+                JOIN quiz_Details q ON s.QuizId = q.Quiz_id
                 WHERE 1";
+$topperQuery.=$whereConditions;
 
-if ($quiz !== 'all') {
-    $topperQuery .= " AND QuizId = '$quiz'";
-}
-if ($year !== 'all') {
-    $topperQuery .= " AND Year = '$year'";
-}
-if ($section !== 'all') {
-    $topperQuery .= " AND Section = '$section'";
-}
-if ($department !== 'all') {
-    $topperQuery .= " AND Department = '$department'";
-}
-
-$topperQuery .= " ORDER BY Score DESC LIMIT 3";
+$topperQuery .= " ORDER BY s.percentage DESC LIMIT 3";
 
 $topperResult = $conn->query($topperQuery);
 $topToppers = [];
@@ -68,27 +59,14 @@ while ($row = $topperResult->fetch_assoc()) {
 $data['topToppers'] = $topToppers;
 
 // piechart
-$scoreDistributionQuery = "SELECT 
-                            SUM(CASE WHEN Score BETWEEN 0 AND 29 THEN 1 ELSE 0 END) AS range_0_29,
-                            SUM(CASE WHEN Score BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS range_30_49,
-                            SUM(CASE WHEN Score BETWEEN 50 AND 74 THEN 1 ELSE 0 END) AS range_50_74,
-                            SUM(CASE WHEN Score BETWEEN 75 AND 89 THEN 1 ELSE 0 END) AS range_75_89,
-                            SUM(CASE WHEN Score BETWEEN 90 AND 100 THEN 1 ELSE 0 END) AS range_90_100
-                        FROM student WHERE 1";
-$scoreDistributionQuery = "SELECT avg(percentage) as percentageRange FROM student WHERE 1"; 
-if ($quiz !== 'all') {
-    $scoreDistributionQuery .= " AND QuizId = '$quiz'";
-}
-if ($year !== 'all') {
-    $scoreDistributionQuery .= " AND Year = '$year'";
-}
-if ($section !== 'all') {
-    $scoreDistributionQuery .= " AND Section = '$section'";
-}
-if ($department !== 'all') {
-    $scoreDistributionQuery .= " AND Department = '$department'";
-}
-$scoreDistributionQuery .= " GROUP BY rollno";
+// Fetch score distribution with Department, Section, and Year from users table
+$scoreDistributionQuery = "SELECT avg(s.percentage) as percentageRange FROM student s
+                           JOIN users u ON s.RegNo = u.RegNo
+                           JOIN quiz_Details q ON s.QuizId = q.Quiz_id 
+                           WHERE 1"; 
+$scoreDistributionQuery.=$whereConditions;
+
+$scoreDistributionQuery .= " GROUP BY s.RegNo";
 $result = $conn->query($scoreDistributionQuery);
 
 $ranges = ["90-100" => 0, "75-89" => 0, "50-74" => 0, "30-50" => 0, "Below 30" => 0];
@@ -115,31 +93,285 @@ $percentages = [];
 foreach ($ranges as $key => $count) {
     $percentages[$key] = ($total > 0) ? round(($count / $total) * 100, 2) : 0;
 }
+$data['percentages'] = $percentages;
 
 
 // line chart
-$scoreTrendQuery = "SELECT QuizId, AVG(Score) AS avgScore 
-                    FROM student WHERE 1";
-
-if ($year !== 'all') {
-    $scoreTrendQuery .= " AND Year = '$year'";
-}
-if ($section !== 'all') {
-    $scoreTrendQuery .= " AND Section = '$section'";
-}
-if ($department !== 'all') {
-    $scoreTrendQuery .= " AND Department = '$department'";
-}
-
-$scoreTrendQuery .= " GROUP BY QuizId ORDER BY QuizId ASC";
+$scoreTrendQuery = "SELECT q.Quiz_Id, q.QuizName, AVG(s.Percentage) AS avgPercentage
+                    FROM student s
+                    JOIN users u ON s.RegNo = u.RegNo
+                    JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                    WHERE 1";
+$scoreTrendQuery.=$whereConditions;
+$scoreTrendQuery .= " GROUP BY q.Quiz_Id ORDER BY q.Quiz_Id ASC";
 $trendResult = $conn->query($scoreTrendQuery);
 $scoreTrendData = [];
+$quizLabels = [];
+$avgScores = [];
+
+$bestQuizName = '';
+$bestQuizRate = 0;
 
 while ($row = $trendResult->fetch_assoc()) {
     $scoreTrendData[] = $row;
+    $quizLabels[] = $row['QuizName'];  
+    $avgScores[] = round($row['avgPercentage'], 2); 
+
+    if($bestQuizRate<$row['avgPercentage']){
+        $bestQuizName = $row['QuizName'];
+        $bestQuizRate = $row['avgPercentage'];
+    }
 }
 
-$data['scoreTrend'] = $percentages;
+$data['scoreTrend'] = [
+    'labels' => $quizLabels,
+    'data' => $avgScores
+];
+
+
+
+// all time Toppers
+$years = ['I', 'II', 'III', 'IV'];
+if($gnYear !== 'all'){
+    $years = [$gnYear];
+}
+$performers = [];
+
+foreach ($years as $year) {
+    $performerQuery = $conn->query("SELECT s.RegNo, AVG(s.percentage) as avg_percentage
+                                    FROM student s
+                                    JOIN users u ON s.RegNo = u.RegNo
+                                    JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                                    WHERE u.year = '$year'".$whereConditions."
+                                    GROUP BY RegNo
+                                    ORDER BY AVG(s.percentage) DESC, MIN(s.Time) ASC 
+                                    LIMIT 1");
+            
+        $performer = $performerQuery->fetch_assoc();
+
+        if ($performer) {
+            $RegNo = $performer['RegNo'];
+            $avgPercentage = number_format((float)$performer['avg_percentage'], 2, '.', '');
+    
+            // Fetch user details
+            $detailsQuery = $conn->query("SELECT * FROM users WHERE RegNo = '$RegNo' LIMIT 1");
+            $details = $detailsQuery->fetch_assoc();
+    
+            if ($details) {
+                $details['avg_percentage'] = $avgPercentage;
+                $performers[$year] = $details;
+            }
+        }
+    }
+
+$data['performers'] = $performers;
+
+// Query to fetch and convert time to seconds, then group them in 10-second intervals
+$completionTimeQuery = "
+    SELECT FLOOR(
+        TIME_TO_SEC(s.time) / 10
+    ) * 10 AS timeRange, COUNT(*) AS studentCount
+    FROM student s
+    JOIN users u ON s.RegNo = u.RegNo
+    JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+    WHERE 1";
+$completionTimeQuery.=$whereConditions;
+$completionTimeQuery.= " GROUP BY timeRange ORDER BY timeRange";
+
+$completionTimeResult = $conn->query($completionTimeQuery);
+$completionTimeData = [];
+
+while ($row = $completionTimeResult->fetch_assoc()) {
+    $completionTimeData[] = [
+        'timeRange' => $row['timeRange'],
+        'studentCount' => $row['studentCount']
+    ];
+}
+$data['completionTimeData'] = $completionTimeData;
+
+
+// performance average
+$performanceQuery = "SELECT avg(s.percentage) as percentage FROM student s
+                           JOIN users u ON s.RegNo = u.RegNo
+                           JOIN quiz_Details q ON s.QuizId = q.Quiz_id 
+                           WHERE 1"; 
+
+$performanceQuery .= $whereConditions;
+$performanceQuery .= " GROUP BY s.RegNo";
+
+$data['query'] = $performanceQuery;
+$result = $conn->query($performanceQuery);
+
+// Initialize bins (0-9, 10-19, ..., 91-100)
+$ranges = [];
+for ($i = 0; $i <= 90; $i += 10) {
+    $ranges["$i-" . ($i + 9)] = 0;
+}
+$ranges["91-100"] = 0; 
+
+$data['fetched avg'] = '';
+$data['matched'] = '';
+$data['inside loop'] = '';
+
+ // Fetch the result and categorize each student's score
+while ($row = $result->fetch_assoc()) {
+    $score = floatval($row["percentage"]);
+    $data['fetched avg'].= $score.' ';
+    foreach ($ranges as $range => &$count) {
+        list($min, $max) = explode("-", $range);
+        $min = floatval($min);
+        $max = floatval($max);
+        if ($score >= $min && $score <= $max) {
+            $data['matched'].= $score.' '.$range.'\n ';
+            $count++;
+            break;
+        }
+        $data['inside loop'].= $score.' '.$range.' '. $count.'\n ';
+    }
+    unset($count); 
+}
+
+// Store the categorized data
+$avgPerformance = [];
+$data['range'] = '';
+foreach ($ranges as $key => $count) {
+    $data['range'].= $key.' '.$count.'\n ';
+    $avgPerformance[$key] = $count;
+}
+
+$data['avgPerformance'] = $avgPerformance;
+
+
+
+// comparison chart
+$yearlyPerformanceQuery = "SELECT u.Year, AVG(s.percentage) AS avgPercentage
+                           FROM student s
+                           JOIN users u ON s.RegNo = u.RegNo
+                           JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                           WHERE 1" . $whereConditions . "
+                           GROUP BY u.Year
+                           ORDER BY u.Year ASC";
+
+$yearlyResult = $conn->query($yearlyPerformanceQuery);
+$yearlyData = [];
+
+while ($row = $yearlyResult->fetch_assoc()) {
+    $yearlyData[] = [
+        'year' => $row['Year'],
+        'avgPercentage' => round($row['avgPercentage'], 2),
+    ];
+}
+
+// Query to fetch average performance section-wise
+$sectionPerformanceQuery = "SELECT u.Year, u.Section, AVG(s.percentage) AS avgPercentage
+                            FROM student s
+                            JOIN users u ON s.RegNo = u.RegNo
+                            JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                            WHERE 1" . $whereConditions . "
+                            GROUP BY u.Year, u.Section
+                            ORDER BY u.Year ASC, u.Section ASC";
+
+$sectionResult = $conn->query($sectionPerformanceQuery);
+$sectionData = [];
+
+while ($row = $sectionResult->fetch_assoc()) {
+    if (!isset($sectionData[$row['Year']])) {
+        $sectionData[$row['Year']] = [];
+    }
+
+    $sectionData[$row['Year']][] = [
+        'section' => $row['Section'],
+        'avgPercentage' => round($row['avgPercentage'], 2)
+    ];
+}
+
+// Combine both results into one data structure
+$data['yearlyPerformance'] = $yearlyData;
+$data['sectionPerformance'] = $sectionData;
+
+
+// counter widgets
+$bestQuiz = ['bestQuizName' => $bestQuizName, 'bestQuizRate' => $bestQuizRate];
+
+$averageQuery = "SELECT AVG(s.Percentage) AS average FROM student s
+                JOIN users u ON s.RegNo = u.RegNo
+                JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                WHERE 1" . $whereConditions ;
+$averageResult = $conn->query($averageQuery);
+$average = $averageResult->fetch_assoc()['average'];
+$average = is_numeric($average) ? round($average, 2) : 0;
+
+// Calculate total number of students from the 'users' table based on filters
+$totalStudentsQuery = "SELECT COUNT(*) AS NoOfStudents FROM users u 
+                       WHERE 1";
+if($gnYear!=='all' ){
+    $totalStudentsQuery .= " AND u.Year = '$gnYear'";
+}
+if($section!=='all' ){
+    $totalStudentsQuery .= " AND u.Section = '$section'";
+}
+if($department!=='all' ){
+    $totalStudentsQuery .= " AND u.Department = '$department'";
+}
+
+$totalStudentResult = $conn->query($totalStudentsQuery);
+$totalStudents = $totalStudentResult->fetch_assoc()['NoOfStudents'];
+
+$attendedStudentsQuery = "SELECT COUNT(DISTINCT s.RegNo) AS attended_students
+                           FROM student s
+                           JOIN users u ON s.RegNo = u.RegNo
+                           JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                           WHERE 1" . $whereConditions;
+$attendedStudentsResult = $conn->query($attendedStudentsQuery);
+$attendedStudents = $attendedStudentsResult->fetch_assoc()['attended_students'];
+
+if ($quiz === 'all' || (count($quizIdsArray)> 1) && in_array('all', $quizIdsArray)) {
+    // Query to get the total number of quizzes
+    $totalQuizzesQuery = "SELECT COUNT(*) AS total_quizzes FROM quiz_Details";
+    $totalQuizzesResult = $conn->query($totalQuizzesQuery);
+    $totalQuizzes = $totalQuizzesResult->fetch_assoc()['total_quizzes'];
+
+    $data['c1'] = 'Total Quizzes';
+    $data['c2'] = 'Total Students';
+    $data['c3'] = 'Average Performance';
+    $data['c4'] = 'Top Quiz';
+
+    $data['c1_val'] = $totalQuizzes;
+    $data['c2_val'] = $totalStudents;
+    $data['c3_val'] = $average;
+    $data['c4_val'] = $bestQuiz;
+} 
+elseif (count($quizIdsArray) > 1) {
+    $data['c1'] = 'Attended';
+    $data['c2'] = 'Not Attended';
+    $data['c3'] = 'Average Performance';
+    $data['c4'] = 'Top Quiz';
+
+    $data['c1_val'] = $attendedStudents;
+    $data['c2_val'] = $totalStudents - $attendedStudents;
+    $data['c3_val'] = $average;
+    $data['c4_val'] = $bestQuiz;
+    
+} else {
+    $highScoreQuery = "SELECT MAX(s.Percentage) AS highScore
+                       FROM student s
+                       JOIN users u ON s.RegNo = u.RegNo
+                       JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                       WHERE 1" . $whereConditions;
+
+    $highScoreResult = $conn->query($highScoreQuery);
+    $highScore = $highScoreResult->fetch_assoc()['highScore'];
+
+    $data['c1'] = 'Attended';
+    $data['c2'] = 'Not Attended';
+    $data['c3'] = 'Average Performance';
+    $data['c4'] = 'Highest Score';
+
+    $data['c1_val'] = $attendedStudents;
+    $data['c2_val'] = $totalStudents - $attendedStudents;
+    $data['c3_val'] = $average;
+    $data['c4_val'] = $highScore;
+}
 
 echo json_encode($data);
 ?>
