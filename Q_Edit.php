@@ -107,50 +107,63 @@ $result = $stmt->get_result();
 </table>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Handle text updates
-        const editableCells = document.querySelectorAll(".editable");
-        editableCells.forEach(cell => {
-            cell.addEventListener("blur", function () {
-                const questionNo = this.closest("tr").dataset.id;
-                const field = this.dataset.field;
-                const value = this.textContent.trim();
+    const editableCells = document.querySelectorAll(".editable");
 
-                fetch("update_question.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ question_no: questionNo, field: field, value: value }),
-                })
-                .then(response => response.json())
-                .then(data => alert(data.message))
-                .catch(error => alert("Error: " + error.message));
-            });
+    // Handle text updates on double-click
+    editableCells.forEach(cell => {
+        cell.addEventListener("dblclick", function () {
+            // Make the cell editable
+            this.setAttribute("contentEditable", "true");
+            this.focus();
         });
 
-        // Handle image uploads
-        const uploadInputs = document.querySelectorAll(".upload-image");
-        uploadInputs.forEach(input => {
-            input.addEventListener("change", function () {
-                const questionNo = this.closest("tr").dataset.id;
-                const file = this.files[0];
-                if (!file) return;
+        // When the user moves out of the cell (blur), update the database
+        cell.addEventListener("blur", function () {
+            const questionNo = this.closest("tr").dataset.id;
+            const field = this.dataset.field;
+            const value = this.textContent.trim();
 
-                const formData = new FormData();
-                formData.append("question_no", questionNo);
-                formData.append("upload_file", file);
+            // Make the cell non-editable after update
+            this.removeAttribute("contentEditable");
 
-                fetch("update_question.php", {
-                    method: "POST",
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    if (data.message === "Image updated successfully.") location.reload();
-                })
-                .catch(error => alert("Error: " + error.message));
-            });
+            // Update in the database
+            fetch("update_question.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question_no: questionNo, field: field, value: value }),
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))  // Show success alert
+            .catch(error => alert("Error: " + error.message));  // Show error alert
         });
     });
+
+    // Handle image uploads
+    const uploadInputs = document.querySelectorAll(".upload-image");
+    uploadInputs.forEach(input => {
+        input.addEventListener("change", function () {
+            const questionNo = this.closest("tr").dataset.id;
+            const file = this.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("question_no", questionNo);
+            formData.append("upload_file", file);
+
+            fetch("update_question.php", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);  // Show success message
+                if (data.message === "Image updated successfully.") location.reload();  // Reload to reflect the updated image
+            })
+            .catch(error => alert("Error: " + error.message));  // Show error alert
+        });
+    });
+});
+
 </script>
 </body>
 </html>

@@ -101,6 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="inspect.js"></script>
     <link rel="stylesheet" type="text/css" href="css/Q_Add.css">
     <link rel="stylesheet" type="text/css" href="css/navigation.css">
+    <script src='DisableKeys_Fillup.js'></script>
+
     <style>
         body{
             margin: 50px;

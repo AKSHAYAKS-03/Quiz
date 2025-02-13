@@ -8,35 +8,19 @@ if (!isset($_SESSION['RegNo'])) {
     exit();
 }
 
-    $RegNo = $_SESSION['RegNo'];
-    $name = $_SESSION['Name'];
-    $activeQuizId = $_SESSION['active'];
+$RegNo = $_SESSION['RegNo'];
+$name = $_SESSION['Name'];
+$activeQuizId = $_SESSION['active'];
 
 
-    // Fetch student details (assuming logged-in student ID is 1)
-    $student_query = "SELECT * FROM student WHERE RegNo = $RegNo";
-    $student = $conn->query($student_query)->fetch_assoc();
+// Fetch student details (assuming logged-in student ID is 1)
+$student_query = "SELECT * FROM student WHERE RegNo = $RegNo";
+$student = $conn->query($student_query)->fetch_assoc();
 
     // Fetch active quiz
     $active_quiz_query = "SELECT * FROM quiz_details WHERE IsActive = 1 LIMIT 1";
     $active_quiz = $conn->query($active_quiz_query)->fetch_assoc();
 
-    $activenoofques = ($active_quiz["Active_NoOfQuestions"] == 0) 
-        ? $active_quiz["NumberOfQuestions"] 
-        : min($active_quiz["Active_NoOfQuestions"], $active_quiz["NumberOfQuestions"]);
-
-    $activemarks = $activenoofques * $active_quiz['QuestionMark'];
-
-    //student active quiz
-    $student_active_quiz_query = "SELECT * FROM student WHERE RegNo = $RegNo AND QuizId = $activeQuizId";
-    $student_active_quiz = $conn->query($student_active_quiz_query);
-    $flag = false;
-    if($student_active_quiz->num_rows > 0){
-        $flag = true;        
-    }
-
-
-    
     // Fetch all quizzes and student scores
     $regnoprefix = substr($RegNo, 0, 9);
 
@@ -129,7 +113,7 @@ if (!isset($_SESSION['RegNo'])) {
 
     //leaderboard
     $leaderboardQuery = mysqli_query($conn, "
-            SELECT q.Quiz_id, q.QuizName, s.Name, s.percentage, u.Avatar
+            SELECT q.Quiz_id, q.QuizName, s.Name, s.Score, u.Avatar
             FROM student s
             JOIN quiz_details q ON s.QuizId = q.Quiz_id
             JOIN users u ON s.RegNo = u.RegNo
@@ -142,7 +126,7 @@ if (!isset($_SESSION['RegNo'])) {
             $leaderboardData[$row['Quiz_id']]['QuizName'] = $row['QuizName'];    
             $leaderboardData[$row['Quiz_id']]['TopStudents'][] = [
                 'Name' => $row['Name'],
-                'percentage' => $row['percentage'],
+                'Score' => $row['Score'],
                 'Avatar' => $row['Avatar']
             ];
         }
@@ -171,24 +155,21 @@ if (!isset($_SESSION['RegNo'])) {
         // $studentDept = $rowStudentDept['Department'];
 
         $sqlQuizzes = "
-        SELECT DISTINCT q.Quiz_id, q.QuizName, s.percentage
-        FROM quiz_details q
-        INNER JOIN student s ON q.Quiz_id = s.QuizId AND s.RegNo = '$RegNo'
-            WHERE s.RegNo = '$RegNo'
+            SELECT DISTINCT q.Quiz_id, q.QuizName, s.percentage
+            FROM quiz_details q
+            INNER JOIN student s ON q.Quiz_id = s.QuizId AND s.RegNo = '$RegNo'
+            WHERE s.RegNo = '$RegNo' 
         ";
         
         $resultQuizzes = $conn->query($sqlQuizzes);
-        
+
         $quiz_labels = [];
-        $quiz_ids = [];  // Use correct plural name
         $scores = [];
-        
+
         while ($quiz = $resultQuizzes->fetch_assoc()) {
             $quiz_labels[] = $quiz['QuizName'];
-            $quiz_ids[] = $quiz['Quiz_id'];  // Fixed the variable name
             $scores[] = $quiz['percentage'] ? $quiz['percentage'] : 'Not Attempted';
         }
-        
 
         //progress circle
         $sqlQuizzes = "SELECT * FROM quiz_details";
@@ -211,104 +192,9 @@ if (!isset($_SESSION['RegNo'])) {
 
         $avatar = $avatar ? $avatar : "avatar/a.jpg";
 
-        //get averagescore for all quizes for all students
-        $sql = "
-        SELECT 
-            q.QuizName, q.Quiz_id,
-            AVG(s.Score) AS AverageScore
-        FROM 
-            student s
-        JOIN 
-            quiz_details q ON s.QuizId = q.Quiz_id
-        WHERE 
-            s.RegNo LIKE '913122104%'
-        GROUP BY 
-            s.QuizId, q.QuizName;
-        ";
-
-        $result = $conn->query($sql);
-
-        $quizIds_avg = [];
-        $quizNames = [];
-        $averageScores = [];
-
-        while ($row = $result->fetch_assoc()) {
-        $quizIds_avg[] = $row['Quiz_id'];
-        $quizNames[] = $row['QuizName'];
-        $averageScores[] = $row['AverageScore'];
-        }
-
-        $quizIdsJS = json_encode($quizIds_avg);
-        $quizNamesJS = json_encode($quizNames);
-        $averageScoresJS = json_encode($averageScores);
-
-        // echo "
-        // <script>
-        //     // Assign PHP values to JavaScript variables
-        //     var quizIds = $quizIdsJS;
-        //     var quizNames = $quizNamesJS;
-        //     var averageScores = $averageScoresJS;
-
-        //     console.log(quizIds);
-        //     console.log(quizNames);
-        //     console.log(averageScores);
-        // </script>
-        // ";
 
 
-
-        // all time Toppers
-                 
-        // Get the current student's year
-        $student_query = "SELECT Year FROM student WHERE RegNo LIKE '$regnoprefix%' LIMIT 1";
-        $student_result = $conn->query($student_query);
-        
-        // Ensure we have the student's year
-        if ($student_result && $student_result->num_rows > 0) {
-            $student = $student_result->fetch_assoc();
-            $currentStudentYear = $student['Year'];
-        } else {
-            echo "Student not found or invalid RegNo.";
-            exit();
-        }
-        
-        $performers = [];
-        $whereConditions = " AND u.year = '$currentStudentYear'"; 
-        
-        // Query for top performers - fetching more than one
-        $performerQuery = $conn->query("SELECT s.RegNo, AVG(s.percentage) as avg_percentage
-                                        FROM student s
-                                        JOIN users u ON s.RegNo = u.RegNo
-                                        JOIN quiz_Details q ON s.QuizId = q.Quiz_id
-                                        WHERE u.year = '$currentStudentYear' $whereConditions
-                                        GROUP BY s.RegNo
-                                        ORDER BY avg_percentage DESC, MIN(s.Time) ASC
-                                        LIMIT 5"); // Adjust LIMIT as needed, for top 5 performers
-        
-        // Fetch and store performers
-        while ($performer = $performerQuery->fetch_assoc()) {
-            $RegNo = $performer['RegNo'];
-            $avgPercentage = number_format((float)$performer['avg_percentage'], 2, '.', '');
-        
-            // Fetch user details for each performer
-            $detailsQuery = $conn->query("SELECT * FROM users WHERE RegNo = '$RegNo' LIMIT 1");
-            $details = $detailsQuery->fetch_assoc();
-        
-            if ($details) {
-                $details['avg_percentage'] = $avgPercentage;
-                $performers[] = $details; // Store multiple performers
-            }
-        }
-        
-        // If no top performers found
-        if (empty($performers)) {
-            echo "No top performers found for this year.";
-        }
-        
-        $data['performers'] = $performers;
-        ?>
-        
-        
+    ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -325,7 +211,6 @@ if (!isset($_SESSION['RegNo'])) {
         margin: 0; 
         padding: 10px; 
         background: black; 
-        color:white;
         display: flex; 
         position: relative; /* Ensure body does not take full width */
         /* bacjkground-color: #fff; */
@@ -355,29 +240,27 @@ if (!isset($_SESSION['RegNo'])) {
 } */
     .greeting-block {
         display: flex;
-        align-items: center;     
+        justify-content: space-between; 
+        align-items: center; 
         background: linear-gradient(170deg,rgba(35, 121, 124, 0.85),rgb(52, 82, 140));
         color: white; 
         /* padding: 15px; */
-        width: 1040px;
+        width: 858px;
         height:250px; 
         border-radius: 8px; 
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .slider-container {        
       position: relative;
-      width: 1080px;
+      width: 900px;
       height: 300px; 
-      border-radius: 10px;
-
       overflow: hidden;
     }
     .greeting-text {
         /* background-color:pink; */
          /* padding:20px; */
       flex: 1;
-      margin-left:100px;
-      font-size : 20px;
+      margin-left:60px;
       margin-right: 40px;
     }
     .greeting-text h1 {
@@ -389,8 +272,6 @@ if (!isset($_SESSION['RegNo'])) {
       width: 300%; /* Adjust if you have more or fewer slides */
       height: 100%;
       transition: transform 0.5s ease-in-out;
-      border-radius: 10px;
-
     }
     /* Each slide takes full viewport size */
     .slide {
@@ -398,10 +279,7 @@ if (!isset($_SESSION['RegNo'])) {
       height: 100vh;
       flex-shrink: 0;
       padding: 20px;
-      /* background: linear-gradient(180deg,rgba(35, 121, 124, 0.85),rgb(52, 82, 140)); */
-      background: #fff;
-      border-radius: 10px;
-
+      background-color: #fff;
     }
       
     /* Navigation arrow buttons */
@@ -467,7 +345,7 @@ if (!isset($_SESSION['RegNo'])) {
 
 .sidebar {
     width: 290px;
-    height: 890px;
+    height: 800px;
     margin-top: -40px; /* Starts below header */
     margin-left: 30px;
     margin-right: 30px;
@@ -616,9 +494,8 @@ if (!isset($_SESSION['RegNo'])) {
   .leaderboard {
     /* background-color: pink; */
     /* margin-top: -20px; */
-    margin-left:-460px;
     padding: 20px;
-    width: 400px;
+    width: auto;
     height: auto;
     border-radius: 10px;
     text-align: center;
@@ -627,7 +504,6 @@ if (!isset($_SESSION['RegNo'])) {
 
 
 .nav-buttons {
-    margin-top:-50px;
     display: flex;
     justify-content: center;
     margin-bottom: 15px;
@@ -657,7 +533,7 @@ if (!isset($_SESSION['RegNo'])) {
 
 .quiz-leaderboard {
     display: none; 
-    height:90%;
+    /* height:80%; */
     /* background-color: yellow; */
     transition: transform 0.5s ease-in-out;
 }
@@ -671,67 +547,52 @@ if (!isset($_SESSION['RegNo'])) {
     /* background-color: green; */
 
     width: 290px !important;
-    height: 400px !important;    
+    height: 300px !important;    
     
 }
 #scoreBarChart {
-    width: 600px  !important;
-    height: 400px !important;
+    width: 100% !important;
+    height: 250px !important;       
     /* background-color: yellow; */
 
 }
 #timePieChart {
-    width: 300px !important;
-    height: 300px !important;
-}
-#avgChart{
-    
+    width: 200px !important;
+    height: 200px !important;
 }
 .charts {
     display: flex;
-    width: 100%;
+    width: 150%;
     /* margin-left:20px; */
-    background: transparent;
+    /* background-color:rgb(255, 0, 0); */
     justify-content: space-between;
     align-items: center;
 
 }
 .badges{
-        width: 560px;
-        height: 350px;
-        margin-top:-395px;
-        margin-left: 950px;
-        background-color: green;
-        background:#fff; 
-        /* #f9f9f9; */
-        padding: 15px; 
-        border-radius: 8px; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        font-size: 16px;
-        }
+        width: 80%;
+        height:300px;
+        margin-left: 20px;
+        /* background-color: green; */
+    }
 
 .barc {
-    width: 600px;
-    margin-left: 20px;
-    height: 450px;
+    width: 100%;
+    margin-left:20px;
 
-    overflow-x: auto;  
-    white-space: nowrap; 
+    height: 300px;
+    overflow-x: auto;    
 }
 
 .piec {
-    width: 400px;
-    height: 450px;
+    width: 80%;
+    height: 300px;
 }
-.line_chart{
-    width: 1050px;
-    height: auto;
-}
-/* 
+
 .barc > div {
     width: 100%;
     overflow-x: auto; 
-}  */
+} 
 
 
 .quiz-list {
@@ -779,10 +640,29 @@ if (!isset($_SESSION['RegNo'])) {
     color:#13274F;
 }
 
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
 
+.pagination button {
+    background: #13274F;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    margin: 0 5px;
+    border-radius: 5px;
+}
+
+.pagination button:hover {
+    background-color: #fff;
+    color:#13274F;
+}
 .quiz{
     margin-top: 20px;
-    width: 900px;
+    width: 98%;
     /* margin-left:450px; */
     height: 350px;
 }
@@ -791,21 +671,22 @@ if (!isset($_SESSION['RegNo'])) {
       position: relative;
       width:300px;
       /* background-color: pink; */
-      margin-right: 50px
+      margin-right: 20px
     }
     /* Center text over the canvas */
     .progress-text {
       position: absolute;
       top: 50%;
-      left: 58%;
+      left: 60%;
       transform: translate(-50%, -50%);
       font-weight: bold;
       font-size: 20px;
     }
     #progressCanvas{
-        margin-left:-30px;
-        width: 400px !important;
-        height: 200px !important;
+
+        /* margin-left:-100px; */
+        width: 350px !important;
+        height: 190px !important;
             
     }
    
@@ -848,70 +729,14 @@ if (!isset($_SESSION['RegNo'])) {
         50% { transform: scale(1.15); } 
         100% { transform: scale(1); }
     }
-    .inactive-btn{
-  background-color: #13274F;
-  margin-top: 0px;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  
-    }
     .fullcontainer{
         background-color:rgb(236, 236, 238);
     }
     .active_quiz{
         /* background-color:rgb(211, 35, 35); */
-        width: 400px;
-        margin-left:-455px;
         /* height: 250px; */
-        color:black;
         
     }
-    .toppers { 
-    /* background-color:rgb(255, 0, 0); */
-    padding: 20px;
-    display:flex;
-    height:445px;
-    margin-left:20px;
-    width:400px;
-    flex-direction: column;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.toppers h2 {
-    font-size: 1.8em;
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-
-.topper-card {
-
-}
-
-.topper-card h3 {
-    font-size: 1.2em;
-    color: #555;
-}
-
-.topper-details p {
-    font-size: 1em;
-    color: #666;
-}
-
-.topper-details strong {
-    color: #333;
-} */
-
-
     </style>
 </head>
 <body>
@@ -943,36 +768,25 @@ if (!isset($_SESSION['RegNo'])) {
             <div class="recent-activity">
             <h2>Recent Activity</h2>
             <?php
-            
-            $quizIds = json_decode($quizIdsJS, true);
-            $quizNames = json_decode($quizNamesJS, true);
-            $averageScores = json_decode($averageScoresJS, true);
-            
-            $quiz_id_recent = $quizIds[count($quizIds) - 1];
-            $recent_quiz_name = $quizNames[count($quizNames) - 1];
-            $recent_quiz_avg = $averageScores[count($averageScores) - 1];
-            
-            // your recent quiz and score
-            $yourrecnt = $quizLabels[count($quizLabels) - 1];
-            $yourrecentquizscore = $quizScores[count($quizScores) - 1];
-            
-            if ($yourrecnt == $recent_quiz_name) {
-                if ($yourrecentquizscore >= $recent_quiz_avg) {
-                    $performance_message = "Good job! Keep improving!";
-                } else {
-                    $performance_message = "Needs improvement. Keep trying!";
-                }
+            // Assuming you have the recent quiz details stored
+            $recent_quiz_name = $quiz_labels[count($quiz_labels) - 1]; // Last quiz in the list
+            $recent_score = $scores[count($scores) - 1]; // Last quiz score
+
+            // Calculate the performance message
+            if ($recent_score >= 90) {
+                $performance_message = "Perfect!";
+            } elseif ($recent_score >= 70) {
+                $performance_message = "Good job! Keep improving!";
             } else {
-                $performance_message = "You have not attended the recent quiz!";
+                $performance_message = "Needs improvement. Keep trying!";
             }
-                      
             ?>
             <div class="quiz-item-recent">
                 <p><strong>Recent Quiz:</strong> <?php echo $recent_quiz_name; ?></p>
-                <p><strong>Score:</strong> <?php echo $yourrecentquizscore; ?></p>
+                <p><strong>Score:</strong> <?php echo $recent_score; ?>%</p>
                 <p><strong>Status:</strong> <?php echo $performance_message; ?></p>
             </div>
-        </div>    
+        </div>        
 
         </div>
 
@@ -998,8 +812,7 @@ if (!isset($_SESSION['RegNo'])) {
                 <div class="slide">
                     <div class="greeting-block">
                     <div class="greeting-text">
-                        <h1>Welcome, </h1>
-                        <h1><?php echo $studentDetails['Name']; ?></h1>
+                        <h1>Welcome, <?php echo $studentDetails['Name']; ?></h1>
                         <p>Your current progress:
                         <span id="progressPercentageText"><?php echo $studentPercentage; ?>%</span>
                         </p>
@@ -1033,10 +846,7 @@ if (!isset($_SESSION['RegNo'])) {
         <div class="card active_quiz">
         <h1>Active Quiz</h1>
         <?php 
-        
-
         if ($active_quiz) {
-            
             $time = $active_quiz['TimeDuration'];
             list($hours, $minutes, $seconds) = explode(':', $time);
     
@@ -1048,23 +858,20 @@ if (!isset($_SESSION['RegNo'])) {
                 $display_time = intval($hours) . ' hr ' . intval($minutes) . ' min';
             }
             echo '<div class="activequiz-item">
-            <div class="activequiz-icon"><i class="fas fa-bolt"></i></div>
-            <div class="activequiz-details">
-                <h3>' . htmlspecialchars($active_quiz['QuizName']) . '</h3>
-                <p>' . ($active_quiz['QuizType'] == '0' ? 'MCQ' : 'FillUp') . '</p>
-                <p>' . htmlspecialchars($activenoofques) . ' Questions | ' . $display_time . '</p>
-                <p>' . htmlspecialchars($activemarks) . ' Marks</p>';
-                if (!$flag) {
-                    echo '<center><button class="active-btn" type="button" onclick="window.location.href=\'Welcome.php\'">Start Quiz</button></center>';
-                } else {
-                    echo '<center><button class="inactive-btn" type="button" disabled style="background-color: grey; cursor: not-allowed;">Already Attempted</button></center>';
-                }
-                
-                echo '</div></div>';                   
+                    <div class="activequiz-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="activequiz-details">
+                        <p class="activequiz-title"><h3>' . htmlspecialchars($active_quiz['QuizName']).'</h3> '. ($active_quiz['QuizType'] == '0' ? 'MCQ' : 'FillUp') . '</p>
+                        <p>' . htmlspecialchars($active_quiz['Active_NoOfQuestions']) . ' Questions | ' . $display_time . '</p>
+                        <p>' . htmlspecialchars($active_quiz['TotalMarks']) . ' Marks</p>
+                        <center><button class="active-btn" type="button" onclick="window.location.href=\'Welcome.php\'">Start Quiz</button></center>
+                    </div>
+                </div>';
+        } else {
+            echo '<p class="no-quiz">No active quizzes at the moment.</p>';
         }        
         ?>
         </div>
-        <div class="line_chart card">
+        <div class="card" style="margin-top:0px;height:auto;">
                 <h2>Average Performance (Line Chart)</h2>
                 <canvas id="avgChart"></canvas>
         </div>
@@ -1076,17 +883,16 @@ if (!isset($_SESSION['RegNo'])) {
                     <div class="quiz-leaderboard" data-quiz-id="<?php echo $quizId; ?>">
                         <h3>Quiz: <?php echo $quizInfo['QuizName']; ?></h3>
                        <center> <canvas id="chart-<?php echo $quizId; ?>" style="width: 100%; height: 300px;"></canvas></center>
-                       
                     </div>
                 <?php endforeach; ?>
             <!-- </div> -->
             <div class="nav-buttons">
-                        <button id="prev_Btn">⬅</button>
-                        <button id="next_Btn">➡</button>
-                    </div>
+                <button id="prev_Btn">⬅</button>
+                <button id="next_Btn">➡</button>
+            </div>
         </div>
        
-        <div class="charts">
+        <div class="card charts">
                 
         <div class="card piec">
             <h2>Time of Completion (Pie Chart)</h2>
@@ -1096,48 +902,34 @@ if (!isset($_SESSION['RegNo'])) {
                 <h2>Scores (Bar Chart)</h2>
                     <canvas id="scoreBarChart"></canvas>
         </div>
-        <div class="card toppers">
-                    <?php if (!empty($data['performers'])) { ?>
-                <!-- <div class="toppers"> -->
-                    <h2>🏆 All-Time Toppers</h2>
-                    <div class="topper-list">
-                        <?php foreach ($data['performers'] as $topper) { ?>
-                            <div class="topper-card">
-                                <div class="topper-details">
-                                    <h3><?php echo htmlspecialchars($topper['Name']); ?></h3>
-                                    <p><strong>Year:</strong> <?php echo htmlspecialchars($topper['Year']); ?></p>
-                                    <p><strong>Reg No:</strong> <?php echo htmlspecialchars($topper['RegNo']); ?></p>
-                                    <!-- <p><strong>Avg Percentage:</strong> <?php echo $topper['avg_percentage']; ?>%</p> -->
-                                    <hr>
-                                </div>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-            <?php } else { ?>
-                <p>No toppers found.</p>
-            <?php } ?>
-        </div>
-        </div>
-      
-        <div class="card quiz">
-            <h2>All Quizzes</h2>
-                <div class="quiz-list">
-                    <?php foreach ($quiz_labels as $index => $quiz_name): ?>
-                        <div class="quiz-item">
-                            <h2 style="color:black;"><?php echo $quiz_name; ?></h2>
-                            <p>Score: <?php echo $scores[$index]; ?>%</p>
-                            <button onclick="window.location.href='Answers.php?quiz_id=<?php echo $quiz_ids[$index]; ?>'">View Answers</button>
-                        </div>
-                    <?php endforeach; ?>
-                </div>           
-            </div>``
-
-
-    <div class="badges">
+        <div class="card badges">
                 <h2>Badges</h2>
                 <p>🏆 High Scorer | 🕒 Fast Finisher | 📚 Quiz Master</p>
         </div>
+        </div>
+
+        </div>
+
+
+      
+        <div class="card quiz">
+            <h2>All Quizzes</h2>
+            <div class="quiz-list">
+                <?php foreach ($quiz_labels as $index => $quiz_name): ?>
+                    <div class="quiz-item">
+                        <h2 style="color:black;"><?php echo $quiz_name; ?></h2>
+                        <p>Score: <?php echo $scores[$index]; ?>%<p>
+                        <button onclick="window.location.href='Answers.php?quiz_id=<?php echo $index + 1; ?>'">View Answers</button>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="pagination">
+                <button>&laquo; Prev</button>
+                <button>Next &raquo;</button>
+            </div>
+        </div>
+
     </div>
 </div>    
 
@@ -1163,11 +955,18 @@ if (!isset($_SESSION['RegNo'])) {
         }
 
         // Progress Circle
+        function renderProgressChart() {
+            const canvas = document.getElementById('progressCanvas');
+            
         const progressPercent = <?php echo $studentPercentage; ?>;
         const duration = 1000; 
         
-        const canvas = document.getElementById('progressCanvas');
         const ctx_new = canvas.getContext('2d');
+        if (canvas.chart) {
+                canvas.chart.destroy();
+                delete canvas.chart;
+            }
+            
         const progressText = document.getElementById('progressText');
         
         const centerX = canvas.width / 2;
@@ -1211,9 +1010,13 @@ if (!isset($_SESSION['RegNo'])) {
         }
         requestAnimationFrame(animate);
 
-
-        // Line Chart
-         
+    }
+        
+    // Line Chart    
+    
+    function renderAvgChart() {
+            const canvas = document.getElementById('avgChart');
+                                
         var quizLabels = <?php echo json_encode($quizLabels); ?>;
         var quizScores = <?php echo json_encode($quizScores); ?>;
         var percentages = <?php echo json_encode($percentages_stud); ?>.map(parseFloat); 
@@ -1227,7 +1030,10 @@ if (!isset($_SESSION['RegNo'])) {
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
         gradient.addColorStop(0, 'rgba(93, 128, 129, 0.85)');
         gradient.addColorStop(1, 'rgba(83, 113, 160, 0.85)');
-
+        if (canvas.chart) {
+                canvas.chart.destroy();
+                delete canvas.chart;
+            }
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -1273,7 +1079,7 @@ if (!isset($_SESSION['RegNo'])) {
                 }
             }
         });
-
+    }
 
         //leaderboard
     
@@ -1283,10 +1089,7 @@ if (!isset($_SESSION['RegNo'])) {
 
         function renderChart(quizId) {
             const canvas = document.getElementById(`chart-${quizId}`);
-            
-            if (canvas.chart) {
-                canvas.chart.destroy();
-            }
+          
 
             const quizInfo = leaderboardData[quizId];
             let topStudents = quizInfo.TopStudents.slice(0, 3);
@@ -1299,10 +1102,10 @@ if (!isset($_SESSION['RegNo'])) {
                 if(index === 2) return `3rd: ${student.Name}`;
                 return student.Name;
             });
-            const scores = topStudents.map(student => student.percentage);
+            const scores = topStudents.map(student => student.Score);
             const avatars = topStudents.map(student => student.Avatar);
             const ctx_bar = canvas.getContext('2d');
-            var yAxisMax = Math.max(...scores) + 25;
+            var yAxisMax = Math.max(...scores) + 5;
 
 
             var gradient1 = ctx_bar.createLinearGradient(0, 0, 0, 400);
@@ -1316,13 +1119,17 @@ if (!isset($_SESSION['RegNo'])) {
             var gradient3 = ctx_bar.createLinearGradient(0, 0, 0, 400);
             gradient3.addColorStop(0, 'rgba(65, 89, 130, 0.85)');
             gradient3.addColorStop(1, 'rgba(108, 145, 210, 0.4)');
-
+            if (canvas.chart) {
+                canvas.chart.destroy();
+                delete canvas.chart;
+            }
+            
             const newChart = new Chart(ctx_bar, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Percentage',
+                        label: 'Scores',
                         data: scores,
                         backgroundColor: [gradient1, gradient2, gradient3],
                         borderColor: '#222',
@@ -1421,19 +1228,21 @@ if (!isset($_SESSION['RegNo'])) {
 
 
 
-        // piechart
-        let pieChartInstance = null;
-
+        // Pie Chart
         function renderPieChart() {
-            var quizNames = <?php echo json_encode($quizNames); ?>;
-            var totalTimes = <?php echo json_encode($totalTimes); ?>;
+            var canvas = document.getElementById('timePieChart');
+          
+        var quizNames = <?php echo json_encode($quizNames); ?>;
+        var totalTimes = <?php echo json_encode($totalTimes); ?>;
+        // console.log(totalTimes);
 
-            function timeToMinutes(timeStr) {
-                const [hours, minutes, seconds] = timeStr.split(':').map(Number);
-                return hours * 60 + minutes + (seconds / 60); 
-            }
+        function timeToMinutes(timeStr) {
+            const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes + (seconds / 60); 
+        }
 
-            const totalTimesInMinutes = totalTimes.map(time => timeToMinutes(time));
+        const totalTimesInMinutes = totalTimes.map(time => timeToMinutes(time));    
+        // console.log(totalTimesInMinutes);
 
             var colors = ['#e7eaf6', '#a2a8d3', '#38598b', '#113f67', 'rgba(22, 77, 79, 0.85)', 'rgba(77, 81, 91, 0.85)', 'rgba(77, 81, 91, 0.4)', 'rgba(108, 145, 210, 0.85)', 'rgba(108, 145, 210, 0.4)'];
 
@@ -1441,10 +1250,10 @@ if (!isset($_SESSION['RegNo'])) {
                 return colors[Math.floor(Math.random() * colors.length)];
             }
 
-            const ctx_pie = document.getElementById('timePieChart').getContext('2d');
+            var ctx_pie = document.getElementById('timePieChart').getContext('2d');
 
-            function getRandomGradient(ctx) {
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            function getRandomGradient(ctx_pie) {
+                const gradient = ctx_pie.createLinearGradient(0, 0, 0, 400); 
                 const color1 = getRandomColor();
                 const color2 = getRandomColor();
 
@@ -1455,14 +1264,10 @@ if (!isset($_SESSION['RegNo'])) {
             }
 
             var barGradients = totalTimesInMinutes.map(() => getRandomGradient(ctx_pie));
-
-            // Destroy previous chart if it exists
-            if (pieChartInstance) {
-                pieChartInstance.destroy();
+            if (canvas.chart) {
+                canvas.chart.destroy();
             }
-
-            // Create a new chart and store the instance
-            pieChartInstance = new Chart(ctx_pie, {
+            new Chart(ctx_pie, {
                 type: 'pie',
                 data: {
                     labels: quizNames,
@@ -1495,87 +1300,93 @@ if (!isset($_SESSION['RegNo'])) {
                     }
                 }
             });
+         
         }
-        let scoreChartInstance = null;
 
-function renderScoreChart() {
-    var quizLabels = <?php echo json_encode($quizLabels); ?>;
-    var quizScores = <?php echo json_encode($quizScores); ?>;
-    var colors2 = ['#e7eaf6', '#a2a8d3', '#38598b', '#113f67', 'rgba(22, 77, 79, 0.85)', 'rgba(77, 81, 91, 0.85)', 'rgba(77, 81, 91, 0.4)', 'rgba(108, 145, 210, 0.85)', 'rgba(108, 145, 210, 0.4)'];
+        // Bar Chart
+        function renderScoreChart() {
+            var canvas = document.getElementById('scoreBarChart');
+          
+            
+            var quizLabels = <?php echo json_encode($quizLabels); ?>;
+            var quizScores = <?php echo json_encode($quizScores); ?>;
+            var colors2 = ['#e7eaf6', '#a2a8d3', '#38598b', '#113f67', 'rgba(22, 77, 79, 0.85)', 'rgba(77, 81, 91, 0.85)', 'rgba(77, 81, 91, 0.4)', 'rgba(108, 145, 210, 0.85)', 'rgba(108, 145, 210, 0.4)'];
 
-    function getRandomColor2() {
-        return colors2[Math.floor(Math.random() * colors2.length)];
-    }
-
-    function getRandomGradient2(ctx) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        const color1 = getRandomColor2();
-        const color2 = getRandomColor2();
-        gradient.addColorStop(0, color1);
-        gradient.addColorStop(1, color2);
-        return gradient;
-    }
-
-    var ctx = document.getElementById('scoreBarChart').getContext('2d');
-
-    // Destroy previous chart if it exists
-    if (scoreChartInstance) {
-        scoreChartInstance.destroy();
-    }
-
-    // Create an array of gradients for each bar
-    var barGradients = quizScores.map(() => getRandomGradient2(ctx));
-
-    // Create a new chart and store the instance
-
-    scoreChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: quizLabels,
-        datasets: [{
-            label: 'Scores',
-            data: quizScores,
-            backgroundColor: barGradients,
-            borderWidth: 1,
-            borderColor: 'black',
-            borderRadius: 5,
-            barThickness: 50,    // Adjust bar width for better spacing
-            maxBarThickness: 60, // Limit max width
-            tension: 0.4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            x: {
-                display: true,
-                grid: {
-                    display: false, 
-                },
-                ticks: {
-                    color: '#333',
-                    font: { size: 14, weight: 'bold' }
-                },
-                barPercentage: 0.5,     // Adjust spacing between bars
-                categoryPercentage: 0.7 // Adjust category spacing
-            },
-            y: {
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0,0,0,0.1)'
-                },
-                ticks: {
-                    color: '#333',
-                    font: { size: 14, weight: 'bold' }
-                }
+            function getRandomColor2() {
+                return colors2[Math.floor(Math.random() * colors2.length)];
             }
+
+            function getRandomGradient2(ctx_pie) {
+                const gradient = ctx_pie.createLinearGradient(0, 0, 0, 400);
+                const color1 = getRandomColor2();
+                const color2 = getRandomColor2();
+                gradient.addColorStop(0, color1);
+                gradient.addColorStop(1, color2);
+                return gradient;
+            }
+
+            var ctx_bar = document.getElementById('scoreBarChart').getContext('2d');
+
+            // Create an array of gradients for each bar
+            var barGradients = quizScores.map(() => getRandomGradient2(ctx_bar));
+            if (canvas.chart) {
+                canvas.chart.destroy();
+                delete canvas.chart;
+            }
+            new Chart(ctx_bar, {
+                type: 'bar',
+                data: {
+                    labels: quizLabels,
+                    datasets: [{
+                        label: 'Scores',
+                        data: quizScores,
+                        backgroundColor: barGradients, // Apply different gradients for each bar
+                        borderWidth: 1,
+                        borderColor: 'black',
+                        borderRadius: 5,
+                        barThickness: 80,
+                        maxBarThickness: 100,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            display: false,
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            },
+                            ticks: {
+                                color: '#333',
+                                font: { size: 14, weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#000',
+                            bodyColor: '#000',
+                            borderColor: '#ccc',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 10
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutBounce'
+                    }
+                }
+            });
         }
-    }
-});
 
-}
-
+        //avatar 
         function toggleAvatarDropdown() {
             const dropdown = document.getElementById('avatarDropdown');
             dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
@@ -1611,25 +1422,50 @@ function renderScoreChart() {
                 dropdown.style.display = 'none';
             }
         });
-       
+
+        let currentScroll = 0;
+        const quizList = document.querySelector('.quiz-list');
+        const prevButton = document.querySelector('.pagination button:first-child');
+        const nextButton = document.querySelector('.pagination button:last-child');
+
+        const scrollAmount = 270; 
+
+        prevButton.addEventListener('click', () => {
+            currentScroll -= scrollAmount;
+            quizList.scrollTo({
+                left: currentScroll,
+                behavior: 'smooth'
+            });
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentScroll += scrollAmount;
+            quizList.scrollTo({
+                left: currentScroll,
+                behavior: 'smooth'
+            });
+        });
 
         //for scroll animation
-        let pieChartRendered = false;
-        let scoreChartRendered = false;
-
         window.addEventListener('scroll', () => {
             const rect = document.getElementById('timePieChart')?.getBoundingClientRect();
             const rect2 = document.getElementById('scoreBarChart')?.getBoundingClientRect();
-
-            if (rect && rect.top < window.innerHeight && rect.bottom > 0 && !pieChartRendered) {
+            // const rect3 = document.getElementById('progressCanvas')?.getBoundingClientRect();
+            // const rect4 = document.getElementById('avgChart')?.getBoundingClientRect();
+            
+            if (rect && rect.top < window.innerHeight && rect.bottom > 0) {
                 renderPieChart();
-                pieChartRendered = true; 
             }
+            if (rect2 && rect2.top < window.innerHeight && rect2.bottom > 0) {
+                renderScoreChart(); 
+            }
+            // if (rect3 && rect3.top > window.innerHeight && rect3.bottom  0) {
+            //     renderProgressChart();
+            // }
+            // if (rect4 && rect4.top < window.innerHeight && rect4.bottom > 0) {
+            //     renderAvgChart();
+            // }
 
-            if (rect2 && rect2.top < window.innerHeight && rect2.bottom > 0 && !scoreChartRendered) {
-                renderScoreChart();
-                scoreChartRendered = true; 
-            }
         });
 
         
