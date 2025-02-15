@@ -13,9 +13,6 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login']) ||
 $RegNo = $_SESSION['RegNo'];
 if (isset($_GET['quiz_id'])) {
     $quiz_id = intval($_GET['quiz_id']); 
-//     echo "Selected Quiz ID: " . $quiz_id;
-// } else {
-//     echo "No quiz selected.";
 }
 
 if ($conn->connect_error) {
@@ -41,6 +38,7 @@ $mcq = $conn->prepare("
         mc.Choice2, 
         mc.Choice3, 
         mc.Choice4, 
+        mc.img_path,
         s.yanswer AS student_answer
     FROM multiple_choices mc
     JOIN stud s ON s.QuizId = mc.QuizId AND s.QuestionNo = mc.QuestionNo
@@ -88,15 +86,6 @@ while ($row = $fillup_result->fetch_assoc()) {
 $total_fillup = count($questions_fillup); // Get the total number of unique questions
 $query_fillup->close();
 
-// // Example Output for Debugging
-// foreach ($questions_fillup as $questionNo => $data) {
-//     echo "QuestionNo: " . $questionNo . "<br>";
-//     echo "Question: " . $data['Question'] . "<br>";
-//     echo "Answers: " . implode(", ", $data['Answer']) . "<br><br>";
-// }
-
-// echo $total_fillup." ".$total_mcq;
-
 $userquery = $conn->prepare("SELECT Score, Time FROM student WHERE RegNo = ? AND QuizId = ?");
 
 $userquery->bind_param("si", $_SESSION['RegNo'], $quiz_id);
@@ -133,15 +122,21 @@ while ($row = $user_answers_result->fetch_assoc()) {
 $user_answers_query->close();
 $conn->close();
 
-?>s
+?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Answers</title>
     <link rel="stylesheet" type="text/css" href="css/answers.css">
+    <link rel="stylesheet" type="text/css" href="css/navigation.css">
 </head>
 <body oncontextmenu="return false;">
+    <div class="header">
+        <a href="dashboard.php" id="back" title="Back">
+                <img src="icons\back_white.svg" alt="back">
+        </a>
+    </div>
 <div class="head">
     <h1><?php echo htmlspecialchars($QuizName) . " - " . $RegNo; ?></h1>
 </div>
@@ -181,25 +176,38 @@ $conn->close();
     <!-- Display MCQ Questions if QuizType is 0 -->
     <?php if ($QuizType == 0): ?>
         <?php foreach ($questions_mcq as $question): ?>
-            <h2 class="ques"><?php echo $index ?>. <?php echo htmlspecialchars($question['Question']); ?></h2>
+            <?php echo $index ?>.
+            <?php if (!empty($question['Question'])): ?>
+                <h2 class="ques" style='display: inline-block;'> <?php echo htmlspecialchars($question['Question']); ?></h2>
+            <?php endif; ?>
+            
+            <?php if (!empty($question['img_path']) && trim($question['img_path']) !== '' && $question['img_path'] !== 'NULL'): ?>
+
+                <center>
+                    <img src="<?php echo htmlspecialchars($question['img_path']); ?>" 
+                        alt="Question Image" class="question-img"
+                        style="min-width:200px; min-height: 200px; max-width: 600px; max-height: 500px;">
+                </center>
+            <?php endif; ?>
             <ul>
-                <?php foreach (['Choice1', 'Choice2', 'Choice3', 'Choice4'] as $option): ?>
+            <?php
+            $user_answer = trim(htmlspecialchars($user_answers[$question['QuestionNo']] ?? ''));
+            $correct_answer = trim(htmlspecialchars($question['Answer']));
+                 foreach (['Choice1', 'Choice2', 'Choice3', 'Choice4'] as $option): ?>
                     <li>
                         <?php
-                        $choice = htmlspecialchars($question[$option]);
-                        $user_answer = $user_answers[$question['QuestionNo']] ?? '';
-                        $correct_answer = htmlspecialchars($question['Answer']);
+                        $choice = trim(htmlspecialchars($question[$option]));
 
-                        // Check if the choice is the user's answer and/or the correct answer
+                        $class = '';
                         if ($user_answer === $choice && $user_answer === $correct_answer) {
-                            echo "<span class='correct-answer'>{$choice}</span>";
-                        } elseif ($user_answer === $choice && $user_answer !== $correct_answer) {
-                            echo "<span class='incorrect-answer'>{$choice}</span>";
+                            $class = 'correct-answer';
+                        } elseif ($user_answer === $choice) {
+                            $class = 'incorrect-answer'; 
                         } elseif ($correct_answer === $choice) {
-                            echo "<span class='answer'>{$choice}</span>";
-                        } else {
-                            echo $choice;
+                            $class = 'answer';
                         }
+                    
+                        echo "<span class='{$class}'>{$choice}</span>";                    
                         ?>
                     </li>
                 <?php endforeach; ?>
@@ -277,9 +285,6 @@ $conn->close();
        
 </div>
 <br>
-<form method="post" action="index.php">
-    <input type="submit" name="Logout" class="Logout" value="Logout">
-</form>
 
 <script>
     const targetPercentage = <?php echo $percentage; ?>;

@@ -10,7 +10,6 @@ if (!isset($_GET['regNo']) || !isset($_GET['quizId'])) {
 $RegNo = $_GET['regNo'];
 $QuizId = $_GET['quizId'];
 
-// Check if student already attempted in either `student` or `stud` table
 $result1 = $conn->query("SELECT * FROM student WHERE RegNo = '$RegNo' AND QuizId = '$QuizId'");
 $result2 = $conn->query("SELECT * FROM stud WHERE regno = '$RegNo' AND QuizId = '$QuizId'");
 

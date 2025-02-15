@@ -11,6 +11,7 @@ if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {
 $RegNo = $_SESSION['RegNo'];
 $name = $_SESSION['Name'];
 $activeQuizId = $_SESSION['active'];
+$timeFormatted= $_SESSION['timeFormatted'];
 
 if ($_SESSION['active'] === 'None') {
     echo '<script> alert("Logging Out");</script>';
@@ -123,6 +124,11 @@ $end_seconds = $end_time_seconds % 60;
 $end_time = sprintf('%02d:%02d', $end_minutes, $end_seconds);
 $_SESSION["end_time"] = $end_time;
 
+
+
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['start'])) {
         $result1 = $conn->query('SELECT * FROM student WHERE RegNo = ' . $RegNo . ' AND QuizId = ' . $activeQuizId);
@@ -140,22 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['score'] = 0;
         header('Location: question.php');
         exit;
-    }
-
-    if (isset($_POST['Logout'])) {
-        $stmt = $conn->prepare("DELETE FROM student WHERE RegNo = ? AND QuizId = ?");
-        $stmt->bind_param("si", $RegNo, $activeQuizId);
-        if ($stmt->execute()) {
-            header("Location: index.php");
-            $_SESSION['login'] = FALSE;
-            $_SESSION['logi'] = FALSE;
-            $_SESSION['log'] = FALSE;
-            exit;
-        } else {
-            echo "Error deleting record: " . $stmt->error;
-        }
-        $stmt->close();
-    }
+    }    
 }
 $conn->close();
 ?>
@@ -166,10 +157,152 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz - Welcome</title>
-    <link rel="stylesheet" type="text/css" href="css/welcome.css">
+    <!-- <link rel="stylesheet" type="text/css" href="css/welcome.css"> -->
     <!-- <script src='DisableKeys.jsF'></script>
     <script src='inspect.js'></script> -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+    body {
+    background-color: #13274F;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url("img3.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    color: #13274F;
+    width: 600px;
+    margin: 20px auto;
+    margin-top: 100px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    
+    animation: fadeIn 0.5s ease-out forwards;
+    transition: background-color 0.3s ease; 
+}
+
+.container ul {
+    /* background-color: black; */
+    width: 100%;
+    margin-left:70px;
+    list-style: none;
+    padding: 0;
+}
+
+.container li {
+    display: flex;
+    align-items: center;
+    margin-left:70px;
+
+    /* justify-content: space-between; Ensures spacing between strong and span */
+    margin-bottom:20px;
+}
+
+.container li strong {
+    flex: 1;
+    text-align: left;
+}
+
+.container li span {
+    flex: 1;
+    text-align: left;
+}
+
+
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    margin-top: 0px;
+    margin-bottom:5px;
+    background-color: #13274F;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #fff;
+    color: #13274F;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(2px);
+}
+
+.start {
+    border: none;
+    background-color: #13274F;
+}
+
+.Logout {
+    border: none;
+    background-color: #13274F;
+}
+
+.header h2 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    text-align: center;
+    font-size: 36px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.header{
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+.header a {
+    text-decoration: none;
+    padding: 2px;
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    padding: 8px;
+}
+.header #back{
+    left: 10px;
+    color: #fff;
+}
+.header a img {
+    margin-top: 20px;   
+    cursor: pointer;
+    width: 24px;  
+    height: px; 
+}
+#back{
+    right: 99%;
+}
+</style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -201,25 +334,26 @@ $conn->close();
 <body>
 
 <div class="header">
-    <?php echo htmlspecialchars($_SESSION['quiz_name']); ?>
-</div>
+    <h2><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h2>
+         <a href="Dashboard.php" id="back" title="Back">
+            <img src="icons\back_white.svg" alt="back">
+        </a>
+    </div>
 
 <div class="container">
     <h2>Welcome, <?php echo htmlspecialchars($name); ?>!</h2>
     <ul>
+    <li><strong>Number of Questions:</strong> <span><?php echo htmlspecialchars($_SESSION["Active_NoOfQuestions"]); ?></span></li>
+    <li><strong>Quiz Type:</strong> <span><?php echo $_SESSION["QuizType"] === 0 ? "Multiple Choice" : "Fill in the Blanks"; ?></span></li>
+    <li><strong>Total Marks:</strong> <span><?php echo htmlspecialchars($_SESSION["Marks"]); ?></span></li>
+    <li><strong>Duration:</strong> <span><?php echo htmlspecialchars($timeFormatted); ?></span></li>
+    <li><strong>Marks per Question:</strong> <span><?php echo htmlspecialchars($_SESSION["question_marks"]); ?></span></li>
+    <li><strong>Your quiz will start at:</strong> <span><?php echo date('H:i A', strtotime($_SESSION['startingtime'])); ?></span></li>
+</ul>
 
-        <li><strong>Number of Questions</strong><span><?php echo htmlspecialchars($_SESSION["Active_NoOfQuestions"]); ?></span></li>
-        <li><strong>Type</strong><span> <?php echo $_SESSION["QuizType"]===0? "Multiple Choices": 'Fill Up'?></span></li>
-        <li><strong>Total Marks</strong><span><?php echo htmlspecialchars($_SESSION["Marks"]); ?> Marks</span></li>
-        <li><strong>Time</strong><span><?php echo htmlspecialchars($_SESSION["duration"]); ?></span></li>
-        <li><strong>Time per Question</strong><span><?php echo htmlspecialchars($_SESSION["question_duration"]); ?></span></li>
-        <li><strong>Marks per Question</strong><span><?php echo htmlspecialchars($_SESSION["question_marks"]); ?></span></li>
-        <li><strong>Your Quiz will start at</strong><span><?php echo date('H:i A', strtotime($_SESSION['startingtime'])); ?></span></li>
-    </ul>
     <form method="post" action="welcome.php">
         <div class="btn-container">
             <input type="submit" name="start" value="Start Quiz" id="start" class="btn start" disabled>
-            <input type="submit" name="Logout" value="Logout" class="btn Logout">
         </div>
     </form>
 </div>

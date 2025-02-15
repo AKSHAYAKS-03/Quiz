@@ -15,7 +15,7 @@ $activeQuizId=$_SESSION['active'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Analytics Dashboard</title>
+    <title>Quiz Analytics Dashboard</title>   
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -366,26 +366,17 @@ $activeQuizId=$_SESSION['active'];
         max-width: 1800px;
     }
     .sidebar {
-        padding: 15px;
+        width: 17.5%;
+        font-size: 16px;
     }
-
-    .sidebar select,
-    .sidebar button {
-        font-size: 14px;
-        padding: 8px;
+    .main-content {
+        width: 100%;
     }
 
     .counter-widget {
-        width: 120px;
+        width: 100px;
         height: 75px;
-    }
-
-    .counter-widget h4 {
-        font-size: 13px;
-    }
-
-    .counter {
-        font-size: 15px;
+        font-size: 16px;
     }
 }
 
@@ -417,9 +408,36 @@ $activeQuizId=$_SESSION['active'];
         font-size: 18px;
     }
 }
+.header {
+    position: fixed;
+    top: 10px; 
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header img {
+    width: 26px;
+    height: 26px;
+}
+#logout {
+    margin-right: 10px;
+}
+#back{
+    margin-left: 10px;
+}
     </style>
 </head>
-<body>
+    <div class="header">
+            <a href="admin.php" id="back" title="Back">
+                <img src="icons\back_white.svg" alt="back">
+            </a>
+            <a href="logout.php" id="logout" title="Log Out">
+                <img src="icons\exit_white.svg" alt="exit">
+            </a>
+    </div>
+<body>    
     <div class="container">
         <div class="sidebar">
             <h3>Filter Options</h3>
@@ -469,8 +487,6 @@ $activeQuizId=$_SESSION['active'];
                     <option value="CIV">CIV</option>
                 </select><br>
                 
-                <br>
-                <button>View Students</button>
             </form>
         </div>
 
@@ -601,26 +617,69 @@ $activeQuizId=$_SESSION['active'];
             
             const labels = toppers.map(topper => topper.name);  
             const percentages = toppers.map(topper => parseFloat(topper.percentage));
+
+            const avatars = toppers.map(topper => topper.avatar ? topper.avatar : 'uploads/65/pokemon_bg.png');
             const topperDetails = toppers.map(topper => ({
                 RegNo: topper.RegNo,
                 year: topper.year,
                 section: topper.section,
-                department: topper.department
+                department: topper.department,
+                avatar: topper.avatar
             }));
 
-            // Destroy previous chart instance only if it exists
             if (window.activeQuizTopperChart && typeof window.activeQuizTopperChart.destroy === 'function') {
                 window.activeQuizTopperChart.destroy();
             }
+
+            const avatarPlugin = {
+                id: 'customAvatarPlugin',
+                beforeDatasetsDraw(chart, args, options) {
+                    const ctx = chart.ctx;
+                    const bars = chart.getDatasetMeta(0).data;
+                    const tooltip = chart.tooltip;
+
+                    bars.forEach((bar, index) => {
+                        if (!topperDetails[index].avatar) return;
+
+                        const avatarSize = 40;
+                        let x = bar.x - avatarSize / 2;
+                        let y = bar.y - avatarSize - 10; // Position above bar
+
+                        const img = new Image();
+                        img.src = topperDetails[index].avatar;
+                        img.onload = function () {
+                            ctx.save();
+                        
+                            if (tooltip && tooltip.opacity > 0 && tooltip.dataPoints) {
+                                const tooltipIndex = tooltip.dataPoints[0].dataIndex;
+                                if (tooltipIndex === index) {
+                                    ctx.globalAlpha = 0.3; // Reduce opacity when tooltip is active
+                                } else {
+                                    ctx.globalAlpha = 1; // Normal opacity
+                                }
+                            } else {
+                                ctx.globalAlpha = 1; // Default opacity
+                            }
+
+                            ctx.drawImage(img, x, y, avatarSize, avatarSize);
+                            ctx.restore();
+                        };
+                    });
+                }
+            };
+
+
+            const maxPercentage = Math.max(...percentages);
+            const yAxisMax = maxPercentage + 20; 
 
             // Create new bar chart
             window.activeQuizTopperChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: labels, // Names of top performers
+                    labels: labels, 
                     datasets: [{
                         label: 'Average Score',
-                        data: percentages, // Percentage scores
+                        data: percentages, 
                         backgroundColor: ['#13274F', '#34495e', '#95a5a6'], // Dark blue, dark gray, light gray
                         borderColor: ['#13274F', '#34495e', '#95a5a6'],
                         borderWidth: 0.8
@@ -631,7 +690,7 @@ $activeQuizId=$_SESSION['active'];
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 100, 
+                            max: yAxisMax, 
                             ticks: {
                                 stepSize: 10
                             }
@@ -640,23 +699,22 @@ $activeQuizId=$_SESSION['active'];
                     plugins: {
                         tooltip: {
                             callbacks: {
-                                // Customizing tooltips to show additional topper information
                                 label: function(tooltipItem) {
-                                    const index = tooltipItem.dataIndex; // Get the index of the hovered bar
-                                    const topper = topperDetails[index]; // Get the corresponding topper details
+                                    const index = tooltipItem.dataIndex;
+                                    const topper = topperDetails[index];
 
-                                    const details = [
+                                    return [
                                         `Reg No: ${topper.RegNo}`,
                                         `Year: ${topper.year}`,
                                         `Section: ${topper.section}`,
                                         `Department: ${topper.department}`
                                     ];
-                                    return details;
                                 }
                             }
                         }
                     }
-                }
+                },
+                plugins: [avatarPlugin] 
             });
         }
 
@@ -668,10 +726,23 @@ $activeQuizId=$_SESSION['active'];
             }
 
             const ctx = canvas.getContext("2d");
-            
-            const labels = completionTimeData.map(item => `${item.timeRange}-${parseInt(item.timeRange) + 10} sec`);
-            const counts = completionTimeData.map(item => item.studentCount);
 
+            var interval =10;
+            if(completionTimeData.length>1) {
+                interval = completionTimeData[1].timeRange - completionTimeData[0].timeRange;         
+            }
+
+            const labels = completionTimeData.map(item => {
+                const nextRange = item.timeRange + interval; 
+                return `${item.timeRange}-${nextRange} sec`;
+            });
+
+            const counts = completionTimeData.map(item => {
+                return parseInt(item.studentCount, 10); // Convert studentCount to number
+            });
+
+            console.log("labels" + labels);    
+            console.log("counts"+counts);
             window.completionTimeDistributionChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -679,8 +750,8 @@ $activeQuizId=$_SESSION['active'];
                     datasets: [{
                         label: 'Students Count',
                         data: counts,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(104, 84, 117, 0.48)',
+                        borderColor: 'rgb(21, 21, 22)',
                         borderWidth: 1
                     }]
                 },
@@ -692,6 +763,7 @@ $activeQuizId=$_SESSION['active'];
                 }
             });
         }
+
 
         function renderPerformanceBarChart(avgPerformance) {
             const avgPerformanceElement = document.getElementById('performanceBarChart');
@@ -785,6 +857,7 @@ $activeQuizId=$_SESSION['active'];
                     renderToppersChart(data.topToppers);
 
                     // update completion time chart 
+                    console.log(data.completionTimeData); 
                     renderCompletionTimeDistribution(data.completionTimeData);
 
                     renderPerformanceBarChart(data.avgPerformance);
@@ -903,7 +976,7 @@ $activeQuizId=$_SESSION['active'];
                         topperContainer.classList.add('topper-container');
 
                         const profileImg = document.createElement('img');
-                        profileImg.src = topper.avatar ? topper.avatar : 'uploads/49/download(2).jpg';
+                        profileImg.src = topper.avatar ? topper.avatar : 'uploads/65/pokemon_bg.png';
                         console.log(topper.avatar);
                         profileImg.alt = 'Profile Picture';
 
@@ -932,23 +1005,19 @@ $activeQuizId=$_SESSION['active'];
 
                     let currentViewIndex = 0;
                     const viewText = document.getElementById('currentView');
-                    let isYearlyView = true;  // Toggle between Yearly and Section View
+                    let isYearlyView = true;  
 
-                   // Handle Next Button Click (Switch View from Yearly → Section-wise)
                     document.getElementById("next").addEventListener("click", function () {
                         const yearKeys = Object.keys(comparisonData.sectionPerformance);
-                        const maxIndex = yearKeys.length - 1; // Number of years available
+                        const maxIndex = yearKeys.length - 1; 
 
                         if (isYearlyView) {
-                            // If currently showing yearly, switch to 1st-year sections
                             currentViewIndex = 0;
                             isYearlyView = false;
                         } else {
-                            // If currently in section-wise mode, move to next year's sections
                             if (currentViewIndex < maxIndex) {
                                 currentViewIndex++;
                             } else {
-                                // If already at the last year's section, go back to Yearly View
                                 isYearlyView = true;
                             }
                         }
@@ -978,16 +1047,14 @@ $activeQuizId=$_SESSION['active'];
                         }
 
                         if (isYearlyView) {
-                            // Yearly performance data
                             const yearData = data.yearlyPerformance;
                             chartLabels = yearData.map(item => item.year);
                             chartData = yearData.map(item => item.avgPercentage);
                             textElement.textContent = `Viewing: Yearly Performance`;
                         } else {
-                            // Section-wise performance data
                             const yearKeys = Object.keys(data.sectionPerformance);
-                            const selectedYear = yearKeys[index]; // Get the correct year
-                            const sectionData = data.sectionPerformance[selectedYear]; // Get sections for that year
+                            const selectedYear = yearKeys[index];
+                            const sectionData = data.sectionPerformance[selectedYear]; 
 
                             if (sectionData) {
                                 chartLabels = sectionData.map((item) => item.section);

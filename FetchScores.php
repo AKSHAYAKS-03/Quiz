@@ -78,7 +78,7 @@ if (isset($_POST['quizId'])) {
         $quizNames[$row['Quiz_Id']] = $row['QuizName'];
     }
 
-    $sql = "SELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+    $sql = "SELECT s.RegNo, u.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
             FROM student s
             JOIN users u ON s.RegNo = u.RegNo
             $whereSQL";
@@ -119,8 +119,9 @@ if (isset($_POST['quizId'])) {
                 echo "<th onclick='sortTable($index)'>$quizName (%) <span class='arrow'></span> </th>";
                 $index++;
             }
-            echo "<th onclick='sortTable($index)'>Average Percentage <span class='arrow'></span> </th></tr>";
-            echo "<tbody id='tablebody'>";
+            echo "<th onclick='sortTable($index)'>Average Percentage <span class='arrow'></span> </th>
+            </tr>";
+            echo "<tbody id='tableBody'>";
             foreach ($students as $rollNo => $student) {
                 echo "<tr>";
                 echo "<td>$rollNo</td>";

@@ -250,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Sno']++;         
                 echo "<tr>";
                 echo "<td>" . $_SESSION['Sno'] . "</td>";
-                echo "<td>" . $student['Name'] . "</td> <script>co</script>";
+                echo "<td>" . $student['Name'] . "</td>";
                 echo "<td>" . $student['RegNo'] . "</td>";
                 echo "<td>" . $student['Department'] . "</td>";
                 echo "<td>" . $student['Section'] . "</td>";

@@ -20,4 +20,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 ?>
+<head>
+    <link rel="icon" type="image/png" href="BB-logo.png">
+</head>
 

@@ -141,6 +141,7 @@ $quizDuration='';
             </ul>
             <li><a href="#" onclick="redirectIframe('iframe1', 'Delete_Quiz.php')">Delete Quiz</a></li>
             <li><a href="reset.php">Reset Options</a></li>
+            <li><a href="Student_Management.php">Student Management</a></li>
             <li><a href="ViewResult.php">View Result</a></li>
             <li><a href="analytics.php">Analytics</a></li>
         </ul>

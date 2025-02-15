@@ -2,7 +2,7 @@
 include_once 'core_db.php';
 session_start();
 
-if(!$_SESSION['logged'] || $_SESSION['logged']===''){
+if (!isset($_SESSION['logged']) || $_SESSION['logged'] === '') {
     header('Location: index.php');
     exit;
 }
@@ -10,27 +10,33 @@ if(!$_SESSION['logged'] || $_SESSION['logged']===''){
 $quizId = $_SESSION['active'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $questionNo = $_POST['question_no'];
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $questionNo = $data['question_no'];
 
     $conn->begin_transaction();
 
     try {
-        $stmt = $conn->prepare("DELETE FROM multiple_choices WHERE QuestionNo=? && QuizId = ?");
+        // Delete the question
+        $stmt = $conn->prepare("DELETE FROM multiple_choices WHERE QuestionNo = ? AND QuizId = ?");
         $stmt->bind_param("ii", $questionNo, $quizId);
         $stmt->execute();
         $stmt->close();
 
+        // Update the total number of questions in quiz_details
         $stmt2 = $conn->prepare("UPDATE quiz_details SET NumberOfQuestions = NumberOfQuestions - 1 WHERE Quiz_Id = ?");
         $stmt2->bind_param("i", $quizId);
         $stmt2->execute();
         $stmt2->close();
 
+        // Shift the remaining question numbers down
         $stmt3 = $conn->prepare("UPDATE multiple_choices SET QuestionNo = QuestionNo - 1 WHERE QuestionNo > ? AND QuizId = ?");
         $stmt3->bind_param("ii", $questionNo, $quizId);
         $stmt3->execute();
         $stmt3->close();
 
-        $stmtUpdateActive = $conn->prepare("UPDATE quiz_details SET Active_NoOfQuestions = LEAST(Active_NoOfQuestions, NumberOfQuestions) WHERE Quiz_id = ?");
+        // Ensure Active_NoOfQuestions does not exceed the actual NumberOfQuestions
+        $stmtUpdateActive = $conn->prepare("UPDATE quiz_details SET Active_NoOfQuestions = LEAST(Active_NoOfQuestions, NumberOfQuestions) WHERE Quiz_Id = ?");
         $stmtUpdateActive->bind_param("i", $quizId);
         $stmtUpdateActive->execute();
         $stmtUpdateActive->close();
@@ -54,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ));
     } catch (Exception $e) {
         $conn->rollback();
-
         http_response_code(500);
         echo json_encode(array("message" => "Failed to update question numbers."));
     }

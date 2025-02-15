@@ -33,12 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $quizId = $ActiveQuizId;
     $questionNo = $_POST['question_no'];
     $question = $_POST['question_text'];
-    $c1 = $_POST['choice1'];
-    $c2 = $_POST['choice2'];
-    $c3 = $_POST['choice3'];
-    $c4 = $_POST['choice4'];
-    $correct_choice = $_POST['correct_choice'];
+    $c1 = trim($_POST['choice1']);
+    $c2 = trim($_POST['choice2']);
+    $c3 = trim($_POST['choice3']);
+    $c4 = trim($_POST['choice4']);
+    $correct_choice = trim($_POST['correct_choice']);
 
+    $choices = [$c1, $c2, $c3, $c4];
+    if (!in_array($correct_choice, $choices, true)) {
+        echo json_encode(["message" => "Error: The correct answer must be one of the four choices."]);
+        exit;
+    }
     $uploadFile = 'NULL';
     if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] == 0) {     
         

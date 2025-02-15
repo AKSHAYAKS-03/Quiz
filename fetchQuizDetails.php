@@ -40,7 +40,7 @@ if ($department !== 'all') {
 }
 
 // Fetch top performers 
-$topperQuery = "SELECT s.RegNo AS RegNo, s.Name AS name, u.Department AS department, u.Section AS section, u.Year AS year, s.percentage AS percentage 
+$topperQuery = "SELECT s.RegNo AS RegNo, s.Name AS name, u.avatar AS avatar, u.Department AS department, u.Section AS section, u.Year AS year, s.percentage AS percentage 
                 FROM student s
                 JOIN users u ON s.RegNo = u.RegNo
                 JOIN quiz_Details q ON s.QuizId = q.Quiz_id
@@ -138,20 +138,27 @@ if($gnYear !== 'all'){
 $performers = [];
 
 foreach ($years as $year) {
-    $performerQuery = $conn->query("SELECT s.RegNo, AVG(s.percentage) as avg_percentage
+    $quiz_per_year = "SELECT count(DISTINCT q.quiz_id) as totalQuiz FROM student s
+                      JOIN users u ON s.RegNo = u.RegNo
+                      JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+                      WHERE u.year = '$year'";
+    $quiz_per_year = $conn->query($quiz_per_year)->fetch_assoc();
+    
+    $performerQuery = $conn->query("SELECT s.RegNo,u.Name, SUM(s.percentage) as avg_percentage,u.Avatar,
+                                    SUM(s.Time) AS TotalTime
                                     FROM student s
                                     JOIN users u ON s.RegNo = u.RegNo
                                     JOIN quiz_Details q ON s.QuizId = q.Quiz_id
                                     WHERE u.year = '$year'".$whereConditions."
-                                    GROUP BY RegNo
-                                    ORDER BY AVG(s.percentage) DESC, MIN(s.Time) ASC 
+                                    GROUP BY s.RegNo
+                                    ORDER BY avg_percentage DESC, TotalTime ASC
                                     LIMIT 1");
             
         $performer = $performerQuery->fetch_assoc();
 
         if ($performer) {
             $RegNo = $performer['RegNo'];
-            $avgPercentage = number_format((float)$performer['avg_percentage'], 2, '.', '');
+            $avgPercentage = number_format((float)$performer['avg_percentage']/$quiz_per_year['totalQuiz'], 2, '.', '');
     
             // Fetch user details
             $detailsQuery = $conn->query("SELECT * FROM users WHERE RegNo = '$RegNo' LIMIT 1");
@@ -166,26 +173,46 @@ foreach ($years as $year) {
 
 $data['performers'] = $performers;
 
-// Query to fetch and convert time to seconds, then group them in 10-second intervals
-$completionTimeQuery = "
-    SELECT FLOOR(
-        TIME_TO_SEC(s.time) / 10
-    ) * 10 AS timeRange, COUNT(*) AS studentCount
+// completion time chart
+// Fetch the maximum time from the dataset
+$maxTimeQuery = "
+    SELECT MAX(TIME_TO_SEC(s.time)) AS maxTime
     FROM student s
     JOIN users u ON s.RegNo = u.RegNo
     JOIN quiz_Details q ON s.QuizId = q.Quiz_id
     WHERE 1";
-$completionTimeQuery.=$whereConditions;
-$completionTimeQuery.= " GROUP BY timeRange ORDER BY timeRange";
+$maxTimeQuery .= $whereConditions;
+$maxTimeResult = $conn->query($maxTimeQuery);
+$maxTimeRow = $maxTimeResult->fetch_assoc();
+$maxTime = $maxTimeRow['maxTime'];
+
+// Determine interval based on max time
+$interval = 10; 
+if ($maxTime > 3600) {  
+    $interval = 600; 
+} elseif ($maxTime > 60) {  
+    $interval = 60;
+}
+
+$completionTimeQuery = "
+    SELECT FLOOR(TIME_TO_SEC(s.time) / $interval) * $interval AS timeRange, COUNT(*) AS studentCount
+    FROM student s
+    JOIN users u ON s.RegNo = u.RegNo
+    JOIN quiz_Details q ON s.QuizId = q.Quiz_id
+    WHERE 1";
+$completionTimeQuery .= $whereConditions;
+$completionTimeQuery .= " GROUP BY timeRange ORDER BY timeRange";
 
 $completionTimeResult = $conn->query($completionTimeQuery);
 $completionTimeData = [];
 
 while ($row = $completionTimeResult->fetch_assoc()) {
-    $completionTimeData[] = [
-        'timeRange' => $row['timeRange'],
-        'studentCount' => $row['studentCount']
-    ];
+    if ($row['timeRange'] && $row['studentCount'] > 0) {
+        $completionTimeData[] = [
+            'timeRange' => (int) $row['timeRange'],
+            'studentCount' => (int) $row['studentCount']
+        ];
+    }
 }
 $data['completionTimeData'] = $completionTimeData;
 
@@ -204,10 +231,10 @@ $result = $conn->query($performanceQuery);
 
 // Initialize bins (0-9, 10-19, ..., 91-100)
 $ranges = [];
-for ($i = 0; $i <= 90; $i += 10) {
-    $ranges["$i-" . ($i + 9)] = 0;
+for ($i = 0; $i <90; $i += 10) {
+    $ranges["$i-" . ($i + 10)] = 0;
 }
-$ranges["91-100"] = 0; 
+$ranges["90-100"] = 0; 
 
 $data['fetched avg'] = '';
 $data['matched'] = '';
@@ -226,6 +253,7 @@ while ($row = $result->fetch_assoc()) {
             $count++;
             break;
         }
+        
         $data['inside loop'].= $score.' '.$range.' '. $count.'\n ';
     }
     unset($count); 

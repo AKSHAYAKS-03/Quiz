@@ -72,7 +72,7 @@ if (isset($_POST['Login_btn'])) {
         $_SESSION['log'] = TRUE;
         $_SESSION['message'] = "You are logged in";
         
-        header("Location: welcome.php");
+        header("Location: dashboard.php");
     }
     else{
       echo '<script>alert("Register Number doesn\'t exist");</script>';
@@ -108,10 +108,12 @@ $conn->close();
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Quiz Login</title>
+    <title>BrainBite</title>
+    <link rel="icon" type="image/png" href="BB-logo.png">
     <link rel="stylesheet" href="css/index.css">
     <script type="text/javascript" src="inspect.js"></script>
     <style>
+      
      body {
   background-color: white;  
   color: #13274F;
