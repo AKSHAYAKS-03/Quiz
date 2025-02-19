@@ -985,8 +985,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
            	 <label for="password" style="display:inline"><strong>Password:</strong></label>
            	 
           	  <br><br>
-                <input type="password" id="password" name="old_password" value="" placeholder="Old password" style="margin-left:10px;width:200px; height:24px; margin-bottom:20px" required> 
-           	     <input type="password" id="password" name="new_password" value="" placeholder="New password" style="margin-left:10px;width:200px; height:24px; " required>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="position: relative; width: 220px;">
+                        <input type="password" id="old_password" name="old_password" placeholder="Old password" 
+                            style="width:100%; height:30px; padding-right: 30px;" required> 
+                        <span id="toggleOldPassword" 
+                            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                            <img id="eyeIcon1" src="icons/eye_show.svg" alt="Show Password" width="18" height="14">
+                        </span>
+                    </div>
+
+                    <div style="position: relative; width: 220px;">
+                        <input type="password" id="new_password" name="new_password" placeholder="New password" 
+                            style="width:100%; height:30px; padding-right: 30px;" required>
+                            <span id="toggleNewPassword" 
+                                style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                                <img id="eyeIcon2" src="icons/eye_show.svg" alt="Show Password" width="18" height="14">
+                            </span>
+                    </div>
+                </div>
           	  <br><br>
           	  
           	 <button type="submit" name="update_password" id="saveBtn">Save</button><hr>
@@ -1192,6 +1209,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
  
 
     <script>
+        document.getElementById('toggleOldPassword').addEventListener('click', function() {
+            let passwordInput = document.getElementById('old_password');
+            let eyeIcon = document.getElementById('eyeIcon1');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.src = 'icons/eye_hide.svg'; 
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.src = 'icons/eye_show.svg'; 
+            }
+        });
+
+
+        document.getElementById('toggleNewPassword').addEventListener('click', function() {
+            let passwordInput = document.getElementById('new_password');
+            let eyeIcon = document.getElementById('eyeIcon2');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.src = 'icons/eye_hide.svg'; 
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.src = 'icons/eye_show.svg'; 
+            }
+        });
+
         let currentScroll = 0;
         const quizList = document.querySelector('.quiz-list');
         const prevButton = document.querySelector('.pagination button:first-child');
