@@ -94,11 +94,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
 
     $_SESSION['timeFormatted'] = $timeFormatted;
 
-    $student_active_quiz_query = "SELECT * FROM student WHERE RegNo = $RegNo AND QuizId = $activeQuizId";
-    $student_active_quiz = $conn->query($student_active_quiz_query);
-    $flag = false;
-    if($student_active_quiz->num_rows > 0){
-        $flag = true;        
+    if($activeQuizId === 'None'){
+        $flag = true;
+        $student_active_quiz_query = "SELECT * FROM student WHERE RegNo = $RegNo AND QuizId = $activeQuizId";
+        $student_active_quiz = $conn->query($student_active_quiz_query);
+        $flag = false;
+        if($student_active_quiz->num_rows > 0){
+            $flag = true;        
+        }
     }
 
     $regnoprefix = substr($RegNo, 0, 9);
@@ -847,18 +850,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
                 100% { transform: scale(1); }
             }
             .inactive-btn{
-        background-color: #13274F;
-        margin-top: 0px;
-        color: #fff;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 8px;
-        font-size: 18px;
-        font-weight: 500;
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-        
+                background-color: #13274F;
+                margin-top: 0px;
+                color: #fff;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: 500;
+                cursor: pointer;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+                
             }
 
             .active_quiz{
@@ -1127,7 +1130,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
                 }
                 
                 echo '</div></div>';                   
-        }        
+        } else{
+            echo '<div class="activequiz-item">
+            <div class="activequiz-icon"><i class="fas fa-bolt"></i></div>
+                <div class="activequiz-details"> <br>
+                <center>
+                    <h2>The next challenge is 
+                        <br>coming soon. 🚀</h2>
+                </center>
+                </div>
+            </div>';
+        }       
         ?>
         </div>
         <div class="line_chart card">
