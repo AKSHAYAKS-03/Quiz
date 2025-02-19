@@ -1,5 +1,6 @@
 <?php
 include 'core/db.php';
+include 'header.php';
 date_default_timezone_set('Asia/Kolkata');
 
 if (!isset($_SESSION['login']) || empty($_SESSION['login'])) {

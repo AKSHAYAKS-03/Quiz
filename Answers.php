@@ -1,5 +1,6 @@
 <?php
 include 'core/db.php';
+include 'header.php';
 // session_start();
 
 if (!isset($_SESSION['login']) || empty($_SESSION['login']) || 

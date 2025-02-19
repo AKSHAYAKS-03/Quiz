@@ -1,6 +1,6 @@
 <?php
 include_once 'core_db.php';
-
+include 'header.php';
 session_start();
 
 if (!$_SESSION['logged'] || $_SESSION['logged'] === '') {
@@ -40,7 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['activeQuiz'])) {
     }
 }
 
-$query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions,Active_NoOfQuestions, TimeDuration, TotalMarks, IsActive FROM quiz_details ORDER BY Quiz_Id DESC";
+$updateQuery = "UPDATE quiz_details 
+                SET Active_NoOfQuestions = 
+                    CASE 
+                        WHEN Active_NoOfQuestions = 0 THEN NumberOfQuestions
+                        ELSE LEAST(Active_NoOfQuestions, NumberOfQuestions)
+                    END";
+$conn->query($updateQuery);
+
+$query = "SELECT Quiz_Id, QuizName, QuizType, NumberOfQuestions,Active_NoOfQuestions, TimeDuration, TotalMarks, IsActive 
+          FROM quiz_details ORDER BY Quiz_Id DESC";
 $result = $conn->query($query);
  
 $endTime='';

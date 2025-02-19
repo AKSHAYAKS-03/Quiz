@@ -1,4 +1,3 @@
-
 <?php
 
 $servername = "localhost:3390";
@@ -18,6 +17,3 @@ if ($conn->connect_error) {
 }
 ?>
 
-<head>
-    <link rel="icon" type="image/png" href="BB-logo.png">
-</head>

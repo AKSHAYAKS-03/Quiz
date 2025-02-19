@@ -1,5 +1,6 @@
 <?php
 include_once 'core_db.php';
+include 'header.php';
 session_start();
 
 if (!$_SESSION['logged'] || $_SESSION['logged'] === '') {
@@ -20,13 +21,15 @@ if (isset($_POST['submit'])) {
     $shuffle = $_POST['shuffle'];
     $startTime = $_POST['startTime'];
     $endTime = $_POST['endTime'];
+    $activeQuestions = $_POST['activeQuestions'];
 
     $sql = "SELECT * FROM quiz_details WHERE QuizName = '$quizName'";
     $result = mysqli_query($conn, $sql);
     if (mysqli_num_rows($result) > 0) {
         $error = "Quiz already exists with the same name.";
     } else {
-        $sql = "INSERT INTO quiz_details (QuizName, QuizType, QuestionDuration, TimerType , QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime) VALUES ('$quizName', '$QuizType', '$quizTime','$TimerType', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
+        $sql = "INSERT INTO quiz_details (QuizName, QuizType, Active_NoOfQuestions, QuestionDuration, TimerType , QuestionMark, IsActive, isShuffle, CreatedBy, startingtime, EndTime)
+                VALUES ('$quizName', '$QuizType', '$activeQuestions', '$quizTime','$TimerType', '$quizMarks', '$isActive', '$shuffle', '$createdBy', '$startTime', '$endTime')";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
@@ -182,7 +185,7 @@ if (isset($_POST['submit'])) {
             </p>
 
         <?php endif; 
-        ?>
+        ?> 
         <div id="message"></div>
         <form action="Add_Quiz.php" id='quiz-form' method="post" class="one" onsubmit="return validateTime();">
             <div class="input-field">
@@ -222,6 +225,11 @@ if (isset($_POST['submit'])) {
                 <label for="quizMarks">Quiz Marks (per Question):</label>
                 <input type="text" id="quizMarks" name="quizMarks" value="1" required>
             </div>    
+
+            <div class="input-field">
+                <label for="activeQuestions">Active No.of Questions:</label>
+                <input type="text" id="activeQuestions" name="activeQuestions" required>
+            </div> 
 
             <div class="input-field">
                 <label for="timertype" id="timertype" style="margin-left : 55px">Timer Type:</label>

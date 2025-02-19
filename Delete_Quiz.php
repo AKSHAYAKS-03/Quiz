@@ -1,6 +1,7 @@
 <?php 
 
 include_once 'core_db.php';
+include 'header.php';
 session_start();
 
 if(!$_SESSION['logged'] || $_SESSION['logged']===''){

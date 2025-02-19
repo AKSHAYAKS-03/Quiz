@@ -1,5 +1,6 @@
 <?php
 include_once 'core_db.php';
+include 'header.php';
 session_start();
 
 if (!isset($_GET['quizId'], $_GET['Quiztype'], $_GET['name'])) {

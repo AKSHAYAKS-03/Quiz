@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>404 ERROR</title>
+    <link rel="icon" type="image/png" href="BB-logo.png">
     <style>
         body {
             font-family: Arial, sans-serif;

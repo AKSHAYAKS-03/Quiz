@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'core_db.php';
+include 'header.php';
 
 if (!isset($_SESSION['RegNo'])) {
     header('Location: index.php');
@@ -58,7 +59,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
 
     $timeParts = explode(':', $eachquestimer);
 
-
     if (count($timeParts) == 2) {
         $hours = 0;
         list($minutes, $seconds) = $timeParts;
@@ -69,20 +69,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
         $hours = $minutes = $seconds = 0;
     }
 
-
     $eachquestimer_in_seconds = ($hours * 3600) + ($minutes * 60) + $seconds;
-
-
     $activenoofques = ($active_no_of_questions == 0) 
         ? $total_no_of_questions 
         : min($active_no_of_questions, $total_no_of_questions);
 
-
     $activemarks = $activenoofques * $question_mark;
-
-
     $active_time = $activenoofques * $eachquestimer_in_seconds;
-
 
     $hours = floor($active_time / 3600); 
     $minutes = floor(($active_time % 3600) / 60); 
@@ -107,7 +100,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
     if($student_active_quiz->num_rows > 0){
         $flag = true;        
     }
-
 
     $regnoprefix = substr($RegNo, 0, 9);
     $all_quiz_query = "SELECT DISTINCT q.Quiz_id
@@ -232,12 +224,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
         //for all quizes display 
                 
         $sqlQuizzes = "
-        SELECT DISTINCT q.Quiz_id, q.QuizName, s.percentage
-        FROM quiz_details q
-        INNER JOIN student s ON q.Quiz_id = s.QuizId AND s.RegNo = '$RegNo'
-        WHERE s.RegNo = '$RegNo' AND q.Quiz_id <> '$activeQuizId'
-        ORDER BY q.Quiz_id DESC
-        ";
+            SELECT DISTINCT q.Quiz_id, q.QuizName, s.percentage
+            FROM quiz_details q
+            INNER JOIN student s ON q.Quiz_id = s.QuizId AND s.RegNo = '$RegNo'
+            WHERE s.RegNo = '$RegNo' AND q.Quiz_id <> '$activeQuizId'
+            ORDER BY q.Quiz_id DESC
+            ";
         
         $resultQuizzes = $conn->query($sqlQuizzes);
         

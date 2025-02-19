@@ -1,4 +1,5 @@
 <?php 
+    include 'header.php';
     session_start();
     $quiz = $_SESSION['QuizType']==0 ? "Fill Up" : "Multiple Choice"; 
 ?>

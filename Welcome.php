@@ -1,5 +1,6 @@
 <?php
 include 'core_db.php';
+include 'header.php';
 session_start();
 date_default_timezone_set('Asia/Kolkata');
 

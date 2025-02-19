@@ -1,5 +1,6 @@
 <?php
 include_once 'core_db.php';
+include 'header.php';
 session_start();
 
 if(!$_SESSION['logged'] || $_SESSION['logged']===''){
@@ -26,7 +27,7 @@ if($activeQuizId !== 'None'){
     $records = $conn->query($sql);
 }
 else {
-  $sql = "SSELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
+  $sql = "SELECT s.RegNo, s.Name, u.Department, u.Section, u.Year, s.QuizId, s.percentage, s.Score, s.Time
           FROM student s
           JOIN users u ON s.RegNo = u.RegNo ORDER BY CAST(s.RegNo as UNSIGNED)";
   $records = $conn->query($sql);

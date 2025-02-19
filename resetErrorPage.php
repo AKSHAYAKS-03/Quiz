@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+include 'header.php';
 // Check if session data exists
 if (!isset($_SESSION['Name'])) {
     echo "No reset data found.";

@@ -2,6 +2,7 @@
 
 session_start();
 include 'core_db.php';
+include 'header.php';
 
 // // Check if the user is logged in
 // if (!isset($_SESSION['rollno'])) {

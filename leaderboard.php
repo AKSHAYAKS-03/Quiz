@@ -1,5 +1,6 @@
 <?php
 include 'core_db.php';
+include 'header.php';
 session_start();
 
 $rollno = $_SESSION['RollNo'];

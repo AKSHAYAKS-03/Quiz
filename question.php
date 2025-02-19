@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'core_db.php';
+include 'header.php';
 date_default_timezone_set('Asia/Kolkata');
 
 if (!isset($_SESSION['RegNo']) || empty($_SESSION['RegNo'])) {
