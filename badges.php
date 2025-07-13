@@ -1,11 +1,7 @@
 <?php
-
-session_start();
-include 'core_db.php';
-include 'header.php';
-
+include_once '../core/header.php';
 // // Check if the user is logged in
-// if (!isset($_SESSION['rollno'])) {
+// if (!isset($_SESSION['RegNo'])) {
 //     header('Location: index.php');
 //     exit();
 // }
@@ -19,7 +15,7 @@ $sqlQuizzes = "SELECT * FROM quiz_details";
 $resultQuizzes = $conn->query($sqlQuizzes);
 
 // Fetch student details (scores and time)
-$sqlStudentDetails = "SELECT ID, QuizId, percentage, Time FROM student WHERE RollNo = $studentId";
+$sqlStudentDetails = "SELECT ID, QuizId, percentage, Time FROM student WHERE RegNo = $studentId";
 $resultStudentDetails = $conn->query($sqlStudentDetails);
 
 // Fetch the average score across all students
@@ -107,12 +103,12 @@ function assignBadge($studentId, $quizId, $badgeName) {
     $badgeImage = isset($badgeImages[$badgeName]) ? $badgeImages[$badgeName] : 'images/default_badge.png';
 
     // Check if the student already has this badge
-    $sqlCheckBadge = "SELECT * FROM badges WHERE RollNo = $studentId AND BadgeName = '$badgeName'";
+    $sqlCheckBadge = "SELECT * FROM badges WHERE RegNo = $studentId AND BadgeName = '$badgeName'";
     $resultCheckBadge = $conn->query($sqlCheckBadge);
 
     if ($resultCheckBadge->num_rows == 0) {
         // Insert the badge record with the image into the badges table
-        $sqlAssignBadge = "INSERT INTO badges (BadgeName, RollNo, BadgeImage) VALUES ('$badgeName', $studentId, '$badgeImage')";
+        $sqlAssignBadge = "INSERT INTO badges (BadgeName, RegNo, BadgeImage) VALUES ('$badgeName', $studentId, '$badgeImage')";
         if ($conn->query($sqlAssignBadge) === TRUE) {
             echo "Badge '$badgeName' assigned to student ID: $studentId.<br>";
         } else {

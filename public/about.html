@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/about.css">
+    <link rel="icon" type="image/png" href="../public/BB-logo.png">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="../assets/scripts/inspect.js"></script>
+    <title>Quiz Administration</title>    
+</head>
+<body>
+    <header>
+        <h1>Welcome to BrainBite Quiz!</h1>
+        <p>Manage Quiz, Timers, and Results Effectively</p>
+        <a href="../auth/logout.php" class="btn">Start Quiz</a>
+        <a href="../dashboard/admin.php" class="btn">Admin Panel</a>
+    </header>
+
+    <h2 class="h2">Admin Guidance</h2>
+    <div class="feature-container">
+        
+        <div class="feature">
+            <img src="../assets/icons/toggle-on.svg" alt="Active Icon">
+            <h3>Manage Active Quiz</h3>
+            <p>Activate a quiz for students to take. Only one quiz can be active at a time, and it will be shown to students once active.</p>
+        </div>
+        
+        <div class="feature">
+            <img src="../assets/icons/clock-solid.svg" alt="Clock Icon">
+                <h3>Set Timers</h3>
+                <p>Question Time: Alloted Time for each question.</br>Available Time: Total quiz duration. Students can take the quiz only within this period.</p>
+        </div>
+        
+        <div class="feature">
+            <img src="../assets/icons/view.svg" alt="View Icon">
+            <h3>Results Viewing</h3>
+            <p>Once the available time expires, students can view their results, including the questions they attended and the correct answers. Until then, they can only view their score.</p>
+        </div>
+        
+        <div class="feature">
+            <img src="../assets/icons/question.svg" alt="Question Icon">
+            <h3>Question Management</h3>
+            <p>Admin can add, edit, or update questions for the active quiz,including both MCQs and Fill-Up questions. Questions can be added manually or uploaded via Excel/CSV files.</p>
+        </div>
+        
+        <div class="feature">
+            <img src="../assets/icons/shuffle.svg" alt="Shuffle Icon">
+            <h3>Shuffling Questions and Options</h3>
+            <p>Questions and answer options can be shuffled to ensure fairness and prevent cheating.</p>
+        </div>
+        
+        <div class="feature">
+            <img src="../assets/icons/edit.svg" alt="Edit Icon">
+            <h3>Edit Quiz Settings</h3>
+            <p>Admins can modify the start and end times for the quiz, as well as the time allocated for each question, at any point before the quiz begins.</p>
+        </div>
+
+        <div class="feature">
+            <img src="../assets/icons/full-screen.svg" alt="Full Screen Icon">
+            <h3>Full-Screen Mode</h3>
+            <p>Students must be in full-screen mode while attending the quiz for an immersive experience, ensuring they focus on the quiz without distractions.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2024 BrainBite Quiz Application</p>
+        <p>Developed by Akshaya K S & Suriya Lakshmi M (CSE 2022-26)</p>
+        <p>Mentored by Ms. Shanthalakshmi Revathy J (Asst Prof II)</p>
+    </footer>
+</body>
+</html>

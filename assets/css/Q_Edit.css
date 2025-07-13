@@ -1,0 +1,93 @@
+ table {        
+    width: 100%;
+    border-collapse: collapse;
+    color:black;
+    background-color: #f9f9f9;
+}
+
+th {
+    background-color:rgb(211, 211, 211); 
+    color: black;
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.editable {
+    background-color: #f9f9f9;
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+.editable input, .editable textarea {
+    width: 100%;
+    font-size: inherit;
+    padding: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.action-buttons button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.save-btn {
+    background-color: #13274F;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #13274F;
+    color: white;
+}
+
+.save-btn:hover, .delete-btn:hover {
+    opacity: 0.8;
+}
+
+.img {
+    width: 100%;
+    text-align: center;
+}
+
+.img img {
+    max-width: 100%;
+    height: auto;
+}
+
+.img span {
+    display: block;
+    padding: 10px;
+}
+
+.img input {
+    margin-top: 10px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #13274F;
+    color: white;
+    padding: 10px;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+}
+    

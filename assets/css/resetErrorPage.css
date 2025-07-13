@@ -1,0 +1,86 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg,rgb(42, 64, 108), #13274F);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    background: #ffffff;
+    padding: 30px 50px;
+    border-radius: 15px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.container h1 {
+    color: #13274f;
+    font-size: 30px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.container p {
+    font-size: 16px;
+    color: #4b4b4b;
+    margin: 12px 0;
+    line-height: 1.8;
+    text-align: start;
+    margin-left: 30px;
+}
+
+.container p strong {
+    color: #2c3e50;
+}
+
+.btn.Logout {
+    border: none;
+    display: inline-block;
+    padding: 12px 30px;
+    margin-top: 25px;
+    background-color: #13274f;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn.Logout:hover {
+    background-color: #ffffff;
+    color: #13274f;
+    border: 1px solid #13274f;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 30px;
+    }
+
+    .container h1 {
+        font-size: 26px;
+    }
+
+    .btn.Logout {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}
+    
