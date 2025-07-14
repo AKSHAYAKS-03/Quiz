@@ -1,4 +1,4 @@
-# BrainBite - Secure Quiz Management Platform
+# BrainBite - Quiz Application
 
 **BrainBite** is a full-stack web-based quiz application built using PHP and MySQL. Designed for departmental and academic assessments, it ensures fairness through full-screen enforcement and session control, with a robust admin dashboard for managing quizzes, tracking scores, and exporting results.
 
