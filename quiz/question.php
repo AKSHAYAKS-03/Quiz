@@ -179,8 +179,6 @@ function agreeAndStart() {
         })
         .catch(error => console.error("Error:", error));
 
-    <?php $_SESSION['agreed'] = 1; ?>
-
     var elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();

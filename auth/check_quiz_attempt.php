@@ -16,7 +16,6 @@ $result2 = $conn->query("SELECT * FROM stud WHERE regno = '$RegNo' AND QuizId = 
 if ($result1->num_rows > 0 || $result2->num_rows > 0) {
     echo json_encode(["status" => "exists"]);  // User already attempted quiz
 } else {
-    $_SESSION['agreed'] = 1;  // Mark agreement session
     $stmt = $conn->prepare("INSERT INTO student (RegNo, QuizId) VALUES (?, ?)");
     $stmt->bind_param("si", $RegNo, $QuizId);
     $stmt->execute();

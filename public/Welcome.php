@@ -192,7 +192,7 @@ $conn->close();
 <div class="header">
     <h2><?php echo htmlspecialchars($_SESSION['quiz_name']); ?></h2>
          <a href="../dashboard/Dashboard.php" id="back" title="Back">
-            <img src="../assets/icons\back_white.svg" alt="back">
+            <img src="../assets/icons/back_white.svg" alt="back">
         </a>
     </div>
 

@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $uploadFile = 'NULL';
     if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] == 0) {     
         
-        $target_dir = __DIR__ . "/uploads/" . $quizId . "/";
+        $target_dir = __DIR__ . "../assets/uploads/" . $quizId . "/";
 
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true); // Create the folder and any necessary parent folders
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $extension = strtolower(pathinfo($FILES["upload_file"]["name"], PATHINFO_EXTENSION));
         // echo "Uploading " . $relative_path;
 
-        $relative_path = "uploads/" . $quizId . "/" .$questionNo . "." .$extension;
+        $relative_path = "../assets/uploads/" . $quizId . "/" .$questionNo . "." .$extension;
 
         $check = getimagesize($_FILES["upload_file"]["tmp_name"]);
         if ($check === false) {
@@ -104,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="../assets/scripts/inspect.js"></script>
     <link rel="stylesheet" type="text/css" href="../assets/css/Q_Add.css">
     <link rel="stylesheet" type="text/css" href="../assets/css/navigation.css">
-    <script src='../assets/scripts/DisableKeys_Fillup.js'></script>
 
     <style>
         body{

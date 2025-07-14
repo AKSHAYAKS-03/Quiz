@@ -61,20 +61,7 @@ window.onload = function() {
             setTimeout(() => {
                 modal.querySelector('.modal-content').classList.add('show-modal'); 
             }, 10);
-        }
-
-        function enterFullscreen() {
-            var elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            }
-        }
+        }    
 
         function handleFullscreenChange() {
             if (!document.fullscreenElement && !document.mozFullScreenElement && 
@@ -93,12 +80,13 @@ window.onload = function() {
             console.log('Quiz ID:', quizId);
             console.log("KEY CODE: ",keyCode, "TIME: ", time);
 
-            if((keyCode !== 91 && keyCode !== 92 && keyCode!==18))
+            if((keyCode !== 91 && keyCode !== 92 && keyCode!==18)){
                 keyCode = 27;
+            }
             console.log("here is the code", keyCode);
             console.log("KEY CODE: ",keyCode, "TIME: ", time);
             console.log('Roll Number:', regNo);
-            fetch('logKey.php', {
+            fetch('../../auth/logKey.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `key=${keyCode}&regNo=${regNo}&quizId=${quizId}`,
@@ -107,7 +95,7 @@ window.onload = function() {
                 .then(data => {
                     console.log(data);
                     // Now safely redirect
-                     window.location.href = 'final.php';
+                     window.location.href = '../../Quiz/final.php';
                 })
                 .catch(error => {
                     console.error('Error logging key:', error);
