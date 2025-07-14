@@ -5,9 +5,9 @@
 ---
 
 <p align="center">
-  <img src="assets/imgs/readmeImg1.jpg" alt="Screenshot 3" width="30%" />
-  <img src="assets/imgs/readmeImg2.jpg" alt="Screenshot 1" width="30%" />
-  <img src="assets/imgs/readmeImg3.jpg" alt="Screenshot 2" width="30%" />
+  <img src="assets/imgs/readmeImg3.jpg" alt="Screenshot 1" width="30%" />
+  <img src="assets/imgs/readmeImg1.jpg" alt="Screenshot 2" width="30%" />
+  <img src="assets/imgs/readmeImg2.jpg" alt="Screenshot 3" width="30%" />
 </p>
 
 ## 🚀 Features
