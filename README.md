@@ -1,4 +1,4 @@
-# 🧠 BrainBite - Secure Quiz Management Platform
+# BrainBite - Secure Quiz Management Platform
 
 **BrainBite** is a full-stack web-based quiz application built using PHP and MySQL. Designed for departmental and academic assessments, it ensures fairness through full-screen enforcement and session control, with a robust admin dashboard for managing quizzes, tracking scores, and exporting results.
 
@@ -10,9 +10,9 @@
   <img src="assets/imgs/readmeImg2.jpg" alt="Screenshot 3" width="30%" />
 </p>
 
-## 🚀 Features
+## Features
 
-### 👨‍🎓 Student Side
+### Student Side
 - Login using registration number
 - Access to **one active quiz at a time**
 - **Randomized question order** per student
@@ -21,7 +21,7 @@
 - **Tab-switch or full-screen exit immediately ends the quiz**
 - Results with score and answer review (available after quiz ends)
 
-### 🛠️ Admin Side
+### Admin Side
 - Create, activate, and deactivate quizzes
 - Add/edit/delete:
   - Multiple Choice Questions (MCQs)
@@ -33,7 +33,7 @@
 
 ---
 
-## 📦 Tech Stack
+## Tech Stack
 
 - **Frontend:** HTML, CSS, JavaScript, AJAX
 - **Backend:** PHP
@@ -51,7 +51,7 @@
 ---
 
 ## License
-© 2024 Suriya Lakshmi M](https://github.com/SURIYALAKSHMI29) & [Akshaya K S](https://github.com/AKSHAYAKS-03). All rights reserved.
+© 2024 [Suriya Lakshmi M](https://github.com/SURIYALAKSHMI29) & [Akshaya K S](https://github.com/AKSHAYAKS-03). All rights reserved.
 
 Permission is granted to use this software for **personal, non-commercial** purposes only. Redistribution, modification, or commercial use of this software is prohibited without prior approval from the authors.
 
