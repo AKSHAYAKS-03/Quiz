@@ -4,6 +4,10 @@
 
 ---
 
+![](assets/imgs/readmeImg1.jpg)
+![](assets/imgs/readmeImg2.jpg)
+![](assets/imgs/readmeImg3.jpg)
+
 ## 🚀 Features
 
 ### 👨‍🎓 Student Side
