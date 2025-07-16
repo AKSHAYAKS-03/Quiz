@@ -101,7 +101,6 @@ $question_duration_seconds =((int)$minutes * 60) + (int)$seconds;
 $total_duration_seconds = $_SESSION['Active_NoOfQuestions'] * $question_duration_seconds;
 
 $total_hours = floor($total_duration_seconds / 3600);
-$total_duration_seconds = $total_duration_seconds % 3600;
 $total_minutes = floor($total_duration_seconds / 60);
 $total_seconds = $total_duration_seconds % 60;
 $total_duration = sprintf('%02d:%02d:%02d', $total_hours,$total_minutes, $total_seconds);
@@ -122,11 +121,6 @@ $end_seconds = $end_time_seconds % 60;
 $end_time = sprintf('%02d:%02d', $end_minutes, $end_seconds);
 $_SESSION["end_time"] = $end_time;
 
-
-
-
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['start'])) {
         $result1 = $conn->query('SELECT * FROM student WHERE RegNo = ' . $RegNo . ' AND QuizId = ' . $activeQuizId);
@@ -136,8 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<script>alert('You already attended the quiz!');
             console.log('student & stud');</script>";
             $_SESSION['login'] = FALSE;
-            $_SESSION['logi'] = FALSE;
-            $_SESSION['log'] = FALSE;
             header('Refresh: 0.5; url=../index.php'); 
             exit;
         }
