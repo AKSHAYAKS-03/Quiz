@@ -8,6 +8,7 @@ if (!isset($_GET['regNo']) || !isset($_GET['quizId'])) {
 
 $RegNo = $_GET['regNo'];
 $QuizId = $_GET['quizId'];
+$attendedAt = date('Y-m-d');
 
 // Check if student already attempted in either `student` or `stud` table
 $result1 = $conn->query("SELECT * FROM student WHERE RegNo = '$RegNo' AND QuizId = '$QuizId'");
@@ -16,8 +17,8 @@ $result2 = $conn->query("SELECT * FROM stud WHERE regno = '$RegNo' AND QuizId = 
 if ($result1->num_rows > 0 || $result2->num_rows > 0) {
     echo json_encode(["status" => "exists"]);  // User already attempted quiz
 } else {
-    $stmt = $conn->prepare("INSERT INTO student (RegNo, QuizId) VALUES (?, ?)");
-    $stmt->bind_param("si", $RegNo, $QuizId);
+    $stmt = $conn->prepare("INSERT INTO student (RegNo, QuizId, Attended_At) VALUES (?, ?, ?)");
+    $stmt->bind_param("sis", $RegNo, $QuizId, $attendedAt);
     $stmt->execute();
 
     $stmt->close();
