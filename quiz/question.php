@@ -59,8 +59,8 @@ $conn->close();
 <head>
     <title>Quizze</title>
     <link rel="stylesheet" type="text/css" href="../assets/css/question.css">
-   <!-- <script src='inspect.js'></script> -->
-    <!-- <script src='DisableKeys.js'></script>  -->
+    <script src='../assets/scripts/inspect.js'></script> 
+    <script src='../assets/scripts/DisableKeys.js'></script>  
     <style>
        
     </style>
@@ -78,7 +78,6 @@ $conn->close();
         <div id="agreement">
             <h2>Terms of Quiz</h2>
             <div class="terms-box">
-                <!-- <h3 style="color: red;text-align: justify;">You are not allowed to switch screens during the quiz. Once you agree to start the quiz, you cannot attempt it again.</h3> -->
                 <h3 style="color: red;text-align: justify;">Attempting to exit fullscreen mode is considered as a violation. If this occurs, your quiz will be automatically terminated. Once you agree to start the quiz, you cannot attempt it again.</h3>
                 <p style="text-align: justify;">Each question is allocated a specific amount of time. If the timer runs out before you submit your answer, the question will be skipped automatically.</p>
                 <p style="text-align: justify;">If you do not select an answer for a question and move to the next one, it is not validated.</p>
@@ -92,8 +91,8 @@ $conn->close();
 
         <div id="quizContent" class="quizContent">
         <br>
-        <div id="response"></div> 
-        <div id="fullTimerDisplay"></div> 
+            <div id="response"></div> 
+            <div id="fullTimerDisplay"></div> 
 
         <center>
             <form id="quizForm">
