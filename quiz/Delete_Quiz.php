@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $stmt->close();
 
     $Quiz = ($quizType === 1) ? 'fillup' : 'multiple_choices';
-    if($quizType === 1){   // mcq -0; fill up - 1 
+    if($quizType === 1){   // mcq - 0; fill up - 1 
         $stmt = $conn->prepare("DELETE FROM answer_fillup WHERE QuizId = ?");
         $stmt->bind_param("s", $quizId);
         if (!$stmt->execute()) {
