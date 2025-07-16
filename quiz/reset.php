@@ -188,7 +188,9 @@ if (isset($_POST['pass'])) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        $conn->query("UPDATE admin SET Password='$pass'");
+        $hashedPassword = password_hash($pass, PASSWORD_DEFAULT);
+
+        $conn->query("UPDATE admin SET Password='$hashedPassword'");
 
         $conn->close();
     }

@@ -48,20 +48,25 @@ $_SESSION['logged'] = "";
 if (isset($_POST['username'])) {
     $uname =$_POST['username'];
     $password = $_POST['password'];
-   
-    $stmt = $conn->prepare("SELECT * FROM admin WHERE Admin = ? AND Password = ?");
-    $stmt->bind_param("ss", $uname, $password);
+
+    $stmt = $conn->prepare("SELECT Password FROM admin WHERE Admin = ?");
+    $stmt->bind_param("s", $uname);
     $stmt->execute();
-    
     $result = $stmt->get_result();
-    if ($result->num_rows == 1) {
-        $_SESSION['logged'] = TRUE;
-        header("Location:dashboard/admin.php");
-        exit();
+
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        $hashedPassword = $row['Password'];
+
+        if (password_verify($password, $hashedPassword)) {
+            $_SESSION['logged'] = TRUE;
+            header("Location: dashboard/admin.php");
+            exit();
+        } else {
+            echo "<script>alert('Incorrect password.');</script>";
+        }
     } else {
-        ?>
-        <script>alert("Enter the correct password");</script>
-        <?php
+        echo "<script>alert('User not found.');</script>";
     }
 }
 

@@ -258,9 +258,9 @@ if (isset($_POST['update_password'])) {
     $sql = "SELECT Avatar FROM users WHERE RegNo = '$RegNo'";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
-    $avatar = "../assets/".$row['Avatar'];
+    $avatar = $row['Avatar'];
 
-    $avatar = "../assets/".$avatar ? "../assets/".$avatar : "../assets/avatar/boy3.jpg";
+    $avatar = $avatar ? $avatar : "avatar/boy3.jpg";
 
     //get averagescore for all quizes for all students
     $totalquiz = 0;
@@ -340,6 +340,12 @@ if (isset($_POST['update_password'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.min.js"></script>
     <link rel="stylesheet" href="../assets/css/navigation.css"/>
     <link rel="stylesheet" href="../assets/css/dashboard.css"/>
+    <style>
+        .container { 
+            scale: 0.81;  
+            transform: scaleY(1.05); 
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -523,7 +529,7 @@ if (isset($_POST['update_password'])) {
                             <?php foreach ($quiz_labels as $index => $quiz_name): ?>
                                 <div class="quiz-item">
                                     <h2 style="color:black;" title="<?php echo $quiz_name; ?>"><?php echo $quiz_name; ?></h2>
-                                    <p>Score: <?php echo $scores[$index]; ?>%</p>
+                                    <p>Percentage: <?php echo $scores[$index]; ?>%</p>
                                     <button onclick="window.location.href='../quiz/Answers.php?quiz_id=<?php echo $quiz_ids[$index]; ?>'" class="view-answers">View Answers</button>
                                 </div>
                             <?php endforeach; ?>

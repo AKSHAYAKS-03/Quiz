@@ -200,7 +200,7 @@ $conn->close();
                 <?php if (!empty($question['img_path']) && trim($question['img_path']) !== '' && $question['img_path'] !== 'NULL'): ?>
 
                     <center>
-                        <img src="<?php echo htmlspecialchars($question['img_path']); ?>" 
+                        <img src="<?php echo "../assets/".htmlspecialchars($question['img_path']); ?>" 
                             alt="Question Image" class="question-img"
                             style="min-width:200px; min-height: 200px; max-width: 600px; max-height: 500px;">
                     </center>
