@@ -15,7 +15,7 @@ $result1 = $conn->query("SELECT * FROM student WHERE RegNo = '$RegNo' AND QuizId
 $result2 = $conn->query("SELECT * FROM stud WHERE regno = '$RegNo' AND QuizId = '$QuizId'");
 
 if ($result1->num_rows > 0 || $result2->num_rows > 0) {
-    echo json_encode(["status" => "exists"]);  // User already attempted quiz
+    echo json_encode(["status" => "exists"]);  // student already attempted quiz
 } else {
     $stmt = $conn->prepare("INSERT INTO student (RegNo, QuizId, Attended_At) VALUES (?, ?, ?)");
     $stmt->bind_param("sis", $RegNo, $QuizId, $attendedAt);
@@ -23,7 +23,7 @@ if ($result1->num_rows > 0 || $result2->num_rows > 0) {
 
     $stmt->close();
 
-    echo json_encode(["status" => "not_exists"]);  // User can take quiz
+    echo json_encode(["status" => "not_exists"]);  // student can take quiz
 }
 exit;
 ?>
